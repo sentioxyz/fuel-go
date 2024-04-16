@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"reflect"
+	"strconv"
+	"time"
 )
 
 // ====================
@@ -20,20 +23,91 @@ type Boolean bool
 type Bytes32 struct{ common.Hash }
 type ContractId struct{ common.Hash }
 type Float float64
+
+func (s *Float) UnmarshalJSON(raw []byte) error {
+	if f, err := UnmarshalJSONFloat(raw); err != nil {
+		return err
+	} else {
+		*s = Float(f)
+		return nil
+	}
+}
+
 type HexString struct{ hexutil.Bytes }
 type ID string
 type Int int32
+
+func (s *Int) UnmarshalJSON(raw []byte) error {
+	if i, err := UnmarshalJSONInt(raw); err != nil {
+		return err
+	} else {
+		*s = Int(i)
+		return nil
+	}
+}
+
 type Nonce string
 type Salt string
 type Signature struct{ hexutil.Bytes }
 type String string
-type Tai64Timestamp uint64
+type Tai64Timestamp struct{ time.Time }
 type TransactionId struct{ common.Hash }
 type TxPointer string
 type U32 uint32
+
+func (s *U32) UnmarshalJSON(raw []byte) error {
+	if i, err := UnmarshalJSONUInt(raw); err != nil {
+		return err
+	} else {
+		*s = U32(i)
+		return nil
+	}
+}
+
 type U64 uint64
+
+func (s *U64) UnmarshalJSON(raw []byte) error {
+	if i, err := UnmarshalJSONUInt(raw); err != nil {
+		return err
+	} else {
+		*s = U64(i)
+		return nil
+	}
+}
+
 type U8 uint8
+
+func (s *U8) UnmarshalJSON(raw []byte) error {
+	if i, err := UnmarshalJSONUInt(raw); err != nil {
+		return err
+	} else {
+		*s = U8(i)
+		return nil
+	}
+}
+
 type UtxoId struct{ common.Hash }
+
+func UnmarshalJSONUInt(raw []byte) (uint64, error) {
+	if len(raw) >= 2 && raw[0] == '"' && raw[len(raw)-1] == '"' {
+		raw = raw[1 : len(raw)-1]
+	}
+	return strconv.ParseUint(string(raw), 10, 64)
+}
+
+func UnmarshalJSONInt(raw []byte) (int64, error) {
+	if len(raw) >= 2 && raw[0] == '"' && raw[len(raw)-1] == '"' {
+		raw = raw[1 : len(raw)-1]
+	}
+	return strconv.ParseInt(string(raw), 10, 64)
+}
+
+func UnmarshalJSONFloat(raw []byte) (float64, error) {
+	if len(raw) >= 2 && raw[0] == '"' && raw[len(raw)-1] == '"' {
+		raw = raw[1 : len(raw)-1]
+	}
+	return strconv.ParseFloat(string(raw), 64)
+}
 
 // ====================
 // enum types
@@ -142,836 +216,836 @@ func (e *RunState) UnmarshalJSON(raw []byte) error {
 
 type Balance struct {
 	// SCHEMA: owner Address!
-	Owner Address
+	Owner Address `json:"owner"`
 	// SCHEMA: amount U64!
-	Amount U64
+	Amount U64 `json:"amount"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId
+	AssetId AssetId `json:"assetId"`
 }
 
 type BalanceConnection struct {
 	// Information to aid in pagination.
 	// SCHEMA: pageInfo PageInfo!
-	PageInfo PageInfo
+	PageInfo PageInfo `json:"pageInfo"`
 	// A list of edges.
 	// SCHEMA: edges [BalanceEdge!]!
-	Edges []BalanceEdge
+	Edges []BalanceEdge `json:"edges"`
 	// A list of nodes.
 	// SCHEMA: nodes [Balance!]!
-	Nodes []Balance
+	Nodes []Balance `json:"nodes"`
 }
 
 // An edge in a connection.
 type BalanceEdge struct {
 	// A cursor for use in pagination
 	// SCHEMA: cursor String!
-	Cursor String
+	Cursor String `json:"cursor"`
 	// The item at the end of the edge
 	// SCHEMA: node Balance!
-	Node Balance
+	Node Balance `json:"node"`
 }
 
 type Block struct {
 	// SCHEMA: id BlockId!
-	Id BlockId
+	Id BlockId `json:"id"`
 	// SCHEMA: header Header!
-	Header Header
+	Header Header `json:"header"`
 	// SCHEMA: consensus Consensus!
-	Consensus Consensus
+	Consensus Consensus `json:"consensus"`
 	// SCHEMA: transactions [Transaction!]!
-	Transactions []Transaction
+	Transactions []Transaction `json:"transactions"`
 }
 
 type BlockConnection struct {
 	// Information to aid in pagination.
 	// SCHEMA: pageInfo PageInfo!
-	PageInfo PageInfo
+	PageInfo PageInfo `json:"pageInfo"`
 	// A list of edges.
 	// SCHEMA: edges [BlockEdge!]!
-	Edges []BlockEdge
+	Edges []BlockEdge `json:"edges"`
 	// A list of nodes.
 	// SCHEMA: nodes [Block!]!
-	Nodes []Block
+	Nodes []Block `json:"nodes"`
 }
 
 // An edge in a connection.
 type BlockEdge struct {
 	// A cursor for use in pagination
 	// SCHEMA: cursor String!
-	Cursor String
+	Cursor String `json:"cursor"`
 	// The item at the end of the edge
 	// SCHEMA: node Block!
-	Node Block
+	Node Block `json:"node"`
 }
 
 type ChainInfo struct {
 	// SCHEMA: name String!
-	Name String
+	Name String `json:"name"`
 	// SCHEMA: latestBlock Block!
-	LatestBlock Block
+	LatestBlock Block `json:"latestBlock"`
 	// SCHEMA: daHeight U64!
-	DaHeight U64
+	DaHeight U64 `json:"daHeight"`
 	// SCHEMA: consensusParameters ConsensusParameters!
-	ConsensusParameters ConsensusParameters
+	ConsensusParameters ConsensusParameters `json:"consensusParameters"`
 	// SCHEMA: gasCosts GasCosts!
-	GasCosts GasCosts
+	GasCosts GasCosts `json:"gasCosts"`
 }
 
 type ChangeOutput struct {
 	// SCHEMA: to Address!
-	To Address
+	To Address `json:"to"`
 	// SCHEMA: amount U64!
-	Amount U64
+	Amount U64 `json:"amount"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId
+	AssetId AssetId `json:"assetId"`
 }
 
 type Coin struct {
 	// SCHEMA: utxoId UtxoId!
-	UtxoId UtxoId
+	UtxoId UtxoId `json:"utxoId"`
 	// SCHEMA: owner Address!
-	Owner Address
+	Owner Address `json:"owner"`
 	// SCHEMA: amount U64!
-	Amount U64
+	Amount U64 `json:"amount"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId
+	AssetId AssetId `json:"assetId"`
 	// SCHEMA: maturity U32!
-	Maturity U32
+	Maturity U32 `json:"maturity"`
 	// TxPointer - the height of the block this coin was created in
 	// SCHEMA: blockCreated U32!
-	BlockCreated U32
+	BlockCreated U32 `json:"blockCreated"`
 	// TxPointer - the index of the transaction that created this coin
 	// SCHEMA: txCreatedIdx U64!
-	TxCreatedIdx U64
+	TxCreatedIdx U64 `json:"txCreatedIdx"`
 }
 
 type CoinConnection struct {
 	// Information to aid in pagination.
 	// SCHEMA: pageInfo PageInfo!
-	PageInfo PageInfo
+	PageInfo PageInfo `json:"pageInfo"`
 	// A list of edges.
 	// SCHEMA: edges [CoinEdge!]!
-	Edges []CoinEdge
+	Edges []CoinEdge `json:"edges"`
 	// A list of nodes.
 	// SCHEMA: nodes [Coin!]!
-	Nodes []Coin
+	Nodes []Coin `json:"nodes"`
 }
 
 // An edge in a connection.
 type CoinEdge struct {
 	// A cursor for use in pagination
 	// SCHEMA: cursor String!
-	Cursor String
+	Cursor String `json:"cursor"`
 	// The item at the end of the edge
 	// SCHEMA: node Coin!
-	Node Coin
+	Node Coin `json:"node"`
 }
 
 type CoinOutput struct {
 	// SCHEMA: to Address!
-	To Address
+	To Address `json:"to"`
 	// SCHEMA: amount U64!
-	Amount U64
+	Amount U64 `json:"amount"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId
+	AssetId AssetId `json:"assetId"`
 }
 
 type ConsensusParameters struct {
 	// SCHEMA: txParams TxParameters!
-	TxParams TxParameters
+	TxParams TxParameters `json:"txParams"`
 	// SCHEMA: predicateParams PredicateParameters!
-	PredicateParams PredicateParameters
+	PredicateParams PredicateParameters `json:"predicateParams"`
 	// SCHEMA: scriptParams ScriptParameters!
-	ScriptParams ScriptParameters
+	ScriptParams ScriptParameters `json:"scriptParams"`
 	// SCHEMA: contractParams ContractParameters!
-	ContractParams ContractParameters
+	ContractParams ContractParameters `json:"contractParams"`
 	// SCHEMA: feeParams FeeParameters!
-	FeeParams FeeParameters
+	FeeParams FeeParameters `json:"feeParams"`
 	// SCHEMA: baseAssetId AssetId!
-	BaseAssetId AssetId
+	BaseAssetId AssetId `json:"baseAssetId"`
 	// SCHEMA: chainId U64!
-	ChainId U64
+	ChainId U64 `json:"chainId"`
 	// SCHEMA: gasCosts GasCosts!
-	GasCosts GasCosts
+	GasCosts GasCosts `json:"gasCosts"`
 }
 
 type Contract struct {
 	// SCHEMA: id ContractId!
-	Id ContractId
+	Id ContractId `json:"id"`
 	// SCHEMA: bytecode HexString!
-	Bytecode HexString
+	Bytecode HexString `json:"bytecode"`
 	// SCHEMA: salt Salt!
-	Salt Salt
+	Salt Salt `json:"salt"`
 }
 
 type ContractBalance struct {
 	// SCHEMA: contract ContractId!
-	Contract ContractId
+	Contract ContractId `json:"contract"`
 	// SCHEMA: amount U64!
-	Amount U64
+	Amount U64 `json:"amount"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId
+	AssetId AssetId `json:"assetId"`
 }
 
 type ContractBalanceConnection struct {
 	// Information to aid in pagination.
 	// SCHEMA: pageInfo PageInfo!
-	PageInfo PageInfo
+	PageInfo PageInfo `json:"pageInfo"`
 	// A list of edges.
 	// SCHEMA: edges [ContractBalanceEdge!]!
-	Edges []ContractBalanceEdge
+	Edges []ContractBalanceEdge `json:"edges"`
 	// A list of nodes.
 	// SCHEMA: nodes [ContractBalance!]!
-	Nodes []ContractBalance
+	Nodes []ContractBalance `json:"nodes"`
 }
 
 // An edge in a connection.
 type ContractBalanceEdge struct {
 	// A cursor for use in pagination
 	// SCHEMA: cursor String!
-	Cursor String
+	Cursor String `json:"cursor"`
 	// The item at the end of the edge
 	// SCHEMA: node ContractBalance!
-	Node ContractBalance
+	Node ContractBalance `json:"node"`
 }
 
 type ContractCreated struct {
 	// SCHEMA: contract Contract!
-	Contract Contract
+	Contract Contract `json:"contract"`
 	// SCHEMA: stateRoot Bytes32!
-	StateRoot Bytes32
+	StateRoot Bytes32 `json:"stateRoot"`
 }
 
 type ContractOutput struct {
 	// SCHEMA: inputIndex Int!
-	InputIndex Int
+	InputIndex Int `json:"inputIndex"`
 	// SCHEMA: balanceRoot Bytes32!
-	BalanceRoot Bytes32
+	BalanceRoot Bytes32 `json:"balanceRoot"`
 	// SCHEMA: stateRoot Bytes32!
-	StateRoot Bytes32
+	StateRoot Bytes32 `json:"stateRoot"`
 }
 
 type ContractParameters struct {
 	// SCHEMA: contractMaxSize U64!
-	ContractMaxSize U64
+	ContractMaxSize U64 `json:"contractMaxSize"`
 	// SCHEMA: maxStorageSlots U64!
-	MaxStorageSlots U64
+	MaxStorageSlots U64 `json:"maxStorageSlots"`
 }
 
 type FailureStatus struct {
 	// SCHEMA: transactionId TransactionId!
-	TransactionId TransactionId
+	TransactionId TransactionId `json:"transactionId"`
 	// SCHEMA: block Block!
-	Block Block
+	Block Block `json:"block"`
 	// SCHEMA: time Tai64Timestamp!
-	Time Tai64Timestamp
+	Time Tai64Timestamp `json:"time"`
 	// SCHEMA: reason String!
-	Reason String
+	Reason String `json:"reason"`
 	// SCHEMA: programState ProgramState
-	ProgramState *ProgramState
+	ProgramState *ProgramState `json:"programState"`
 	// SCHEMA: receipts [Receipt!]!
-	Receipts []Receipt
+	Receipts []Receipt `json:"receipts"`
 }
 
 type FeeParameters struct {
 	// SCHEMA: gasPriceFactor U64!
-	GasPriceFactor U64
+	GasPriceFactor U64 `json:"gasPriceFactor"`
 	// SCHEMA: gasPerByte U64!
-	GasPerByte U64
+	GasPerByte U64 `json:"gasPerByte"`
 }
 
 type GasCosts struct {
 	// SCHEMA: add U64!
-	Add U64
+	Add U64 `json:"add"`
 	// SCHEMA: addi U64!
-	Addi U64
+	Addi U64 `json:"addi"`
 	// SCHEMA: aloc U64!
-	Aloc U64
+	Aloc U64 `json:"aloc"`
 	// SCHEMA: and U64!
-	And U64
+	And U64 `json:"and"`
 	// SCHEMA: andi U64!
-	Andi U64
+	Andi U64 `json:"andi"`
 	// SCHEMA: bal U64!
-	Bal U64
+	Bal U64 `json:"bal"`
 	// SCHEMA: bhei U64!
-	Bhei U64
+	Bhei U64 `json:"bhei"`
 	// SCHEMA: bhsh U64!
-	Bhsh U64
+	Bhsh U64 `json:"bhsh"`
 	// SCHEMA: burn U64!
-	Burn U64
+	Burn U64 `json:"burn"`
 	// SCHEMA: cb U64!
-	Cb U64
+	Cb U64 `json:"cb"`
 	// SCHEMA: cfei U64!
-	Cfei U64
+	Cfei U64 `json:"cfei"`
 	// SCHEMA: cfsi U64!
-	Cfsi U64
+	Cfsi U64 `json:"cfsi"`
 	// SCHEMA: croo U64!
-	Croo U64
+	Croo U64 `json:"croo"`
 	// SCHEMA: div U64!
-	Div U64
+	Div U64 `json:"div"`
 	// SCHEMA: divi U64!
-	Divi U64
+	Divi U64 `json:"divi"`
 	// SCHEMA: ecr1 U64!
-	Ecr1 U64
+	Ecr1 U64 `json:"ecr1"`
 	// SCHEMA: eck1 U64!
-	Eck1 U64
+	Eck1 U64 `json:"eck1"`
 	// SCHEMA: ed19 U64!
-	Ed19 U64
+	Ed19 U64 `json:"ed19"`
 	// SCHEMA: eq U64!
-	Eq U64
+	Eq U64 `json:"eq"`
 	// SCHEMA: exp U64!
-	Exp U64
+	Exp U64 `json:"exp"`
 	// SCHEMA: expi U64!
-	Expi U64
+	Expi U64 `json:"expi"`
 	// SCHEMA: flag U64!
-	Flag U64
+	Flag U64 `json:"flag"`
 	// SCHEMA: gm U64!
-	Gm U64
+	Gm U64 `json:"gm"`
 	// SCHEMA: gt U64!
-	Gt U64
+	Gt U64 `json:"gt"`
 	// SCHEMA: gtf U64!
-	Gtf U64
+	Gtf U64 `json:"gtf"`
 	// SCHEMA: ji U64!
-	Ji U64
+	Ji U64 `json:"ji"`
 	// SCHEMA: jmp U64!
-	Jmp U64
+	Jmp U64 `json:"jmp"`
 	// SCHEMA: jne U64!
-	Jne U64
+	Jne U64 `json:"jne"`
 	// SCHEMA: jnei U64!
-	Jnei U64
+	Jnei U64 `json:"jnei"`
 	// SCHEMA: jnzi U64!
-	Jnzi U64
+	Jnzi U64 `json:"jnzi"`
 	// SCHEMA: jmpf U64!
-	Jmpf U64
+	Jmpf U64 `json:"jmpf"`
 	// SCHEMA: jmpb U64!
-	Jmpb U64
+	Jmpb U64 `json:"jmpb"`
 	// SCHEMA: jnzf U64!
-	Jnzf U64
+	Jnzf U64 `json:"jnzf"`
 	// SCHEMA: jnzb U64!
-	Jnzb U64
+	Jnzb U64 `json:"jnzb"`
 	// SCHEMA: jnef U64!
-	Jnef U64
+	Jnef U64 `json:"jnef"`
 	// SCHEMA: jneb U64!
-	Jneb U64
+	Jneb U64 `json:"jneb"`
 	// SCHEMA: lb U64!
-	Lb U64
+	Lb U64 `json:"lb"`
 	// SCHEMA: log U64!
-	Log U64
+	Log U64 `json:"log"`
 	// SCHEMA: lt U64!
-	Lt U64
+	Lt U64 `json:"lt"`
 	// SCHEMA: lw U64!
-	Lw U64
+	Lw U64 `json:"lw"`
 	// SCHEMA: mint U64!
-	Mint U64
+	Mint U64 `json:"mint"`
 	// SCHEMA: mlog U64!
-	Mlog U64
+	Mlog U64 `json:"mlog"`
 	// SCHEMA: modOp U64!
-	ModOp U64
+	ModOp U64 `json:"modOp"`
 	// SCHEMA: modi U64!
-	Modi U64
+	Modi U64 `json:"modi"`
 	// SCHEMA: moveOp U64!
-	MoveOp U64
+	MoveOp U64 `json:"moveOp"`
 	// SCHEMA: movi U64!
-	Movi U64
+	Movi U64 `json:"movi"`
 	// SCHEMA: mroo U64!
-	Mroo U64
+	Mroo U64 `json:"mroo"`
 	// SCHEMA: mul U64!
-	Mul U64
+	Mul U64 `json:"mul"`
 	// SCHEMA: muli U64!
-	Muli U64
+	Muli U64 `json:"muli"`
 	// SCHEMA: mldv U64!
-	Mldv U64
+	Mldv U64 `json:"mldv"`
 	// SCHEMA: noop U64!
-	Noop U64
+	Noop U64 `json:"noop"`
 	// SCHEMA: not U64!
-	Not U64
+	Not U64 `json:"not"`
 	// SCHEMA: or U64!
-	Or U64
+	Or U64 `json:"or"`
 	// SCHEMA: ori U64!
-	Ori U64
+	Ori U64 `json:"ori"`
 	// SCHEMA: poph U64!
-	Poph U64
+	Poph U64 `json:"poph"`
 	// SCHEMA: popl U64!
-	Popl U64
+	Popl U64 `json:"popl"`
 	// SCHEMA: pshh U64!
-	Pshh U64
+	Pshh U64 `json:"pshh"`
 	// SCHEMA: pshl U64!
-	Pshl U64
+	Pshl U64 `json:"pshl"`
 	// SCHEMA: ret U64!
-	Ret U64
+	Ret U64 `json:"ret"`
 	// SCHEMA: rvrt U64!
-	Rvrt U64
+	Rvrt U64 `json:"rvrt"`
 	// SCHEMA: sb U64!
-	Sb U64
+	Sb U64 `json:"sb"`
 	// SCHEMA: sll U64!
-	Sll U64
+	Sll U64 `json:"sll"`
 	// SCHEMA: slli U64!
-	Slli U64
+	Slli U64 `json:"slli"`
 	// SCHEMA: srl U64!
-	Srl U64
+	Srl U64 `json:"srl"`
 	// SCHEMA: srli U64!
-	Srli U64
+	Srli U64 `json:"srli"`
 	// SCHEMA: srw U64!
-	Srw U64
+	Srw U64 `json:"srw"`
 	// SCHEMA: sub U64!
-	Sub U64
+	Sub U64 `json:"sub"`
 	// SCHEMA: subi U64!
-	Subi U64
+	Subi U64 `json:"subi"`
 	// SCHEMA: sw U64!
-	Sw U64
+	Sw U64 `json:"sw"`
 	// SCHEMA: sww U64!
-	Sww U64
+	Sww U64 `json:"sww"`
 	// SCHEMA: time U64!
-	Time U64
+	Time U64 `json:"time"`
 	// SCHEMA: tr U64!
-	Tr U64
+	Tr U64 `json:"tr"`
 	// SCHEMA: tro U64!
-	Tro U64
+	Tro U64 `json:"tro"`
 	// SCHEMA: wdcm U64!
-	Wdcm U64
+	Wdcm U64 `json:"wdcm"`
 	// SCHEMA: wqcm U64!
-	Wqcm U64
+	Wqcm U64 `json:"wqcm"`
 	// SCHEMA: wdop U64!
-	Wdop U64
+	Wdop U64 `json:"wdop"`
 	// SCHEMA: wqop U64!
-	Wqop U64
+	Wqop U64 `json:"wqop"`
 	// SCHEMA: wdml U64!
-	Wdml U64
+	Wdml U64 `json:"wdml"`
 	// SCHEMA: wqml U64!
-	Wqml U64
+	Wqml U64 `json:"wqml"`
 	// SCHEMA: wddv U64!
-	Wddv U64
+	Wddv U64 `json:"wddv"`
 	// SCHEMA: wqdv U64!
-	Wqdv U64
+	Wqdv U64 `json:"wqdv"`
 	// SCHEMA: wdmd U64!
-	Wdmd U64
+	Wdmd U64 `json:"wdmd"`
 	// SCHEMA: wqmd U64!
-	Wqmd U64
+	Wqmd U64 `json:"wqmd"`
 	// SCHEMA: wdam U64!
-	Wdam U64
+	Wdam U64 `json:"wdam"`
 	// SCHEMA: wqam U64!
-	Wqam U64
+	Wqam U64 `json:"wqam"`
 	// SCHEMA: wdmm U64!
-	Wdmm U64
+	Wdmm U64 `json:"wdmm"`
 	// SCHEMA: wqmm U64!
-	Wqmm U64
+	Wqmm U64 `json:"wqmm"`
 	// SCHEMA: xor U64!
-	Xor U64
+	Xor U64 `json:"xor"`
 	// SCHEMA: xori U64!
-	Xori U64
+	Xori U64 `json:"xori"`
 	// SCHEMA: call DependentCost!
-	Call DependentCost
+	Call DependentCost `json:"call"`
 	// SCHEMA: ccp DependentCost!
-	Ccp DependentCost
+	Ccp DependentCost `json:"ccp"`
 	// SCHEMA: csiz DependentCost!
-	Csiz DependentCost
+	Csiz DependentCost `json:"csiz"`
 	// SCHEMA: k256 DependentCost!
-	K256 DependentCost
+	K256 DependentCost `json:"k256"`
 	// SCHEMA: ldc DependentCost!
-	Ldc DependentCost
+	Ldc DependentCost `json:"ldc"`
 	// SCHEMA: logd DependentCost!
-	Logd DependentCost
+	Logd DependentCost `json:"logd"`
 	// SCHEMA: mcl DependentCost!
-	Mcl DependentCost
+	Mcl DependentCost `json:"mcl"`
 	// SCHEMA: mcli DependentCost!
-	Mcli DependentCost
+	Mcli DependentCost `json:"mcli"`
 	// SCHEMA: mcp DependentCost!
-	Mcp DependentCost
+	Mcp DependentCost `json:"mcp"`
 	// SCHEMA: mcpi DependentCost!
-	Mcpi DependentCost
+	Mcpi DependentCost `json:"mcpi"`
 	// SCHEMA: meq DependentCost!
-	Meq DependentCost
+	Meq DependentCost `json:"meq"`
 	// SCHEMA: retd DependentCost!
-	Retd DependentCost
+	Retd DependentCost `json:"retd"`
 	// SCHEMA: s256 DependentCost!
-	S256 DependentCost
+	S256 DependentCost `json:"s256"`
 	// SCHEMA: scwq DependentCost!
-	Scwq DependentCost
+	Scwq DependentCost `json:"scwq"`
 	// SCHEMA: smo DependentCost!
-	Smo DependentCost
+	Smo DependentCost `json:"smo"`
 	// SCHEMA: srwq DependentCost!
-	Srwq DependentCost
+	Srwq DependentCost `json:"srwq"`
 	// SCHEMA: swwq DependentCost!
-	Swwq DependentCost
+	Swwq DependentCost `json:"swwq"`
 	// SCHEMA: contractRoot DependentCost!
-	ContractRoot DependentCost
+	ContractRoot DependentCost `json:"contractRoot"`
 	// SCHEMA: stateRoot DependentCost!
-	StateRoot DependentCost
+	StateRoot DependentCost `json:"stateRoot"`
 	// SCHEMA: vmInitialization DependentCost!
-	VmInitialization DependentCost
+	VmInitialization DependentCost `json:"vmInitialization"`
 	// SCHEMA: newStoragePerByte U64!
-	NewStoragePerByte U64
+	NewStoragePerByte U64 `json:"newStoragePerByte"`
 }
 
 type Genesis struct {
 	// The chain configs define what consensus type to use, what settlement layer to use,
 	// rules of block validity, etc.
 	// SCHEMA: chainConfigHash Bytes32!
-	ChainConfigHash Bytes32
+	ChainConfigHash Bytes32 `json:"chainConfigHash"`
 	// The Binary Merkle Tree root of all genesis coins.
 	// SCHEMA: coinsRoot Bytes32!
-	CoinsRoot Bytes32
+	CoinsRoot Bytes32 `json:"coinsRoot"`
 	// The Binary Merkle Tree root of state, balances, contracts code hash of each contract.
 	// SCHEMA: contractsRoot Bytes32!
-	ContractsRoot Bytes32
+	ContractsRoot Bytes32 `json:"contractsRoot"`
 	// The Binary Merkle Tree root of all genesis messages.
 	// SCHEMA: messagesRoot Bytes32!
-	MessagesRoot Bytes32
+	MessagesRoot Bytes32 `json:"messagesRoot"`
 }
 
 type Header struct {
 	// Hash of the header
 	// SCHEMA: id BlockId!
-	Id BlockId
+	Id BlockId `json:"id"`
 	// The layer 1 height of messages and events to include since the last layer 1 block number.
 	// SCHEMA: daHeight U64!
-	DaHeight U64
+	DaHeight U64 `json:"daHeight"`
 	// Number of transactions in this block.
 	// SCHEMA: transactionsCount U64!
-	TransactionsCount U64
+	TransactionsCount U64 `json:"transactionsCount"`
 	// Number of message receipts in this block.
 	// SCHEMA: messageReceiptCount U64!
-	MessageReceiptCount U64
+	MessageReceiptCount U64 `json:"messageReceiptCount"`
 	// Merkle root of transactions.
 	// SCHEMA: transactionsRoot Bytes32!
-	TransactionsRoot Bytes32
+	TransactionsRoot Bytes32 `json:"transactionsRoot"`
 	// Merkle root of message receipts in this block.
 	// SCHEMA: messageReceiptRoot Bytes32!
-	MessageReceiptRoot Bytes32
+	MessageReceiptRoot Bytes32 `json:"messageReceiptRoot"`
 	// Fuel block height.
 	// SCHEMA: height U32!
-	Height U32
+	Height U32 `json:"height"`
 	// Merkle root of all previous block header hashes.
 	// SCHEMA: prevRoot Bytes32!
-	PrevRoot Bytes32
+	PrevRoot Bytes32 `json:"prevRoot"`
 	// The block producer time.
 	// SCHEMA: time Tai64Timestamp!
-	Time Tai64Timestamp
+	Time Tai64Timestamp `json:"time"`
 	// Hash of the application header.
 	// SCHEMA: applicationHash Bytes32!
-	ApplicationHash Bytes32
+	ApplicationHash Bytes32 `json:"applicationHash"`
 }
 
 type HeavyOperation struct {
 	// SCHEMA: base U64!
-	Base U64
+	Base U64 `json:"base"`
 	// SCHEMA: gasPerUnit U64!
-	GasPerUnit U64
+	GasPerUnit U64 `json:"gasPerUnit"`
 }
 
 type InputCoin struct {
 	// SCHEMA: utxoId UtxoId!
-	UtxoId UtxoId
+	UtxoId UtxoId `json:"utxoId"`
 	// SCHEMA: owner Address!
-	Owner Address
+	Owner Address `json:"owner"`
 	// SCHEMA: amount U64!
-	Amount U64
+	Amount U64 `json:"amount"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId
+	AssetId AssetId `json:"assetId"`
 	// SCHEMA: txPointer TxPointer!
-	TxPointer TxPointer
+	TxPointer TxPointer `json:"txPointer"`
 	// SCHEMA: witnessIndex Int!
-	WitnessIndex Int
+	WitnessIndex Int `json:"witnessIndex"`
 	// SCHEMA: maturity U32!
-	Maturity U32
+	Maturity U32 `json:"maturity"`
 	// SCHEMA: predicateGasUsed U64!
-	PredicateGasUsed U64
+	PredicateGasUsed U64 `json:"predicateGasUsed"`
 	// SCHEMA: predicate HexString!
-	Predicate HexString
+	Predicate HexString `json:"predicate"`
 	// SCHEMA: predicateData HexString!
-	PredicateData HexString
+	PredicateData HexString `json:"predicateData"`
 }
 
 type InputContract struct {
 	// SCHEMA: utxoId UtxoId!
-	UtxoId UtxoId
+	UtxoId UtxoId `json:"utxoId"`
 	// SCHEMA: balanceRoot Bytes32!
-	BalanceRoot Bytes32
+	BalanceRoot Bytes32 `json:"balanceRoot"`
 	// SCHEMA: stateRoot Bytes32!
-	StateRoot Bytes32
+	StateRoot Bytes32 `json:"stateRoot"`
 	// SCHEMA: txPointer TxPointer!
-	TxPointer TxPointer
+	TxPointer TxPointer `json:"txPointer"`
 	// SCHEMA: contract Contract!
-	Contract Contract
+	Contract Contract `json:"contract"`
 }
 
 type InputMessage struct {
 	// SCHEMA: sender Address!
-	Sender Address
+	Sender Address `json:"sender"`
 	// SCHEMA: recipient Address!
-	Recipient Address
+	Recipient Address `json:"recipient"`
 	// SCHEMA: amount U64!
-	Amount U64
+	Amount U64 `json:"amount"`
 	// SCHEMA: nonce Nonce!
-	Nonce Nonce
+	Nonce Nonce `json:"nonce"`
 	// SCHEMA: witnessIndex Int!
-	WitnessIndex Int
+	WitnessIndex Int `json:"witnessIndex"`
 	// SCHEMA: predicateGasUsed U64!
-	PredicateGasUsed U64
+	PredicateGasUsed U64 `json:"predicateGasUsed"`
 	// SCHEMA: data HexString!
-	Data HexString
+	Data HexString `json:"data"`
 	// SCHEMA: predicate HexString!
-	Predicate HexString
+	Predicate HexString `json:"predicate"`
 	// SCHEMA: predicateData HexString!
-	PredicateData HexString
+	PredicateData HexString `json:"predicateData"`
 }
 
 type LightOperation struct {
 	// SCHEMA: base U64!
-	Base U64
+	Base U64 `json:"base"`
 	// SCHEMA: unitsPerGas U64!
-	UnitsPerGas U64
+	UnitsPerGas U64 `json:"unitsPerGas"`
 }
 
 type MerkleProof struct {
 	// SCHEMA: proofSet [Bytes32!]!
-	ProofSet []Bytes32
+	ProofSet []Bytes32 `json:"proofSet"`
 	// SCHEMA: proofIndex U64!
-	ProofIndex U64
+	ProofIndex U64 `json:"proofIndex"`
 }
 
 type Message struct {
 	// SCHEMA: amount U64!
-	Amount U64
+	Amount U64 `json:"amount"`
 	// SCHEMA: sender Address!
-	Sender Address
+	Sender Address `json:"sender"`
 	// SCHEMA: recipient Address!
-	Recipient Address
+	Recipient Address `json:"recipient"`
 	// SCHEMA: nonce Nonce!
-	Nonce Nonce
+	Nonce Nonce `json:"nonce"`
 	// SCHEMA: data HexString!
-	Data HexString
+	Data HexString `json:"data"`
 	// SCHEMA: daHeight U64!
-	DaHeight U64
+	DaHeight U64 `json:"daHeight"`
 }
 
 type MessageCoin struct {
 	// SCHEMA: sender Address!
-	Sender Address
+	Sender Address `json:"sender"`
 	// SCHEMA: recipient Address!
-	Recipient Address
+	Recipient Address `json:"recipient"`
 	// SCHEMA: nonce Nonce!
-	Nonce Nonce
+	Nonce Nonce `json:"nonce"`
 	// SCHEMA: amount U64!
-	Amount U64
+	Amount U64 `json:"amount"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId
+	AssetId AssetId `json:"assetId"`
 	// SCHEMA: daHeight U64!
-	DaHeight U64
+	DaHeight U64 `json:"daHeight"`
 }
 
 type MessageConnection struct {
 	// Information to aid in pagination.
 	// SCHEMA: pageInfo PageInfo!
-	PageInfo PageInfo
+	PageInfo PageInfo `json:"pageInfo"`
 	// A list of edges.
 	// SCHEMA: edges [MessageEdge!]!
-	Edges []MessageEdge
+	Edges []MessageEdge `json:"edges"`
 	// A list of nodes.
 	// SCHEMA: nodes [Message!]!
-	Nodes []Message
+	Nodes []Message `json:"nodes"`
 }
 
 // An edge in a connection.
 type MessageEdge struct {
 	// A cursor for use in pagination
 	// SCHEMA: cursor String!
-	Cursor String
+	Cursor String `json:"cursor"`
 	// The item at the end of the edge
 	// SCHEMA: node Message!
-	Node Message
+	Node Message `json:"node"`
 }
 
 type MessageProof struct {
 	// SCHEMA: messageProof MerkleProof!
-	MessageProof MerkleProof
+	MessageProof MerkleProof `json:"messageProof"`
 	// SCHEMA: blockProof MerkleProof!
-	BlockProof MerkleProof
+	BlockProof MerkleProof `json:"blockProof"`
 	// SCHEMA: messageBlockHeader Header!
-	MessageBlockHeader Header
+	MessageBlockHeader Header `json:"messageBlockHeader"`
 	// SCHEMA: commitBlockHeader Header!
-	CommitBlockHeader Header
+	CommitBlockHeader Header `json:"commitBlockHeader"`
 	// SCHEMA: sender Address!
-	Sender Address
+	Sender Address `json:"sender"`
 	// SCHEMA: recipient Address!
-	Recipient Address
+	Recipient Address `json:"recipient"`
 	// SCHEMA: nonce Nonce!
-	Nonce Nonce
+	Nonce Nonce `json:"nonce"`
 	// SCHEMA: amount U64!
-	Amount U64
+	Amount U64 `json:"amount"`
 	// SCHEMA: data HexString!
-	Data HexString
+	Data HexString `json:"data"`
 }
 
 type MessageStatus struct {
 	// SCHEMA: state MessageState!
-	State MessageState
+	State MessageState `json:"state"`
 }
 
 type Mutation struct {
 	// SCHEMA: startSession ID!
-	StartSession ID
+	StartSession ID `json:"startSession"`
 	// SCHEMA: endSession Boolean!
-	EndSession Boolean
+	EndSession Boolean `json:"endSession"`
 	// SCHEMA: reset Boolean!
-	Reset Boolean
+	Reset Boolean `json:"reset"`
 	// SCHEMA: execute Boolean!
-	Execute Boolean
+	Execute Boolean `json:"execute"`
 	// SCHEMA: setSingleStepping Boolean!
-	SetSingleStepping Boolean
+	SetSingleStepping Boolean `json:"setSingleStepping"`
 	// SCHEMA: setBreakpoint Boolean!
-	SetBreakpoint Boolean
+	SetBreakpoint Boolean `json:"setBreakpoint"`
 	// SCHEMA: startTx RunResult!
-	StartTx RunResult
+	StartTx RunResult `json:"startTx"`
 	// SCHEMA: continueTx RunResult!
-	ContinueTx RunResult
+	ContinueTx RunResult `json:"continueTx"`
 	// Execute a dry-run of the transaction using a fork of current state, no changes are committed.
 	// SCHEMA: dryRun [Receipt!]!
-	DryRun []Receipt
+	DryRun []Receipt `json:"dryRun"`
 	// Submits transaction to the `TxPool`.
 	//
 	// Returns submitted transaction if the transaction is included in the `TxPool` without problems.
 	// SCHEMA: submit Transaction!
-	Submit Transaction
+	Submit Transaction `json:"submit"`
 	// Sequentially produces `blocks_to_produce` blocks. The first block starts with
 	// `start_timestamp`. If the block production in the [`crate::service::Config`] is
 	// `Trigger::Interval { block_time }`, produces blocks with `block_time ` intervals between
 	// them. The `start_timestamp` is the timestamp in seconds.
 	// SCHEMA: produceBlocks U32!
-	ProduceBlocks U32
+	ProduceBlocks U32 `json:"produceBlocks"`
 }
 
 type NodeInfo struct {
 	// SCHEMA: utxoValidation Boolean!
-	UtxoValidation Boolean
+	UtxoValidation Boolean `json:"utxoValidation"`
 	// SCHEMA: vmBacktrace Boolean!
-	VmBacktrace Boolean
+	VmBacktrace Boolean `json:"vmBacktrace"`
 	// SCHEMA: minGasPrice U64!
-	MinGasPrice U64
+	MinGasPrice U64 `json:"minGasPrice"`
 	// SCHEMA: maxTx U64!
-	MaxTx U64
+	MaxTx U64 `json:"maxTx"`
 	// SCHEMA: maxDepth U64!
-	MaxDepth U64
+	MaxDepth U64 `json:"maxDepth"`
 	// SCHEMA: nodeVersion String!
-	NodeVersion String
+	NodeVersion String `json:"nodeVersion"`
 	// SCHEMA: peers [PeerInfo!]!
-	Peers []PeerInfo
+	Peers []PeerInfo `json:"peers"`
 }
 
 // A separate `Breakpoint` type to be used as an output, as a single
 // type cannot act as both input and output type in async-graphql
 type OutputBreakpoint struct {
 	// SCHEMA: contract ContractId!
-	Contract ContractId
+	Contract ContractId `json:"contract"`
 	// SCHEMA: pc U64!
-	Pc U64
+	Pc U64 `json:"pc"`
 }
 
 // Information about pagination in a connection
 type PageInfo struct {
 	// When paginating backwards, are there more items?
 	// SCHEMA: hasPreviousPage Boolean!
-	HasPreviousPage Boolean
+	HasPreviousPage Boolean `json:"hasPreviousPage"`
 	// When paginating forwards, are there more items?
 	// SCHEMA: hasNextPage Boolean!
-	HasNextPage Boolean
+	HasNextPage Boolean `json:"hasNextPage"`
 	// When paginating backwards, the cursor to continue.
 	// SCHEMA: startCursor String
-	StartCursor *String
+	StartCursor *String `json:"startCursor"`
 	// When paginating forwards, the cursor to continue.
 	// SCHEMA: endCursor String
-	EndCursor *String
+	EndCursor *String `json:"endCursor"`
 }
 
 type PeerInfo struct {
 	// The libp2p peer id
 	// SCHEMA: id String!
-	Id String
+	Id String `json:"id"`
 	// The advertised multi-addrs that can be used to connect to this peer
 	// SCHEMA: addresses [String!]!
-	Addresses []String
+	Addresses []String `json:"addresses"`
 	// The self-reported version of the client the peer is using
 	// SCHEMA: clientVersion String
-	ClientVersion *String
+	ClientVersion *String `json:"clientVersion"`
 	// The last reported height of the peer
 	// SCHEMA: blockHeight U32
-	BlockHeight *U32
+	BlockHeight *U32 `json:"blockHeight"`
 	// The last heartbeat from this peer in unix epoch time ms
 	// SCHEMA: lastHeartbeatMs U64!
-	LastHeartbeatMs U64
+	LastHeartbeatMs U64 `json:"lastHeartbeatMs"`
 	// The internal fuel p2p reputation of this peer
 	// SCHEMA: appScore Float!
-	AppScore Float
+	AppScore Float `json:"appScore"`
 }
 
 type PoAConsensus struct {
 	// Gets the signature of the block produced by `PoA` consensus.
 	// SCHEMA: signature Signature!
-	Signature Signature
+	Signature Signature `json:"signature"`
 }
 
 type Policies struct {
 	// SCHEMA: gasPrice U64
-	GasPrice *U64
+	GasPrice *U64 `json:"gasPrice"`
 	// SCHEMA: witnessLimit U64
-	WitnessLimit *U64
+	WitnessLimit *U64 `json:"witnessLimit"`
 	// SCHEMA: maturity U32
-	Maturity *U32
+	Maturity *U32 `json:"maturity"`
 	// SCHEMA: maxFee U64
-	MaxFee *U64
+	MaxFee *U64 `json:"maxFee"`
 }
 
 type PredicateParameters struct {
 	// SCHEMA: maxPredicateLength U64!
-	MaxPredicateLength U64
+	MaxPredicateLength U64 `json:"maxPredicateLength"`
 	// SCHEMA: maxPredicateDataLength U64!
-	MaxPredicateDataLength U64
+	MaxPredicateDataLength U64 `json:"maxPredicateDataLength"`
 	// SCHEMA: maxGasPerPredicate U64!
-	MaxGasPerPredicate U64
+	MaxGasPerPredicate U64 `json:"maxGasPerPredicate"`
 	// SCHEMA: maxMessageDataLength U64!
-	MaxMessageDataLength U64
+	MaxMessageDataLength U64 `json:"maxMessageDataLength"`
 }
 
 type ProgramState struct {
 	// SCHEMA: returnType ReturnType!
-	ReturnType ReturnType
+	ReturnType ReturnType `json:"returnType"`
 	// SCHEMA: data HexString!
-	Data HexString
+	Data HexString `json:"data"`
 }
 
 type Query struct {
 	// SCHEMA: register U64!
-	Register U64
+	Register U64 `json:"register"`
 	// SCHEMA: memory String!
-	Memory String
+	Memory String `json:"memory"`
 	// SCHEMA: balance Balance!
-	Balance Balance
+	Balance Balance `json:"balance"`
 	// SCHEMA: balances BalanceConnection!
-	Balances BalanceConnection
+	Balances BalanceConnection `json:"balances"`
 	// SCHEMA: block Block
-	Block *Block
+	Block *Block `json:"block"`
 	// SCHEMA: blocks BlockConnection!
-	Blocks BlockConnection
+	Blocks BlockConnection `json:"blocks"`
 	// SCHEMA: chain ChainInfo!
-	Chain ChainInfo
+	Chain ChainInfo `json:"chain"`
 	// SCHEMA: transaction Transaction
-	Transaction *Transaction
+	Transaction *Transaction `json:"transaction"`
 	// SCHEMA: transactions TransactionConnection!
-	Transactions TransactionConnection
+	Transactions TransactionConnection `json:"transactions"`
 	// SCHEMA: transactionsByOwner TransactionConnection!
-	TransactionsByOwner TransactionConnection
+	TransactionsByOwner TransactionConnection `json:"transactionsByOwner"`
 	// Estimate the predicate gas for the provided transaction
 	// SCHEMA: estimatePredicates Transaction!
-	EstimatePredicates Transaction
+	EstimatePredicates Transaction `json:"estimatePredicates"`
 	// Returns true when the GraphQL API is serving requests.
 	// SCHEMA: health Boolean!
-	Health Boolean
+	Health Boolean `json:"health"`
 	// Gets the coin by `utxo_id`.
 	// SCHEMA: coin Coin
-	Coin *Coin
+	Coin *Coin `json:"coin"`
 	// Gets all unspent coins of some `owner` maybe filtered with by `asset_id` per page.
 	// SCHEMA: coins CoinConnection!
-	Coins CoinConnection
+	Coins CoinConnection `json:"coins"`
 	// For each `query_per_asset`, get some spendable coins(of asset specified by the query) owned by
 	// `owner` that add up at least the query amount. The returned coins can be spent.
 	// The number of coins is optimized to prevent dust accumulation.
@@ -983,106 +1057,106 @@ type Query struct {
 	// the same as the length of `query_per_asset`. The ordering of assets and `query_per_asset`
 	// is the same.
 	// SCHEMA: coinsToSpend [[CoinType!]!]!
-	CoinsToSpend [][]CoinType
+	CoinsToSpend [][]CoinType `json:"coinsToSpend"`
 	// SCHEMA: contract Contract
-	Contract *Contract
+	Contract *Contract `json:"contract"`
 	// SCHEMA: contractBalance ContractBalance!
-	ContractBalance ContractBalance
+	ContractBalance ContractBalance `json:"contractBalance"`
 	// SCHEMA: contractBalances ContractBalanceConnection!
-	ContractBalances ContractBalanceConnection
+	ContractBalances ContractBalanceConnection `json:"contractBalances"`
 	// SCHEMA: nodeInfo NodeInfo!
-	NodeInfo NodeInfo
+	NodeInfo NodeInfo `json:"nodeInfo"`
 	// SCHEMA: messages MessageConnection!
-	Messages MessageConnection
+	Messages MessageConnection `json:"messages"`
 	// SCHEMA: messageProof MessageProof
-	MessageProof *MessageProof
+	MessageProof *MessageProof `json:"messageProof"`
 	// SCHEMA: messageStatus MessageStatus!
-	MessageStatus MessageStatus
+	MessageStatus MessageStatus `json:"messageStatus"`
 }
 
 type Receipt struct {
 	// SCHEMA: contract Contract
-	Contract *Contract
+	Contract *Contract `json:"contract"`
 	// SCHEMA: pc U64
-	Pc *U64
+	Pc *U64 `json:"pc"`
 	// SCHEMA: is U64
-	Is *U64
+	Is *U64 `json:"is"`
 	// SCHEMA: to Contract
-	To *Contract
+	To *Contract `json:"to"`
 	// SCHEMA: toAddress Address
-	ToAddress *Address
+	ToAddress *Address `json:"toAddress"`
 	// SCHEMA: amount U64
-	Amount *U64
+	Amount *U64 `json:"amount"`
 	// SCHEMA: assetId AssetId
-	AssetId *AssetId
+	AssetId *AssetId `json:"assetId"`
 	// SCHEMA: gas U64
-	Gas *U64
+	Gas *U64 `json:"gas"`
 	// SCHEMA: param1 U64
-	Param1 *U64
+	Param1 *U64 `json:"param1"`
 	// SCHEMA: param2 U64
-	Param2 *U64
+	Param2 *U64 `json:"param2"`
 	// SCHEMA: val U64
-	Val *U64
+	Val *U64 `json:"val"`
 	// SCHEMA: ptr U64
-	Ptr *U64
+	Ptr *U64 `json:"ptr"`
 	// SCHEMA: digest Bytes32
-	Digest *Bytes32
+	Digest *Bytes32 `json:"digest"`
 	// SCHEMA: reason U64
-	Reason *U64
+	Reason *U64 `json:"reason"`
 	// SCHEMA: ra U64
-	Ra *U64
+	Ra *U64 `json:"ra"`
 	// SCHEMA: rb U64
-	Rb *U64
+	Rb *U64 `json:"rb"`
 	// SCHEMA: rc U64
-	Rc *U64
+	Rc *U64 `json:"rc"`
 	// SCHEMA: rd U64
-	Rd *U64
+	Rd *U64 `json:"rd"`
 	// SCHEMA: len U64
-	Len *U64
+	Len *U64 `json:"len"`
 	// SCHEMA: receiptType ReceiptType!
-	ReceiptType ReceiptType
+	ReceiptType ReceiptType `json:"receiptType"`
 	// SCHEMA: result U64
-	Result *U64
+	Result *U64 `json:"result"`
 	// SCHEMA: gasUsed U64
-	GasUsed *U64
+	GasUsed *U64 `json:"gasUsed"`
 	// SCHEMA: data HexString
-	Data *HexString
+	Data *HexString `json:"data"`
 	// SCHEMA: sender Address
-	Sender *Address
+	Sender *Address `json:"sender"`
 	// SCHEMA: recipient Address
-	Recipient *Address
+	Recipient *Address `json:"recipient"`
 	// SCHEMA: nonce Nonce
-	Nonce *Nonce
+	Nonce *Nonce `json:"nonce"`
 	// SCHEMA: contractId ContractId
-	ContractId *ContractId
+	ContractId *ContractId `json:"contractId"`
 	// SCHEMA: subId Bytes32
-	SubId *Bytes32
+	SubId *Bytes32 `json:"subId"`
 }
 
 type RunResult struct {
 	// SCHEMA: state RunState!
-	State RunState
+	State RunState `json:"state"`
 	// SCHEMA: breakpoint OutputBreakpoint
-	Breakpoint *OutputBreakpoint
+	Breakpoint *OutputBreakpoint `json:"breakpoint"`
 	// SCHEMA: jsonReceipts [String!]!
-	JsonReceipts []String
+	JsonReceipts []String `json:"jsonReceipts"`
 }
 
 type ScriptParameters struct {
 	// SCHEMA: maxScriptLength U64!
-	MaxScriptLength U64
+	MaxScriptLength U64 `json:"maxScriptLength"`
 	// SCHEMA: maxScriptDataLength U64!
-	MaxScriptDataLength U64
+	MaxScriptDataLength U64 `json:"maxScriptDataLength"`
 }
 
 type SqueezedOutStatus struct {
 	// SCHEMA: reason String!
-	Reason String
+	Reason String `json:"reason"`
 }
 
 type SubmittedStatus struct {
 	// SCHEMA: time Tai64Timestamp!
-	Time Tai64Timestamp
+	Time Tai64Timestamp `json:"time"`
 }
 
 type Subscription struct {
@@ -1099,127 +1173,127 @@ type Subscription struct {
 	// a status. If this occurs the stream can simply be restarted to return
 	// the latest status.
 	// SCHEMA: statusChange TransactionStatus!
-	StatusChange TransactionStatus
+	StatusChange TransactionStatus `json:"statusChange"`
 	// Submits transaction to the `TxPool` and await either confirmation or failure.
 	// SCHEMA: submitAndAwait TransactionStatus!
-	SubmitAndAwait TransactionStatus
+	SubmitAndAwait TransactionStatus `json:"submitAndAwait"`
 }
 
 type SuccessStatus struct {
 	// SCHEMA: transactionId TransactionId!
-	TransactionId TransactionId
+	TransactionId TransactionId `json:"transactionId"`
 	// SCHEMA: block Block!
-	Block Block
+	Block Block `json:"block"`
 	// SCHEMA: time Tai64Timestamp!
-	Time Tai64Timestamp
+	Time Tai64Timestamp `json:"time"`
 	// SCHEMA: programState ProgramState
-	ProgramState *ProgramState
+	ProgramState *ProgramState `json:"programState"`
 	// SCHEMA: receipts [Receipt!]!
-	Receipts []Receipt
+	Receipts []Receipt `json:"receipts"`
 }
 
 type Transaction struct {
 	// SCHEMA: id TransactionId!
-	Id TransactionId
+	Id TransactionId `json:"id"`
 	// SCHEMA: inputAssetIds [AssetId!]
-	InputAssetIds []AssetId
+	InputAssetIds []AssetId `json:"inputAssetIds"`
 	// SCHEMA: inputContracts [Contract!]
-	InputContracts []Contract
+	InputContracts []Contract `json:"inputContracts"`
 	// SCHEMA: inputContract InputContract
-	InputContract *InputContract
+	InputContract *InputContract `json:"inputContract"`
 	// SCHEMA: policies Policies
-	Policies *Policies
+	Policies *Policies `json:"policies"`
 	// SCHEMA: gasPrice U64
-	GasPrice *U64
+	GasPrice *U64 `json:"gasPrice"`
 	// SCHEMA: scriptGasLimit U64
-	ScriptGasLimit *U64
+	ScriptGasLimit *U64 `json:"scriptGasLimit"`
 	// SCHEMA: maturity U32
-	Maturity *U32
+	Maturity *U32 `json:"maturity"`
 	// SCHEMA: mintAmount U64
-	MintAmount *U64
+	MintAmount *U64 `json:"mintAmount"`
 	// SCHEMA: mintAssetId AssetId
-	MintAssetId *AssetId
+	MintAssetId *AssetId `json:"mintAssetId"`
 	// SCHEMA: txPointer TxPointer
-	TxPointer *TxPointer
+	TxPointer *TxPointer `json:"txPointer"`
 	// SCHEMA: isScript Boolean!
-	IsScript Boolean
+	IsScript Boolean `json:"isScript"`
 	// SCHEMA: isCreate Boolean!
-	IsCreate Boolean
+	IsCreate Boolean `json:"isCreate"`
 	// SCHEMA: isMint Boolean!
-	IsMint Boolean
+	IsMint Boolean `json:"isMint"`
 	// SCHEMA: inputs [Input!]
-	Inputs []Input
+	Inputs []Input `json:"inputs"`
 	// SCHEMA: outputs [Output!]!
-	Outputs []Output
+	Outputs []Output `json:"outputs"`
 	// SCHEMA: outputContract ContractOutput
-	OutputContract *ContractOutput
+	OutputContract *ContractOutput `json:"outputContract"`
 	// SCHEMA: witnesses [HexString!]
-	Witnesses []HexString
+	Witnesses []HexString `json:"witnesses"`
 	// SCHEMA: receiptsRoot Bytes32
-	ReceiptsRoot *Bytes32
+	ReceiptsRoot *Bytes32 `json:"receiptsRoot"`
 	// SCHEMA: status TransactionStatus
-	Status *TransactionStatus
+	Status *TransactionStatus `json:"status"`
 	// SCHEMA: receipts [Receipt!]
-	Receipts []Receipt
+	Receipts []Receipt `json:"receipts"`
 	// SCHEMA: script HexString
-	Script *HexString
+	Script *HexString `json:"script"`
 	// SCHEMA: scriptData HexString
-	ScriptData *HexString
+	ScriptData *HexString `json:"scriptData"`
 	// SCHEMA: bytecodeWitnessIndex Int
-	BytecodeWitnessIndex *Int
+	BytecodeWitnessIndex *Int `json:"bytecodeWitnessIndex"`
 	// SCHEMA: bytecodeLength U64
-	BytecodeLength *U64
+	BytecodeLength *U64 `json:"bytecodeLength"`
 	// SCHEMA: salt Salt
-	Salt *Salt
+	Salt *Salt `json:"salt"`
 	// SCHEMA: storageSlots [HexString!]
-	StorageSlots []HexString
+	StorageSlots []HexString `json:"storageSlots"`
 	// Return the transaction bytes using canonical encoding
 	// SCHEMA: rawPayload HexString!
-	RawPayload HexString
+	RawPayload HexString `json:"rawPayload"`
 }
 
 type TransactionConnection struct {
 	// Information to aid in pagination.
 	// SCHEMA: pageInfo PageInfo!
-	PageInfo PageInfo
+	PageInfo PageInfo `json:"pageInfo"`
 	// A list of edges.
 	// SCHEMA: edges [TransactionEdge!]!
-	Edges []TransactionEdge
+	Edges []TransactionEdge `json:"edges"`
 	// A list of nodes.
 	// SCHEMA: nodes [Transaction!]!
-	Nodes []Transaction
+	Nodes []Transaction `json:"nodes"`
 }
 
 // An edge in a connection.
 type TransactionEdge struct {
 	// A cursor for use in pagination
 	// SCHEMA: cursor String!
-	Cursor String
+	Cursor String `json:"cursor"`
 	// The item at the end of the edge
 	// SCHEMA: node Transaction!
-	Node Transaction
+	Node Transaction `json:"node"`
 }
 
 type TxParameters struct {
 	// SCHEMA: maxInputs U8!
-	MaxInputs U8
+	MaxInputs U8 `json:"maxInputs"`
 	// SCHEMA: maxOutputs U8!
-	MaxOutputs U8
+	MaxOutputs U8 `json:"maxOutputs"`
 	// SCHEMA: maxWitnesses U32!
-	MaxWitnesses U32
+	MaxWitnesses U32 `json:"maxWitnesses"`
 	// SCHEMA: maxGasPerTx U64!
-	MaxGasPerTx U64
+	MaxGasPerTx U64 `json:"maxGasPerTx"`
 	// SCHEMA: maxSize U64!
-	MaxSize U64
+	MaxSize U64 `json:"maxSize"`
 }
 
 type VariableOutput struct {
 	// SCHEMA: to Address!
-	To Address
+	To Address `json:"to"`
 	// SCHEMA: amount U64!
-	Amount U64
+	Amount U64 `json:"amount"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId
+	AssetId AssetId `json:"assetId"`
 }
 
 // ====================
@@ -1232,9 +1306,17 @@ type CoinType struct {
 	*MessageCoin
 }
 
+func (u *CoinType) UnmarshalJSON(raw []byte) error {
+	return UnmarshalJSONUnion(raw, u)
+}
+
 type Consensus struct {
 	*Genesis
 	*PoAConsensus
+}
+
+func (u *Consensus) UnmarshalJSON(raw []byte) error {
+	return UnmarshalJSONUnion(raw, u)
 }
 
 type DependentCost struct {
@@ -1242,10 +1324,18 @@ type DependentCost struct {
 	*HeavyOperation
 }
 
+func (u *DependentCost) UnmarshalJSON(raw []byte) error {
+	return UnmarshalJSONUnion(raw, u)
+}
+
 type Input struct {
 	*InputCoin
 	*InputContract
 	*InputMessage
+}
+
+func (u *Input) UnmarshalJSON(raw []byte) error {
+	return UnmarshalJSONUnion(raw, u)
 }
 
 type Output struct {
@@ -1256,9 +1346,46 @@ type Output struct {
 	*ContractCreated
 }
 
+func (u *Output) UnmarshalJSON(raw []byte) error {
+	return UnmarshalJSONUnion(raw, u)
+}
+
 type TransactionStatus struct {
 	*SubmittedStatus
 	*SuccessStatus
 	*SqueezedOutStatus
 	*FailureStatus
+}
+
+func (u *TransactionStatus) UnmarshalJSON(raw []byte) error {
+	return UnmarshalJSONUnion(raw, u)
+}
+
+func UnmarshalJSONUnion(raw []byte, unionObj any) error {
+	var union struct {
+		TypeName string `json:"__typename"`
+	}
+	if err := json.Unmarshal(raw, &union); err != nil {
+		return err
+	}
+	pv := reflect.ValueOf(unionObj)
+	if pv.Kind() != reflect.Pointer || pv.IsNil() {
+		return &json.InvalidUnmarshalError{Type: reflect.TypeOf(unionObj)}
+	}
+	rv := pv.Elem()
+	rt := rv.Type()
+	for i := 0; i < rt.NumField(); i++ {
+		if rt.Field(i).Name == union.TypeName {
+			if rt.Field(i).Type.Kind() != reflect.Pointer {
+				return fmt.Errorf("member %s of union type %T should be an pointer", union.TypeName, unionObj)
+			}
+			fv := reflect.New(rt.Field(i).Type.Elem())
+			if err := json.Unmarshal(raw, fv.Interface()); err != nil {
+				return err
+			}
+			rv.Field(i).Set(fv)
+			return nil
+		}
+	}
+	return fmt.Errorf("union type %T do not have member %s", unionObj, union.TypeName)
 }

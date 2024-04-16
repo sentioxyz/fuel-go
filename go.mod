@@ -3,6 +3,7 @@ module github.com/sentioxyz/fuel-go
 go 1.21.1
 
 require (
+	github.com/cactus/tai64 v1.0.2
 	github.com/ethereum/go-ethereum v1.13.14
 	github.com/graph-gophers/graphql-go v1.5.0
 	github.com/stretchr/testify v1.9.0

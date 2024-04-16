@@ -3,6 +3,7 @@ package: fuel
 import:
   - github.com/ethereum/go-ethereum/common
   - github.com/ethereum/go-ethereum/common/hexutil
+  - time
 
 json-package: encoding/json
 
@@ -21,7 +22,7 @@ scalarMapper:
   Salt: string
   Signature: hexutil.Bytes
   String: string
-  Tai64Timestamp: uint64
+  Tai64Timestamp: time.Time
   TransactionId: common.Hash
   TxPointer: string
   U8: uint8

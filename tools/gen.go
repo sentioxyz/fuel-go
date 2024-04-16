@@ -85,9 +85,7 @@ func Gen(schema *types.Schema, config Config, out io.Writer) {
 
 	// import
 	w.Out("import (\n")
-	w.Out("\t%q\n", "fmt")
-	w.Out("\t%q\n", config.JSONPackage)
-	for _, imp := range config.Import {
+	for _, imp := range append(config.Import, config.JSONPackage, "fmt", "reflect", "strconv") {
 		w.Out("\t%q\n", imp)
 	}
 	w.Out(")\n\n")
@@ -104,13 +102,78 @@ func Gen(schema *types.Schema, config Config, out io.Writer) {
 			log.Fatalf("miss mapping for scalar type %q", scalarType.TypeName())
 		}
 
-		if isBuiltinTypes(scalarGoType) {
+		switch scalarGoType {
+		case "uint8", "uint16", "uint32", "uint64":
 			w.Out("type %s %s\n", scalarType.TypeName(), scalarGoType)
-		} else {
+			w.Out(`
+func (s *%s) UnmarshalJSON(raw []byte) error {
+	if i, err := UnmarshalJSONUInt(raw); err != nil {
+		return err
+	} else {
+		*s = %s(i)
+		return nil
+	}
+}
+
+`, scalarType.TypeName(), scalarType.TypeName())
+		case "int8", "int16", "int32", "int64":
+			w.Out("type %s %s\n", scalarType.TypeName(), scalarGoType)
+			w.Out(`
+func (s *%s) UnmarshalJSON(raw []byte) error {
+	if i, err := UnmarshalJSONInt(raw); err != nil {
+		return err
+	} else {
+		*s = %s(i)
+		return nil
+	}
+}
+
+`, scalarType.TypeName(), scalarType.TypeName())
+		case "float32", "float64":
+			w.Out("type %s %s\n", scalarType.TypeName(), scalarGoType)
+			w.Out(`
+func (s *%s) UnmarshalJSON(raw []byte) error {
+	if f, err := UnmarshalJSONFloat(raw); err != nil {
+		return err
+	} else {
+		*s = %s(f)
+		return nil
+	}
+}
+
+`, scalarType.TypeName(), scalarType.TypeName())
+		case "string":
+			w.Out("type %s %s\n", scalarType.TypeName(), scalarGoType)
+		case "bool":
+			w.Out("type %s %s\n", scalarType.TypeName(), scalarGoType)
+		default:
 			w.Out("type %s struct { %s }\n", scalarType.TypeName(), scalarGoType)
 		}
 	}
-	w.Out("\n")
+	w.Out(`
+
+func UnmarshalJSONUInt(raw []byte) (uint64, error) {
+	if len(raw) >= 2 && raw[0] == '"' && raw[len(raw)-1] == '"' {
+		raw = raw[1:len(raw)-1]
+	}
+	return strconv.ParseUint(string(raw), 10, 64)
+}
+
+func UnmarshalJSONInt(raw []byte) (int64, error) {
+	if len(raw) >= 2 && raw[0] == '"' && raw[len(raw)-1] == '"' {
+		raw = raw[1:len(raw)-1]
+	}
+	return strconv.ParseInt(string(raw), 10, 64)
+}
+
+func UnmarshalJSONFloat(raw []byte) (float64, error) {
+	if len(raw) >= 2 && raw[0] == '"' && raw[len(raw)-1] == '"' {
+		raw = raw[1:len(raw)-1]
+	}
+	return strconv.ParseFloat(string(raw), 64)
+}
+
+`)
 
 	// enum types
 	w.Out("// ====================\n// enum types\n// --------------------\n\n")
@@ -157,7 +220,7 @@ func (e *%s) UnmarshalJSON(raw []byte) error {
 			goFieldName := strings.ToUpper(field.Name[:1]) + field.Name[1:]
 			w.OutLines(field.Desc, "\t// ")
 			w.Out("\t// SCHEMA: %s %s\n", field.Name, field.Type.String())
-			w.Out("\t%s %s\n", goFieldName, convertToGoType(field.Type, false))
+			w.Out("\t%s %s `json:\"%s\"`\n", goFieldName, convertToGoType(field.Type, false), field.Name)
 		}
 		w.Out("}\n\n")
 	}
@@ -171,7 +234,45 @@ func (e *%s) UnmarshalJSON(raw []byte) error {
 			w.Out("\t*%s\n", mem.TypeName())
 		}
 		w.Out("}\n\n")
+		w.Out(`
+func (u *%s) UnmarshalJSON(raw []byte) error {
+	return UnmarshalJSONUnion(raw, u)
+}
+
+`, unionType.TypeName())
 	}
+	w.Out(`
+
+func UnmarshalJSONUnion(raw []byte, unionObj any) error {
+	var union struct {
+		TypeName string ` + "`" + `json:"__typename"` + "`" + `
+	}
+	if err := json.Unmarshal(raw, &union); err != nil {
+		return err
+	}
+	pv := reflect.ValueOf(unionObj)
+	if pv.Kind() != reflect.Pointer || pv.IsNil() {
+		return &json.InvalidUnmarshalError{Type: reflect.TypeOf(unionObj)}
+	}
+	rv := pv.Elem()
+	rt := rv.Type()
+	for i := 0; i < rt.NumField(); i++ {
+		if rt.Field(i).Name == union.TypeName {
+			if rt.Field(i).Type.Kind() != reflect.Pointer {
+				return fmt.Errorf("member %%s of union type %%T should be an pointer", union.TypeName, unionObj)
+			}
+			fv := reflect.New(rt.Field(i).Type.Elem())
+			if err := json.Unmarshal(raw, fv.Interface()); err != nil {
+				return err
+			}
+			rv.Field(i).Set(fv)
+			return nil
+		}
+	}
+	return fmt.Errorf("union type %%T do not have member %%s", unionObj, union.TypeName)
+}
+
+`)
 }
 
 func main() {

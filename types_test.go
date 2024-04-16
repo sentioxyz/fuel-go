@@ -2,8 +2,10 @@ package fuel
 
 import (
 	"encoding/json"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func Test_jsonMarshalScalar(t *testing.T) {
@@ -92,4 +94,52 @@ func Test_jsonMarshalEnum(t *testing.T) {
 		err := json.Unmarshal([]byte(`{"RT":"CAL"}`), &a)
 		assert.EqualError(t, err, "invalid value \"CAL\" for enum type ReceiptType")
 	}
+}
+
+func Test_jsonUnmarshalUnionAndTAI64(t *testing.T) {
+	var a []TransactionStatus
+	err := json.Unmarshal([]byte(`
+[{
+	"__typename": "SuccessStatus",
+	"block": {
+		"id": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+		"header": {
+			"height": "9884089"
+		}
+	}
+},{
+	"__typename": "FailureStatus",
+	"block": {
+		"id": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+	}
+},{
+	"__typename": "SubmittedStatus",
+	"time": "4611686020140659807"
+}]
+`), &a)
+
+	ti, _ := time.Parse(time.RFC3339, "2024-04-16T12:51:06Z")
+	assert.NoError(t, err)
+	assert.Equal(t, []TransactionStatus{{
+		SuccessStatus: &SuccessStatus{
+			Block: Block{
+				Id: BlockId{Hash: common.HexToHash("0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")},
+				Header: Header{
+					Height: 9884089,
+				},
+			},
+		},
+	}, {
+		FailureStatus: &FailureStatus{
+			Block: Block{
+				Id: BlockId{Hash: common.HexToHash("0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")},
+			},
+		},
+	}, {
+		SubmittedStatus: &SubmittedStatus{
+			Time: Tai64Timestamp{
+				Time: ti,
+			},
+		},
+	}}, a)
 }
