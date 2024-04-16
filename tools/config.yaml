@@ -1,0 +1,30 @@
+package: fuel
+
+import:
+  - github.com/ethereum/go-ethereum/common
+  - github.com/ethereum/go-ethereum/common/hexutil
+
+json-package: encoding/json
+
+scalarMapper:
+  Address: common.Hash
+  AssetId: common.Hash
+  BlockId: common.Hash
+  Boolean: bool
+  Bytes32: common.Hash
+  ContractId: common.Hash
+  Float: float64
+  HexString: hexutil.Bytes
+  ID: string
+  Int: int32
+  Nonce: string
+  Salt: string
+  Signature: hexutil.Bytes
+  String: string
+  Tai64Timestamp: uint64
+  TransactionId: common.Hash
+  TxPointer: string
+  U8: uint8
+  U32: uint32
+  U64: uint64
+  UtxoId: common.Hash
