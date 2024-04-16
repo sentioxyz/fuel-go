@@ -280,6 +280,8 @@ func main() {
 	configFile := flag.String("config-file", "./config.yaml", "path of the config yaml file")
 	outputFile := flag.String("output-file", "../types.go", "path of the output file")
 
+	flag.Parse()
+
 	// load schema
 	schemaCnt, err := os.ReadFile(*schemaFile)
 	if err != nil {
