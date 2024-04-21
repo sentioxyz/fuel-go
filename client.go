@@ -83,6 +83,7 @@ func ExecuteQuery[DATA any](ctx context.Context, cli *Client, query string) (dat
 	if err != nil {
 		return data, fmt.Errorf("read response body failed: %w", err)
 	}
+	//fmt.Printf("!!! respBody(len:%d): %s\n", len(respBody), string(respBody))
 
 	var result struct {
 		Data   DATA        `json:"data"`

@@ -13,13 +13,18 @@ import (
 )
 
 // ====================
-// scalar types
+// Scalars
 // --------------------
 
 type Address struct{ common.Hash }
 type AssetId struct{ common.Hash }
 type BlockId struct{ common.Hash }
 type Boolean bool
+
+func (s *Boolean) String() string {
+	return strconv.FormatBool(bool(*s))
+}
+
 type Bytes32 struct{ common.Hash }
 type ContractId struct{ common.Hash }
 type Float float64
@@ -33,6 +38,10 @@ func (s *Float) UnmarshalJSON(raw []byte) error {
 	}
 }
 
+func (s *Float) String() string {
+	return strconv.FormatFloat(float64(*s), 'f', 20, 64)
+}
+
 type HexString struct{ hexutil.Bytes }
 type ID string
 type Int int32
@@ -44,6 +53,10 @@ func (s *Int) UnmarshalJSON(raw []byte) error {
 		*s = Int(i)
 		return nil
 	}
+}
+
+func (s *Int) String() string {
+	return strconv.FormatInt(int64(*s), 10)
 }
 
 type Nonce string
@@ -64,6 +77,10 @@ func (s *U32) UnmarshalJSON(raw []byte) error {
 	}
 }
 
+func (s *U32) String() string {
+	return strconv.FormatUint(uint64(*s), 10)
+}
+
 type U64 uint64
 
 func (s *U64) UnmarshalJSON(raw []byte) error {
@@ -73,6 +90,10 @@ func (s *U64) UnmarshalJSON(raw []byte) error {
 		*s = U64(i)
 		return nil
 	}
+}
+
+func (s *U64) String() string {
+	return strconv.FormatUint(uint64(*s), 10)
 }
 
 type U8 uint8
@@ -86,7 +107,11 @@ func (s *U8) UnmarshalJSON(raw []byte) error {
 	}
 }
 
-type UtxoId struct{ common.Hash }
+func (s *U8) String() string {
+	return strconv.FormatUint(uint64(*s), 10)
+}
+
+type UtxoId struct{ hexutil.Bytes }
 
 func UnmarshalJSONUInt(raw []byte) (uint64, error) {
 	if len(raw) >= 2 && raw[0] == '"' && raw[len(raw)-1] == '"' {
@@ -110,7 +135,7 @@ func UnmarshalJSONFloat(raw []byte) (float64, error) {
 }
 
 // ====================
-// enum types
+// Enums
 // --------------------
 
 type MessageState string
@@ -211,841 +236,841 @@ func (e *RunState) UnmarshalJSON(raw []byte) error {
 }
 
 // ====================
-// object types
+// Objects
 // --------------------
 
 type Balance struct {
 	// SCHEMA: owner Address!
-	Owner Address `json:"owner"`
+	Owner Address `json:"owner" kind:"SCALAR"`
 	// SCHEMA: amount U64!
-	Amount U64 `json:"amount"`
+	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId `json:"assetId"`
+	AssetId AssetId `json:"assetId" kind:"SCALAR"`
 }
 
 type BalanceConnection struct {
 	// Information to aid in pagination.
 	// SCHEMA: pageInfo PageInfo!
-	PageInfo PageInfo `json:"pageInfo"`
+	PageInfo PageInfo `json:"pageInfo" kind:"OBJECT"`
 	// A list of edges.
 	// SCHEMA: edges [BalanceEdge!]!
-	Edges []BalanceEdge `json:"edges"`
+	Edges []BalanceEdge `json:"edges" kind:"OBJECT"`
 	// A list of nodes.
 	// SCHEMA: nodes [Balance!]!
-	Nodes []Balance `json:"nodes"`
+	Nodes []Balance `json:"nodes" kind:"OBJECT"`
 }
 
 // An edge in a connection.
 type BalanceEdge struct {
 	// A cursor for use in pagination
 	// SCHEMA: cursor String!
-	Cursor String `json:"cursor"`
+	Cursor String `json:"cursor" kind:"SCALAR"`
 	// The item at the end of the edge
 	// SCHEMA: node Balance!
-	Node Balance `json:"node"`
+	Node Balance `json:"node" kind:"OBJECT"`
 }
 
 type Block struct {
 	// SCHEMA: id BlockId!
-	Id BlockId `json:"id"`
+	Id BlockId `json:"id" kind:"SCALAR"`
 	// SCHEMA: header Header!
-	Header Header `json:"header"`
+	Header Header `json:"header" kind:"OBJECT"`
 	// SCHEMA: consensus Consensus!
-	Consensus Consensus `json:"consensus"`
+	Consensus Consensus `json:"consensus" kind:"UNION"`
 	// SCHEMA: transactions [Transaction!]!
-	Transactions []Transaction `json:"transactions"`
+	Transactions []Transaction `json:"transactions" kind:"OBJECT"`
 }
 
 type BlockConnection struct {
 	// Information to aid in pagination.
 	// SCHEMA: pageInfo PageInfo!
-	PageInfo PageInfo `json:"pageInfo"`
+	PageInfo PageInfo `json:"pageInfo" kind:"OBJECT"`
 	// A list of edges.
 	// SCHEMA: edges [BlockEdge!]!
-	Edges []BlockEdge `json:"edges"`
+	Edges []BlockEdge `json:"edges" kind:"OBJECT"`
 	// A list of nodes.
 	// SCHEMA: nodes [Block!]!
-	Nodes []Block `json:"nodes"`
+	Nodes []Block `json:"nodes" kind:"OBJECT"`
 }
 
 // An edge in a connection.
 type BlockEdge struct {
 	// A cursor for use in pagination
 	// SCHEMA: cursor String!
-	Cursor String `json:"cursor"`
+	Cursor String `json:"cursor" kind:"SCALAR"`
 	// The item at the end of the edge
 	// SCHEMA: node Block!
-	Node Block `json:"node"`
+	Node Block `json:"node" kind:"OBJECT"`
 }
 
 type ChainInfo struct {
 	// SCHEMA: name String!
-	Name String `json:"name"`
+	Name String `json:"name" kind:"SCALAR"`
 	// SCHEMA: latestBlock Block!
-	LatestBlock Block `json:"latestBlock"`
+	LatestBlock Block `json:"latestBlock" kind:"OBJECT"`
 	// SCHEMA: daHeight U64!
-	DaHeight U64 `json:"daHeight"`
+	DaHeight U64 `json:"daHeight" kind:"SCALAR"`
 	// SCHEMA: consensusParameters ConsensusParameters!
-	ConsensusParameters ConsensusParameters `json:"consensusParameters"`
+	ConsensusParameters ConsensusParameters `json:"consensusParameters" kind:"OBJECT"`
 	// SCHEMA: gasCosts GasCosts!
-	GasCosts GasCosts `json:"gasCosts"`
+	GasCosts GasCosts `json:"gasCosts" kind:"OBJECT"`
 }
 
 type ChangeOutput struct {
 	// SCHEMA: to Address!
-	To Address `json:"to"`
+	To Address `json:"to" kind:"SCALAR"`
 	// SCHEMA: amount U64!
-	Amount U64 `json:"amount"`
+	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId `json:"assetId"`
+	AssetId AssetId `json:"assetId" kind:"SCALAR"`
 }
 
 type Coin struct {
 	// SCHEMA: utxoId UtxoId!
-	UtxoId UtxoId `json:"utxoId"`
+	UtxoId UtxoId `json:"utxoId" kind:"SCALAR"`
 	// SCHEMA: owner Address!
-	Owner Address `json:"owner"`
+	Owner Address `json:"owner" kind:"SCALAR"`
 	// SCHEMA: amount U64!
-	Amount U64 `json:"amount"`
+	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId `json:"assetId"`
+	AssetId AssetId `json:"assetId" kind:"SCALAR"`
 	// SCHEMA: maturity U32!
-	Maturity U32 `json:"maturity"`
+	Maturity U32 `json:"maturity" kind:"SCALAR"`
 	// TxPointer - the height of the block this coin was created in
 	// SCHEMA: blockCreated U32!
-	BlockCreated U32 `json:"blockCreated"`
+	BlockCreated U32 `json:"blockCreated" kind:"SCALAR"`
 	// TxPointer - the index of the transaction that created this coin
 	// SCHEMA: txCreatedIdx U64!
-	TxCreatedIdx U64 `json:"txCreatedIdx"`
+	TxCreatedIdx U64 `json:"txCreatedIdx" kind:"SCALAR"`
 }
 
 type CoinConnection struct {
 	// Information to aid in pagination.
 	// SCHEMA: pageInfo PageInfo!
-	PageInfo PageInfo `json:"pageInfo"`
+	PageInfo PageInfo `json:"pageInfo" kind:"OBJECT"`
 	// A list of edges.
 	// SCHEMA: edges [CoinEdge!]!
-	Edges []CoinEdge `json:"edges"`
+	Edges []CoinEdge `json:"edges" kind:"OBJECT"`
 	// A list of nodes.
 	// SCHEMA: nodes [Coin!]!
-	Nodes []Coin `json:"nodes"`
+	Nodes []Coin `json:"nodes" kind:"OBJECT"`
 }
 
 // An edge in a connection.
 type CoinEdge struct {
 	// A cursor for use in pagination
 	// SCHEMA: cursor String!
-	Cursor String `json:"cursor"`
+	Cursor String `json:"cursor" kind:"SCALAR"`
 	// The item at the end of the edge
 	// SCHEMA: node Coin!
-	Node Coin `json:"node"`
+	Node Coin `json:"node" kind:"OBJECT"`
 }
 
 type CoinOutput struct {
 	// SCHEMA: to Address!
-	To Address `json:"to"`
+	To Address `json:"to" kind:"SCALAR"`
 	// SCHEMA: amount U64!
-	Amount U64 `json:"amount"`
+	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId `json:"assetId"`
+	AssetId AssetId `json:"assetId" kind:"SCALAR"`
 }
 
 type ConsensusParameters struct {
 	// SCHEMA: txParams TxParameters!
-	TxParams TxParameters `json:"txParams"`
+	TxParams TxParameters `json:"txParams" kind:"OBJECT"`
 	// SCHEMA: predicateParams PredicateParameters!
-	PredicateParams PredicateParameters `json:"predicateParams"`
+	PredicateParams PredicateParameters `json:"predicateParams" kind:"OBJECT"`
 	// SCHEMA: scriptParams ScriptParameters!
-	ScriptParams ScriptParameters `json:"scriptParams"`
+	ScriptParams ScriptParameters `json:"scriptParams" kind:"OBJECT"`
 	// SCHEMA: contractParams ContractParameters!
-	ContractParams ContractParameters `json:"contractParams"`
+	ContractParams ContractParameters `json:"contractParams" kind:"OBJECT"`
 	// SCHEMA: feeParams FeeParameters!
-	FeeParams FeeParameters `json:"feeParams"`
+	FeeParams FeeParameters `json:"feeParams" kind:"OBJECT"`
 	// SCHEMA: baseAssetId AssetId!
-	BaseAssetId AssetId `json:"baseAssetId"`
+	BaseAssetId AssetId `json:"baseAssetId" kind:"SCALAR"`
 	// SCHEMA: chainId U64!
-	ChainId U64 `json:"chainId"`
+	ChainId U64 `json:"chainId" kind:"SCALAR"`
 	// SCHEMA: gasCosts GasCosts!
-	GasCosts GasCosts `json:"gasCosts"`
+	GasCosts GasCosts `json:"gasCosts" kind:"OBJECT"`
 }
 
 type Contract struct {
 	// SCHEMA: id ContractId!
-	Id ContractId `json:"id"`
+	Id ContractId `json:"id" kind:"SCALAR"`
 	// SCHEMA: bytecode HexString!
-	Bytecode HexString `json:"bytecode"`
+	Bytecode HexString `json:"bytecode" kind:"SCALAR"`
 	// SCHEMA: salt Salt!
-	Salt Salt `json:"salt"`
+	Salt Salt `json:"salt" kind:"SCALAR"`
 }
 
 type ContractBalance struct {
 	// SCHEMA: contract ContractId!
-	Contract ContractId `json:"contract"`
+	Contract ContractId `json:"contract" kind:"SCALAR"`
 	// SCHEMA: amount U64!
-	Amount U64 `json:"amount"`
+	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId `json:"assetId"`
+	AssetId AssetId `json:"assetId" kind:"SCALAR"`
 }
 
 type ContractBalanceConnection struct {
 	// Information to aid in pagination.
 	// SCHEMA: pageInfo PageInfo!
-	PageInfo PageInfo `json:"pageInfo"`
+	PageInfo PageInfo `json:"pageInfo" kind:"OBJECT"`
 	// A list of edges.
 	// SCHEMA: edges [ContractBalanceEdge!]!
-	Edges []ContractBalanceEdge `json:"edges"`
+	Edges []ContractBalanceEdge `json:"edges" kind:"OBJECT"`
 	// A list of nodes.
 	// SCHEMA: nodes [ContractBalance!]!
-	Nodes []ContractBalance `json:"nodes"`
+	Nodes []ContractBalance `json:"nodes" kind:"OBJECT"`
 }
 
 // An edge in a connection.
 type ContractBalanceEdge struct {
 	// A cursor for use in pagination
 	// SCHEMA: cursor String!
-	Cursor String `json:"cursor"`
+	Cursor String `json:"cursor" kind:"SCALAR"`
 	// The item at the end of the edge
 	// SCHEMA: node ContractBalance!
-	Node ContractBalance `json:"node"`
+	Node ContractBalance `json:"node" kind:"OBJECT"`
 }
 
 type ContractCreated struct {
 	// SCHEMA: contract Contract!
-	Contract Contract `json:"contract"`
+	Contract Contract `json:"contract" kind:"OBJECT"`
 	// SCHEMA: stateRoot Bytes32!
-	StateRoot Bytes32 `json:"stateRoot"`
+	StateRoot Bytes32 `json:"stateRoot" kind:"SCALAR"`
 }
 
 type ContractOutput struct {
 	// SCHEMA: inputIndex Int!
-	InputIndex Int `json:"inputIndex"`
+	InputIndex Int `json:"inputIndex" kind:"SCALAR"`
 	// SCHEMA: balanceRoot Bytes32!
-	BalanceRoot Bytes32 `json:"balanceRoot"`
+	BalanceRoot Bytes32 `json:"balanceRoot" kind:"SCALAR"`
 	// SCHEMA: stateRoot Bytes32!
-	StateRoot Bytes32 `json:"stateRoot"`
+	StateRoot Bytes32 `json:"stateRoot" kind:"SCALAR"`
 }
 
 type ContractParameters struct {
 	// SCHEMA: contractMaxSize U64!
-	ContractMaxSize U64 `json:"contractMaxSize"`
+	ContractMaxSize U64 `json:"contractMaxSize" kind:"SCALAR"`
 	// SCHEMA: maxStorageSlots U64!
-	MaxStorageSlots U64 `json:"maxStorageSlots"`
+	MaxStorageSlots U64 `json:"maxStorageSlots" kind:"SCALAR"`
 }
 
 type FailureStatus struct {
 	// SCHEMA: transactionId TransactionId!
-	TransactionId TransactionId `json:"transactionId"`
+	TransactionId TransactionId `json:"transactionId" kind:"SCALAR"`
 	// SCHEMA: block Block!
-	Block Block `json:"block"`
+	Block Block `json:"block" kind:"OBJECT"`
 	// SCHEMA: time Tai64Timestamp!
-	Time Tai64Timestamp `json:"time"`
+	Time Tai64Timestamp `json:"time" kind:"SCALAR"`
 	// SCHEMA: reason String!
-	Reason String `json:"reason"`
+	Reason String `json:"reason" kind:"SCALAR"`
 	// SCHEMA: programState ProgramState
-	ProgramState *ProgramState `json:"programState"`
+	ProgramState *ProgramState `json:"programState" kind:"OBJECT"`
 	// SCHEMA: receipts [Receipt!]!
-	Receipts []Receipt `json:"receipts"`
+	Receipts []Receipt `json:"receipts" kind:"OBJECT"`
 }
 
 type FeeParameters struct {
 	// SCHEMA: gasPriceFactor U64!
-	GasPriceFactor U64 `json:"gasPriceFactor"`
+	GasPriceFactor U64 `json:"gasPriceFactor" kind:"SCALAR"`
 	// SCHEMA: gasPerByte U64!
-	GasPerByte U64 `json:"gasPerByte"`
+	GasPerByte U64 `json:"gasPerByte" kind:"SCALAR"`
 }
 
 type GasCosts struct {
 	// SCHEMA: add U64!
-	Add U64 `json:"add"`
+	Add U64 `json:"add" kind:"SCALAR"`
 	// SCHEMA: addi U64!
-	Addi U64 `json:"addi"`
+	Addi U64 `json:"addi" kind:"SCALAR"`
 	// SCHEMA: aloc U64!
-	Aloc U64 `json:"aloc"`
+	Aloc U64 `json:"aloc" kind:"SCALAR"`
 	// SCHEMA: and U64!
-	And U64 `json:"and"`
+	And U64 `json:"and" kind:"SCALAR"`
 	// SCHEMA: andi U64!
-	Andi U64 `json:"andi"`
+	Andi U64 `json:"andi" kind:"SCALAR"`
 	// SCHEMA: bal U64!
-	Bal U64 `json:"bal"`
+	Bal U64 `json:"bal" kind:"SCALAR"`
 	// SCHEMA: bhei U64!
-	Bhei U64 `json:"bhei"`
+	Bhei U64 `json:"bhei" kind:"SCALAR"`
 	// SCHEMA: bhsh U64!
-	Bhsh U64 `json:"bhsh"`
+	Bhsh U64 `json:"bhsh" kind:"SCALAR"`
 	// SCHEMA: burn U64!
-	Burn U64 `json:"burn"`
+	Burn U64 `json:"burn" kind:"SCALAR"`
 	// SCHEMA: cb U64!
-	Cb U64 `json:"cb"`
+	Cb U64 `json:"cb" kind:"SCALAR"`
 	// SCHEMA: cfei U64!
-	Cfei U64 `json:"cfei"`
+	Cfei U64 `json:"cfei" kind:"SCALAR"`
 	// SCHEMA: cfsi U64!
-	Cfsi U64 `json:"cfsi"`
+	Cfsi U64 `json:"cfsi" kind:"SCALAR"`
 	// SCHEMA: croo U64!
-	Croo U64 `json:"croo"`
+	Croo U64 `json:"croo" kind:"SCALAR"`
 	// SCHEMA: div U64!
-	Div U64 `json:"div"`
+	Div U64 `json:"div" kind:"SCALAR"`
 	// SCHEMA: divi U64!
-	Divi U64 `json:"divi"`
+	Divi U64 `json:"divi" kind:"SCALAR"`
 	// SCHEMA: ecr1 U64!
-	Ecr1 U64 `json:"ecr1"`
+	Ecr1 U64 `json:"ecr1" kind:"SCALAR"`
 	// SCHEMA: eck1 U64!
-	Eck1 U64 `json:"eck1"`
+	Eck1 U64 `json:"eck1" kind:"SCALAR"`
 	// SCHEMA: ed19 U64!
-	Ed19 U64 `json:"ed19"`
+	Ed19 U64 `json:"ed19" kind:"SCALAR"`
 	// SCHEMA: eq U64!
-	Eq U64 `json:"eq"`
+	Eq U64 `json:"eq" kind:"SCALAR"`
 	// SCHEMA: exp U64!
-	Exp U64 `json:"exp"`
+	Exp U64 `json:"exp" kind:"SCALAR"`
 	// SCHEMA: expi U64!
-	Expi U64 `json:"expi"`
+	Expi U64 `json:"expi" kind:"SCALAR"`
 	// SCHEMA: flag U64!
-	Flag U64 `json:"flag"`
+	Flag U64 `json:"flag" kind:"SCALAR"`
 	// SCHEMA: gm U64!
-	Gm U64 `json:"gm"`
+	Gm U64 `json:"gm" kind:"SCALAR"`
 	// SCHEMA: gt U64!
-	Gt U64 `json:"gt"`
+	Gt U64 `json:"gt" kind:"SCALAR"`
 	// SCHEMA: gtf U64!
-	Gtf U64 `json:"gtf"`
+	Gtf U64 `json:"gtf" kind:"SCALAR"`
 	// SCHEMA: ji U64!
-	Ji U64 `json:"ji"`
+	Ji U64 `json:"ji" kind:"SCALAR"`
 	// SCHEMA: jmp U64!
-	Jmp U64 `json:"jmp"`
+	Jmp U64 `json:"jmp" kind:"SCALAR"`
 	// SCHEMA: jne U64!
-	Jne U64 `json:"jne"`
+	Jne U64 `json:"jne" kind:"SCALAR"`
 	// SCHEMA: jnei U64!
-	Jnei U64 `json:"jnei"`
+	Jnei U64 `json:"jnei" kind:"SCALAR"`
 	// SCHEMA: jnzi U64!
-	Jnzi U64 `json:"jnzi"`
+	Jnzi U64 `json:"jnzi" kind:"SCALAR"`
 	// SCHEMA: jmpf U64!
-	Jmpf U64 `json:"jmpf"`
+	Jmpf U64 `json:"jmpf" kind:"SCALAR"`
 	// SCHEMA: jmpb U64!
-	Jmpb U64 `json:"jmpb"`
+	Jmpb U64 `json:"jmpb" kind:"SCALAR"`
 	// SCHEMA: jnzf U64!
-	Jnzf U64 `json:"jnzf"`
+	Jnzf U64 `json:"jnzf" kind:"SCALAR"`
 	// SCHEMA: jnzb U64!
-	Jnzb U64 `json:"jnzb"`
+	Jnzb U64 `json:"jnzb" kind:"SCALAR"`
 	// SCHEMA: jnef U64!
-	Jnef U64 `json:"jnef"`
+	Jnef U64 `json:"jnef" kind:"SCALAR"`
 	// SCHEMA: jneb U64!
-	Jneb U64 `json:"jneb"`
+	Jneb U64 `json:"jneb" kind:"SCALAR"`
 	// SCHEMA: lb U64!
-	Lb U64 `json:"lb"`
+	Lb U64 `json:"lb" kind:"SCALAR"`
 	// SCHEMA: log U64!
-	Log U64 `json:"log"`
+	Log U64 `json:"log" kind:"SCALAR"`
 	// SCHEMA: lt U64!
-	Lt U64 `json:"lt"`
+	Lt U64 `json:"lt" kind:"SCALAR"`
 	// SCHEMA: lw U64!
-	Lw U64 `json:"lw"`
+	Lw U64 `json:"lw" kind:"SCALAR"`
 	// SCHEMA: mint U64!
-	Mint U64 `json:"mint"`
+	Mint U64 `json:"mint" kind:"SCALAR"`
 	// SCHEMA: mlog U64!
-	Mlog U64 `json:"mlog"`
+	Mlog U64 `json:"mlog" kind:"SCALAR"`
 	// SCHEMA: modOp U64!
-	ModOp U64 `json:"modOp"`
+	ModOp U64 `json:"modOp" kind:"SCALAR"`
 	// SCHEMA: modi U64!
-	Modi U64 `json:"modi"`
+	Modi U64 `json:"modi" kind:"SCALAR"`
 	// SCHEMA: moveOp U64!
-	MoveOp U64 `json:"moveOp"`
+	MoveOp U64 `json:"moveOp" kind:"SCALAR"`
 	// SCHEMA: movi U64!
-	Movi U64 `json:"movi"`
+	Movi U64 `json:"movi" kind:"SCALAR"`
 	// SCHEMA: mroo U64!
-	Mroo U64 `json:"mroo"`
+	Mroo U64 `json:"mroo" kind:"SCALAR"`
 	// SCHEMA: mul U64!
-	Mul U64 `json:"mul"`
+	Mul U64 `json:"mul" kind:"SCALAR"`
 	// SCHEMA: muli U64!
-	Muli U64 `json:"muli"`
+	Muli U64 `json:"muli" kind:"SCALAR"`
 	// SCHEMA: mldv U64!
-	Mldv U64 `json:"mldv"`
+	Mldv U64 `json:"mldv" kind:"SCALAR"`
 	// SCHEMA: noop U64!
-	Noop U64 `json:"noop"`
+	Noop U64 `json:"noop" kind:"SCALAR"`
 	// SCHEMA: not U64!
-	Not U64 `json:"not"`
+	Not U64 `json:"not" kind:"SCALAR"`
 	// SCHEMA: or U64!
-	Or U64 `json:"or"`
+	Or U64 `json:"or" kind:"SCALAR"`
 	// SCHEMA: ori U64!
-	Ori U64 `json:"ori"`
+	Ori U64 `json:"ori" kind:"SCALAR"`
 	// SCHEMA: poph U64!
-	Poph U64 `json:"poph"`
+	Poph U64 `json:"poph" kind:"SCALAR"`
 	// SCHEMA: popl U64!
-	Popl U64 `json:"popl"`
+	Popl U64 `json:"popl" kind:"SCALAR"`
 	// SCHEMA: pshh U64!
-	Pshh U64 `json:"pshh"`
+	Pshh U64 `json:"pshh" kind:"SCALAR"`
 	// SCHEMA: pshl U64!
-	Pshl U64 `json:"pshl"`
+	Pshl U64 `json:"pshl" kind:"SCALAR"`
 	// SCHEMA: ret U64!
-	Ret U64 `json:"ret"`
+	Ret U64 `json:"ret" kind:"SCALAR"`
 	// SCHEMA: rvrt U64!
-	Rvrt U64 `json:"rvrt"`
+	Rvrt U64 `json:"rvrt" kind:"SCALAR"`
 	// SCHEMA: sb U64!
-	Sb U64 `json:"sb"`
+	Sb U64 `json:"sb" kind:"SCALAR"`
 	// SCHEMA: sll U64!
-	Sll U64 `json:"sll"`
+	Sll U64 `json:"sll" kind:"SCALAR"`
 	// SCHEMA: slli U64!
-	Slli U64 `json:"slli"`
+	Slli U64 `json:"slli" kind:"SCALAR"`
 	// SCHEMA: srl U64!
-	Srl U64 `json:"srl"`
+	Srl U64 `json:"srl" kind:"SCALAR"`
 	// SCHEMA: srli U64!
-	Srli U64 `json:"srli"`
+	Srli U64 `json:"srli" kind:"SCALAR"`
 	// SCHEMA: srw U64!
-	Srw U64 `json:"srw"`
+	Srw U64 `json:"srw" kind:"SCALAR"`
 	// SCHEMA: sub U64!
-	Sub U64 `json:"sub"`
+	Sub U64 `json:"sub" kind:"SCALAR"`
 	// SCHEMA: subi U64!
-	Subi U64 `json:"subi"`
+	Subi U64 `json:"subi" kind:"SCALAR"`
 	// SCHEMA: sw U64!
-	Sw U64 `json:"sw"`
+	Sw U64 `json:"sw" kind:"SCALAR"`
 	// SCHEMA: sww U64!
-	Sww U64 `json:"sww"`
+	Sww U64 `json:"sww" kind:"SCALAR"`
 	// SCHEMA: time U64!
-	Time U64 `json:"time"`
+	Time U64 `json:"time" kind:"SCALAR"`
 	// SCHEMA: tr U64!
-	Tr U64 `json:"tr"`
+	Tr U64 `json:"tr" kind:"SCALAR"`
 	// SCHEMA: tro U64!
-	Tro U64 `json:"tro"`
+	Tro U64 `json:"tro" kind:"SCALAR"`
 	// SCHEMA: wdcm U64!
-	Wdcm U64 `json:"wdcm"`
+	Wdcm U64 `json:"wdcm" kind:"SCALAR"`
 	// SCHEMA: wqcm U64!
-	Wqcm U64 `json:"wqcm"`
+	Wqcm U64 `json:"wqcm" kind:"SCALAR"`
 	// SCHEMA: wdop U64!
-	Wdop U64 `json:"wdop"`
+	Wdop U64 `json:"wdop" kind:"SCALAR"`
 	// SCHEMA: wqop U64!
-	Wqop U64 `json:"wqop"`
+	Wqop U64 `json:"wqop" kind:"SCALAR"`
 	// SCHEMA: wdml U64!
-	Wdml U64 `json:"wdml"`
+	Wdml U64 `json:"wdml" kind:"SCALAR"`
 	// SCHEMA: wqml U64!
-	Wqml U64 `json:"wqml"`
+	Wqml U64 `json:"wqml" kind:"SCALAR"`
 	// SCHEMA: wddv U64!
-	Wddv U64 `json:"wddv"`
+	Wddv U64 `json:"wddv" kind:"SCALAR"`
 	// SCHEMA: wqdv U64!
-	Wqdv U64 `json:"wqdv"`
+	Wqdv U64 `json:"wqdv" kind:"SCALAR"`
 	// SCHEMA: wdmd U64!
-	Wdmd U64 `json:"wdmd"`
+	Wdmd U64 `json:"wdmd" kind:"SCALAR"`
 	// SCHEMA: wqmd U64!
-	Wqmd U64 `json:"wqmd"`
+	Wqmd U64 `json:"wqmd" kind:"SCALAR"`
 	// SCHEMA: wdam U64!
-	Wdam U64 `json:"wdam"`
+	Wdam U64 `json:"wdam" kind:"SCALAR"`
 	// SCHEMA: wqam U64!
-	Wqam U64 `json:"wqam"`
+	Wqam U64 `json:"wqam" kind:"SCALAR"`
 	// SCHEMA: wdmm U64!
-	Wdmm U64 `json:"wdmm"`
+	Wdmm U64 `json:"wdmm" kind:"SCALAR"`
 	// SCHEMA: wqmm U64!
-	Wqmm U64 `json:"wqmm"`
+	Wqmm U64 `json:"wqmm" kind:"SCALAR"`
 	// SCHEMA: xor U64!
-	Xor U64 `json:"xor"`
+	Xor U64 `json:"xor" kind:"SCALAR"`
 	// SCHEMA: xori U64!
-	Xori U64 `json:"xori"`
+	Xori U64 `json:"xori" kind:"SCALAR"`
 	// SCHEMA: call DependentCost!
-	Call DependentCost `json:"call"`
+	Call DependentCost `json:"call" kind:"UNION"`
 	// SCHEMA: ccp DependentCost!
-	Ccp DependentCost `json:"ccp"`
+	Ccp DependentCost `json:"ccp" kind:"UNION"`
 	// SCHEMA: csiz DependentCost!
-	Csiz DependentCost `json:"csiz"`
+	Csiz DependentCost `json:"csiz" kind:"UNION"`
 	// SCHEMA: k256 DependentCost!
-	K256 DependentCost `json:"k256"`
+	K256 DependentCost `json:"k256" kind:"UNION"`
 	// SCHEMA: ldc DependentCost!
-	Ldc DependentCost `json:"ldc"`
+	Ldc DependentCost `json:"ldc" kind:"UNION"`
 	// SCHEMA: logd DependentCost!
-	Logd DependentCost `json:"logd"`
+	Logd DependentCost `json:"logd" kind:"UNION"`
 	// SCHEMA: mcl DependentCost!
-	Mcl DependentCost `json:"mcl"`
+	Mcl DependentCost `json:"mcl" kind:"UNION"`
 	// SCHEMA: mcli DependentCost!
-	Mcli DependentCost `json:"mcli"`
+	Mcli DependentCost `json:"mcli" kind:"UNION"`
 	// SCHEMA: mcp DependentCost!
-	Mcp DependentCost `json:"mcp"`
+	Mcp DependentCost `json:"mcp" kind:"UNION"`
 	// SCHEMA: mcpi DependentCost!
-	Mcpi DependentCost `json:"mcpi"`
+	Mcpi DependentCost `json:"mcpi" kind:"UNION"`
 	// SCHEMA: meq DependentCost!
-	Meq DependentCost `json:"meq"`
+	Meq DependentCost `json:"meq" kind:"UNION"`
 	// SCHEMA: retd DependentCost!
-	Retd DependentCost `json:"retd"`
+	Retd DependentCost `json:"retd" kind:"UNION"`
 	// SCHEMA: s256 DependentCost!
-	S256 DependentCost `json:"s256"`
+	S256 DependentCost `json:"s256" kind:"UNION"`
 	// SCHEMA: scwq DependentCost!
-	Scwq DependentCost `json:"scwq"`
+	Scwq DependentCost `json:"scwq" kind:"UNION"`
 	// SCHEMA: smo DependentCost!
-	Smo DependentCost `json:"smo"`
+	Smo DependentCost `json:"smo" kind:"UNION"`
 	// SCHEMA: srwq DependentCost!
-	Srwq DependentCost `json:"srwq"`
+	Srwq DependentCost `json:"srwq" kind:"UNION"`
 	// SCHEMA: swwq DependentCost!
-	Swwq DependentCost `json:"swwq"`
+	Swwq DependentCost `json:"swwq" kind:"UNION"`
 	// SCHEMA: contractRoot DependentCost!
-	ContractRoot DependentCost `json:"contractRoot"`
+	ContractRoot DependentCost `json:"contractRoot" kind:"UNION"`
 	// SCHEMA: stateRoot DependentCost!
-	StateRoot DependentCost `json:"stateRoot"`
+	StateRoot DependentCost `json:"stateRoot" kind:"UNION"`
 	// SCHEMA: vmInitialization DependentCost!
-	VmInitialization DependentCost `json:"vmInitialization"`
+	VmInitialization DependentCost `json:"vmInitialization" kind:"UNION"`
 	// SCHEMA: newStoragePerByte U64!
-	NewStoragePerByte U64 `json:"newStoragePerByte"`
+	NewStoragePerByte U64 `json:"newStoragePerByte" kind:"SCALAR"`
 }
 
 type Genesis struct {
 	// The chain configs define what consensus type to use, what settlement layer to use,
 	// rules of block validity, etc.
 	// SCHEMA: chainConfigHash Bytes32!
-	ChainConfigHash Bytes32 `json:"chainConfigHash"`
+	ChainConfigHash Bytes32 `json:"chainConfigHash" kind:"SCALAR"`
 	// The Binary Merkle Tree root of all genesis coins.
 	// SCHEMA: coinsRoot Bytes32!
-	CoinsRoot Bytes32 `json:"coinsRoot"`
+	CoinsRoot Bytes32 `json:"coinsRoot" kind:"SCALAR"`
 	// The Binary Merkle Tree root of state, balances, contracts code hash of each contract.
 	// SCHEMA: contractsRoot Bytes32!
-	ContractsRoot Bytes32 `json:"contractsRoot"`
+	ContractsRoot Bytes32 `json:"contractsRoot" kind:"SCALAR"`
 	// The Binary Merkle Tree root of all genesis messages.
 	// SCHEMA: messagesRoot Bytes32!
-	MessagesRoot Bytes32 `json:"messagesRoot"`
+	MessagesRoot Bytes32 `json:"messagesRoot" kind:"SCALAR"`
 }
 
 type Header struct {
 	// Hash of the header
 	// SCHEMA: id BlockId!
-	Id BlockId `json:"id"`
+	Id BlockId `json:"id" kind:"SCALAR"`
 	// The layer 1 height of messages and events to include since the last layer 1 block number.
 	// SCHEMA: daHeight U64!
-	DaHeight U64 `json:"daHeight"`
+	DaHeight U64 `json:"daHeight" kind:"SCALAR"`
 	// Number of transactions in this block.
 	// SCHEMA: transactionsCount U64!
-	TransactionsCount U64 `json:"transactionsCount"`
+	TransactionsCount U64 `json:"transactionsCount" kind:"SCALAR"`
 	// Number of message receipts in this block.
 	// SCHEMA: messageReceiptCount U64!
-	MessageReceiptCount U64 `json:"messageReceiptCount"`
+	MessageReceiptCount U64 `json:"messageReceiptCount" kind:"SCALAR"`
 	// Merkle root of transactions.
 	// SCHEMA: transactionsRoot Bytes32!
-	TransactionsRoot Bytes32 `json:"transactionsRoot"`
+	TransactionsRoot Bytes32 `json:"transactionsRoot" kind:"SCALAR"`
 	// Merkle root of message receipts in this block.
 	// SCHEMA: messageReceiptRoot Bytes32!
-	MessageReceiptRoot Bytes32 `json:"messageReceiptRoot"`
+	MessageReceiptRoot Bytes32 `json:"messageReceiptRoot" kind:"SCALAR"`
 	// Fuel block height.
 	// SCHEMA: height U32!
-	Height U32 `json:"height"`
+	Height U32 `json:"height" kind:"SCALAR"`
 	// Merkle root of all previous block header hashes.
 	// SCHEMA: prevRoot Bytes32!
-	PrevRoot Bytes32 `json:"prevRoot"`
+	PrevRoot Bytes32 `json:"prevRoot" kind:"SCALAR"`
 	// The block producer time.
 	// SCHEMA: time Tai64Timestamp!
-	Time Tai64Timestamp `json:"time"`
+	Time Tai64Timestamp `json:"time" kind:"SCALAR"`
 	// Hash of the application header.
 	// SCHEMA: applicationHash Bytes32!
-	ApplicationHash Bytes32 `json:"applicationHash"`
+	ApplicationHash Bytes32 `json:"applicationHash" kind:"SCALAR"`
 }
 
 type HeavyOperation struct {
 	// SCHEMA: base U64!
-	Base U64 `json:"base"`
+	Base U64 `json:"base" kind:"SCALAR"`
 	// SCHEMA: gasPerUnit U64!
-	GasPerUnit U64 `json:"gasPerUnit"`
+	GasPerUnit U64 `json:"gasPerUnit" kind:"SCALAR"`
 }
 
 type InputCoin struct {
 	// SCHEMA: utxoId UtxoId!
-	UtxoId UtxoId `json:"utxoId"`
+	UtxoId UtxoId `json:"utxoId" kind:"SCALAR"`
 	// SCHEMA: owner Address!
-	Owner Address `json:"owner"`
+	Owner Address `json:"owner" kind:"SCALAR"`
 	// SCHEMA: amount U64!
-	Amount U64 `json:"amount"`
+	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId `json:"assetId"`
+	AssetId AssetId `json:"assetId" kind:"SCALAR"`
 	// SCHEMA: txPointer TxPointer!
-	TxPointer TxPointer `json:"txPointer"`
+	TxPointer TxPointer `json:"txPointer" kind:"SCALAR"`
 	// SCHEMA: witnessIndex Int!
-	WitnessIndex Int `json:"witnessIndex"`
+	WitnessIndex Int `json:"witnessIndex" kind:"SCALAR"`
 	// SCHEMA: maturity U32!
-	Maturity U32 `json:"maturity"`
+	Maturity U32 `json:"maturity" kind:"SCALAR"`
 	// SCHEMA: predicateGasUsed U64!
-	PredicateGasUsed U64 `json:"predicateGasUsed"`
+	PredicateGasUsed U64 `json:"predicateGasUsed" kind:"SCALAR"`
 	// SCHEMA: predicate HexString!
-	Predicate HexString `json:"predicate"`
+	Predicate HexString `json:"predicate" kind:"SCALAR"`
 	// SCHEMA: predicateData HexString!
-	PredicateData HexString `json:"predicateData"`
+	PredicateData HexString `json:"predicateData" kind:"SCALAR"`
 }
 
 type InputContract struct {
 	// SCHEMA: utxoId UtxoId!
-	UtxoId UtxoId `json:"utxoId"`
+	UtxoId UtxoId `json:"utxoId" kind:"SCALAR"`
 	// SCHEMA: balanceRoot Bytes32!
-	BalanceRoot Bytes32 `json:"balanceRoot"`
+	BalanceRoot Bytes32 `json:"balanceRoot" kind:"SCALAR"`
 	// SCHEMA: stateRoot Bytes32!
-	StateRoot Bytes32 `json:"stateRoot"`
+	StateRoot Bytes32 `json:"stateRoot" kind:"SCALAR"`
 	// SCHEMA: txPointer TxPointer!
-	TxPointer TxPointer `json:"txPointer"`
+	TxPointer TxPointer `json:"txPointer" kind:"SCALAR"`
 	// SCHEMA: contract Contract!
-	Contract Contract `json:"contract"`
+	Contract Contract `json:"contract" kind:"OBJECT"`
 }
 
 type InputMessage struct {
 	// SCHEMA: sender Address!
-	Sender Address `json:"sender"`
+	Sender Address `json:"sender" kind:"SCALAR"`
 	// SCHEMA: recipient Address!
-	Recipient Address `json:"recipient"`
+	Recipient Address `json:"recipient" kind:"SCALAR"`
 	// SCHEMA: amount U64!
-	Amount U64 `json:"amount"`
+	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: nonce Nonce!
-	Nonce Nonce `json:"nonce"`
+	Nonce Nonce `json:"nonce" kind:"SCALAR"`
 	// SCHEMA: witnessIndex Int!
-	WitnessIndex Int `json:"witnessIndex"`
+	WitnessIndex Int `json:"witnessIndex" kind:"SCALAR"`
 	// SCHEMA: predicateGasUsed U64!
-	PredicateGasUsed U64 `json:"predicateGasUsed"`
+	PredicateGasUsed U64 `json:"predicateGasUsed" kind:"SCALAR"`
 	// SCHEMA: data HexString!
-	Data HexString `json:"data"`
+	Data HexString `json:"data" kind:"SCALAR"`
 	// SCHEMA: predicate HexString!
-	Predicate HexString `json:"predicate"`
+	Predicate HexString `json:"predicate" kind:"SCALAR"`
 	// SCHEMA: predicateData HexString!
-	PredicateData HexString `json:"predicateData"`
+	PredicateData HexString `json:"predicateData" kind:"SCALAR"`
 }
 
 type LightOperation struct {
 	// SCHEMA: base U64!
-	Base U64 `json:"base"`
+	Base U64 `json:"base" kind:"SCALAR"`
 	// SCHEMA: unitsPerGas U64!
-	UnitsPerGas U64 `json:"unitsPerGas"`
+	UnitsPerGas U64 `json:"unitsPerGas" kind:"SCALAR"`
 }
 
 type MerkleProof struct {
 	// SCHEMA: proofSet [Bytes32!]!
-	ProofSet []Bytes32 `json:"proofSet"`
+	ProofSet []Bytes32 `json:"proofSet" kind:"SCALAR"`
 	// SCHEMA: proofIndex U64!
-	ProofIndex U64 `json:"proofIndex"`
+	ProofIndex U64 `json:"proofIndex" kind:"SCALAR"`
 }
 
 type Message struct {
 	// SCHEMA: amount U64!
-	Amount U64 `json:"amount"`
+	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: sender Address!
-	Sender Address `json:"sender"`
+	Sender Address `json:"sender" kind:"SCALAR"`
 	// SCHEMA: recipient Address!
-	Recipient Address `json:"recipient"`
+	Recipient Address `json:"recipient" kind:"SCALAR"`
 	// SCHEMA: nonce Nonce!
-	Nonce Nonce `json:"nonce"`
+	Nonce Nonce `json:"nonce" kind:"SCALAR"`
 	// SCHEMA: data HexString!
-	Data HexString `json:"data"`
+	Data HexString `json:"data" kind:"SCALAR"`
 	// SCHEMA: daHeight U64!
-	DaHeight U64 `json:"daHeight"`
+	DaHeight U64 `json:"daHeight" kind:"SCALAR"`
 }
 
 type MessageCoin struct {
 	// SCHEMA: sender Address!
-	Sender Address `json:"sender"`
+	Sender Address `json:"sender" kind:"SCALAR"`
 	// SCHEMA: recipient Address!
-	Recipient Address `json:"recipient"`
+	Recipient Address `json:"recipient" kind:"SCALAR"`
 	// SCHEMA: nonce Nonce!
-	Nonce Nonce `json:"nonce"`
+	Nonce Nonce `json:"nonce" kind:"SCALAR"`
 	// SCHEMA: amount U64!
-	Amount U64 `json:"amount"`
+	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId `json:"assetId"`
+	AssetId AssetId `json:"assetId" kind:"SCALAR"`
 	// SCHEMA: daHeight U64!
-	DaHeight U64 `json:"daHeight"`
+	DaHeight U64 `json:"daHeight" kind:"SCALAR"`
 }
 
 type MessageConnection struct {
 	// Information to aid in pagination.
 	// SCHEMA: pageInfo PageInfo!
-	PageInfo PageInfo `json:"pageInfo"`
+	PageInfo PageInfo `json:"pageInfo" kind:"OBJECT"`
 	// A list of edges.
 	// SCHEMA: edges [MessageEdge!]!
-	Edges []MessageEdge `json:"edges"`
+	Edges []MessageEdge `json:"edges" kind:"OBJECT"`
 	// A list of nodes.
 	// SCHEMA: nodes [Message!]!
-	Nodes []Message `json:"nodes"`
+	Nodes []Message `json:"nodes" kind:"OBJECT"`
 }
 
 // An edge in a connection.
 type MessageEdge struct {
 	// A cursor for use in pagination
 	// SCHEMA: cursor String!
-	Cursor String `json:"cursor"`
+	Cursor String `json:"cursor" kind:"SCALAR"`
 	// The item at the end of the edge
 	// SCHEMA: node Message!
-	Node Message `json:"node"`
+	Node Message `json:"node" kind:"OBJECT"`
 }
 
 type MessageProof struct {
 	// SCHEMA: messageProof MerkleProof!
-	MessageProof MerkleProof `json:"messageProof"`
+	MessageProof MerkleProof `json:"messageProof" kind:"OBJECT"`
 	// SCHEMA: blockProof MerkleProof!
-	BlockProof MerkleProof `json:"blockProof"`
+	BlockProof MerkleProof `json:"blockProof" kind:"OBJECT"`
 	// SCHEMA: messageBlockHeader Header!
-	MessageBlockHeader Header `json:"messageBlockHeader"`
+	MessageBlockHeader Header `json:"messageBlockHeader" kind:"OBJECT"`
 	// SCHEMA: commitBlockHeader Header!
-	CommitBlockHeader Header `json:"commitBlockHeader"`
+	CommitBlockHeader Header `json:"commitBlockHeader" kind:"OBJECT"`
 	// SCHEMA: sender Address!
-	Sender Address `json:"sender"`
+	Sender Address `json:"sender" kind:"SCALAR"`
 	// SCHEMA: recipient Address!
-	Recipient Address `json:"recipient"`
+	Recipient Address `json:"recipient" kind:"SCALAR"`
 	// SCHEMA: nonce Nonce!
-	Nonce Nonce `json:"nonce"`
+	Nonce Nonce `json:"nonce" kind:"SCALAR"`
 	// SCHEMA: amount U64!
-	Amount U64 `json:"amount"`
+	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: data HexString!
-	Data HexString `json:"data"`
+	Data HexString `json:"data" kind:"SCALAR"`
 }
 
 type MessageStatus struct {
 	// SCHEMA: state MessageState!
-	State MessageState `json:"state"`
+	State MessageState `json:"state" kind:"ENUM"`
 }
 
 type Mutation struct {
 	// SCHEMA: startSession ID!
-	StartSession ID `json:"startSession"`
+	StartSession ID `json:"startSession" kind:"SCALAR"`
 	// SCHEMA: endSession Boolean!
-	EndSession Boolean `json:"endSession"`
+	EndSession Boolean `json:"endSession" kind:"SCALAR"`
 	// SCHEMA: reset Boolean!
-	Reset Boolean `json:"reset"`
+	Reset Boolean `json:"reset" kind:"SCALAR"`
 	// SCHEMA: execute Boolean!
-	Execute Boolean `json:"execute"`
+	Execute Boolean `json:"execute" kind:"SCALAR"`
 	// SCHEMA: setSingleStepping Boolean!
-	SetSingleStepping Boolean `json:"setSingleStepping"`
+	SetSingleStepping Boolean `json:"setSingleStepping" kind:"SCALAR"`
 	// SCHEMA: setBreakpoint Boolean!
-	SetBreakpoint Boolean `json:"setBreakpoint"`
+	SetBreakpoint Boolean `json:"setBreakpoint" kind:"SCALAR"`
 	// SCHEMA: startTx RunResult!
-	StartTx RunResult `json:"startTx"`
+	StartTx RunResult `json:"startTx" kind:"OBJECT"`
 	// SCHEMA: continueTx RunResult!
-	ContinueTx RunResult `json:"continueTx"`
+	ContinueTx RunResult `json:"continueTx" kind:"OBJECT"`
 	// Execute a dry-run of the transaction using a fork of current state, no changes are committed.
 	// SCHEMA: dryRun [Receipt!]!
-	DryRun []Receipt `json:"dryRun"`
+	DryRun []Receipt `json:"dryRun" kind:"OBJECT"`
 	// Submits transaction to the `TxPool`.
 	//
 	// Returns submitted transaction if the transaction is included in the `TxPool` without problems.
 	// SCHEMA: submit Transaction!
-	Submit Transaction `json:"submit"`
+	Submit Transaction `json:"submit" kind:"OBJECT"`
 	// Sequentially produces `blocks_to_produce` blocks. The first block starts with
 	// `start_timestamp`. If the block production in the [`crate::service::Config`] is
 	// `Trigger::Interval { block_time }`, produces blocks with `block_time ` intervals between
 	// them. The `start_timestamp` is the timestamp in seconds.
 	// SCHEMA: produceBlocks U32!
-	ProduceBlocks U32 `json:"produceBlocks"`
+	ProduceBlocks U32 `json:"produceBlocks" kind:"SCALAR"`
 }
 
 type NodeInfo struct {
 	// SCHEMA: utxoValidation Boolean!
-	UtxoValidation Boolean `json:"utxoValidation"`
+	UtxoValidation Boolean `json:"utxoValidation" kind:"SCALAR"`
 	// SCHEMA: vmBacktrace Boolean!
-	VmBacktrace Boolean `json:"vmBacktrace"`
+	VmBacktrace Boolean `json:"vmBacktrace" kind:"SCALAR"`
 	// SCHEMA: minGasPrice U64!
-	MinGasPrice U64 `json:"minGasPrice"`
+	MinGasPrice U64 `json:"minGasPrice" kind:"SCALAR"`
 	// SCHEMA: maxTx U64!
-	MaxTx U64 `json:"maxTx"`
+	MaxTx U64 `json:"maxTx" kind:"SCALAR"`
 	// SCHEMA: maxDepth U64!
-	MaxDepth U64 `json:"maxDepth"`
+	MaxDepth U64 `json:"maxDepth" kind:"SCALAR"`
 	// SCHEMA: nodeVersion String!
-	NodeVersion String `json:"nodeVersion"`
+	NodeVersion String `json:"nodeVersion" kind:"SCALAR"`
 	// SCHEMA: peers [PeerInfo!]!
-	Peers []PeerInfo `json:"peers"`
+	Peers []PeerInfo `json:"peers" kind:"OBJECT"`
 }
 
 // A separate `Breakpoint` type to be used as an output, as a single
 // type cannot act as both input and output type in async-graphql
 type OutputBreakpoint struct {
 	// SCHEMA: contract ContractId!
-	Contract ContractId `json:"contract"`
+	Contract ContractId `json:"contract" kind:"SCALAR"`
 	// SCHEMA: pc U64!
-	Pc U64 `json:"pc"`
+	Pc U64 `json:"pc" kind:"SCALAR"`
 }
 
 // Information about pagination in a connection
 type PageInfo struct {
 	// When paginating backwards, are there more items?
 	// SCHEMA: hasPreviousPage Boolean!
-	HasPreviousPage Boolean `json:"hasPreviousPage"`
+	HasPreviousPage Boolean `json:"hasPreviousPage" kind:"SCALAR"`
 	// When paginating forwards, are there more items?
 	// SCHEMA: hasNextPage Boolean!
-	HasNextPage Boolean `json:"hasNextPage"`
+	HasNextPage Boolean `json:"hasNextPage" kind:"SCALAR"`
 	// When paginating backwards, the cursor to continue.
 	// SCHEMA: startCursor String
-	StartCursor *String `json:"startCursor"`
+	StartCursor *String `json:"startCursor" kind:"SCALAR"`
 	// When paginating forwards, the cursor to continue.
 	// SCHEMA: endCursor String
-	EndCursor *String `json:"endCursor"`
+	EndCursor *String `json:"endCursor" kind:"SCALAR"`
 }
 
 type PeerInfo struct {
 	// The libp2p peer id
 	// SCHEMA: id String!
-	Id String `json:"id"`
+	Id String `json:"id" kind:"SCALAR"`
 	// The advertised multi-addrs that can be used to connect to this peer
 	// SCHEMA: addresses [String!]!
-	Addresses []String `json:"addresses"`
+	Addresses []String `json:"addresses" kind:"SCALAR"`
 	// The self-reported version of the client the peer is using
 	// SCHEMA: clientVersion String
-	ClientVersion *String `json:"clientVersion"`
+	ClientVersion *String `json:"clientVersion" kind:"SCALAR"`
 	// The last reported height of the peer
 	// SCHEMA: blockHeight U32
-	BlockHeight *U32 `json:"blockHeight"`
+	BlockHeight *U32 `json:"blockHeight" kind:"SCALAR"`
 	// The last heartbeat from this peer in unix epoch time ms
 	// SCHEMA: lastHeartbeatMs U64!
-	LastHeartbeatMs U64 `json:"lastHeartbeatMs"`
+	LastHeartbeatMs U64 `json:"lastHeartbeatMs" kind:"SCALAR"`
 	// The internal fuel p2p reputation of this peer
 	// SCHEMA: appScore Float!
-	AppScore Float `json:"appScore"`
+	AppScore Float `json:"appScore" kind:"SCALAR"`
 }
 
 type PoAConsensus struct {
 	// Gets the signature of the block produced by `PoA` consensus.
 	// SCHEMA: signature Signature!
-	Signature Signature `json:"signature"`
+	Signature Signature `json:"signature" kind:"SCALAR"`
 }
 
 type Policies struct {
 	// SCHEMA: gasPrice U64
-	GasPrice *U64 `json:"gasPrice"`
+	GasPrice *U64 `json:"gasPrice" kind:"SCALAR"`
 	// SCHEMA: witnessLimit U64
-	WitnessLimit *U64 `json:"witnessLimit"`
+	WitnessLimit *U64 `json:"witnessLimit" kind:"SCALAR"`
 	// SCHEMA: maturity U32
-	Maturity *U32 `json:"maturity"`
+	Maturity *U32 `json:"maturity" kind:"SCALAR"`
 	// SCHEMA: maxFee U64
-	MaxFee *U64 `json:"maxFee"`
+	MaxFee *U64 `json:"maxFee" kind:"SCALAR"`
 }
 
 type PredicateParameters struct {
 	// SCHEMA: maxPredicateLength U64!
-	MaxPredicateLength U64 `json:"maxPredicateLength"`
+	MaxPredicateLength U64 `json:"maxPredicateLength" kind:"SCALAR"`
 	// SCHEMA: maxPredicateDataLength U64!
-	MaxPredicateDataLength U64 `json:"maxPredicateDataLength"`
+	MaxPredicateDataLength U64 `json:"maxPredicateDataLength" kind:"SCALAR"`
 	// SCHEMA: maxGasPerPredicate U64!
-	MaxGasPerPredicate U64 `json:"maxGasPerPredicate"`
+	MaxGasPerPredicate U64 `json:"maxGasPerPredicate" kind:"SCALAR"`
 	// SCHEMA: maxMessageDataLength U64!
-	MaxMessageDataLength U64 `json:"maxMessageDataLength"`
+	MaxMessageDataLength U64 `json:"maxMessageDataLength" kind:"SCALAR"`
 }
 
 type ProgramState struct {
 	// SCHEMA: returnType ReturnType!
-	ReturnType ReturnType `json:"returnType"`
+	ReturnType ReturnType `json:"returnType" kind:"ENUM"`
 	// SCHEMA: data HexString!
-	Data HexString `json:"data"`
+	Data HexString `json:"data" kind:"SCALAR"`
 }
 
 type Query struct {
 	// SCHEMA: register U64!
-	Register U64 `json:"register"`
+	Register U64 `json:"register" kind:"SCALAR"`
 	// SCHEMA: memory String!
-	Memory String `json:"memory"`
+	Memory String `json:"memory" kind:"SCALAR"`
 	// SCHEMA: balance Balance!
-	Balance Balance `json:"balance"`
+	Balance Balance `json:"balance" kind:"OBJECT"`
 	// SCHEMA: balances BalanceConnection!
-	Balances BalanceConnection `json:"balances"`
+	Balances BalanceConnection `json:"balances" kind:"OBJECT"`
 	// SCHEMA: block Block
-	Block *Block `json:"block"`
+	Block *Block `json:"block" kind:"OBJECT"`
 	// SCHEMA: blocks BlockConnection!
-	Blocks BlockConnection `json:"blocks"`
+	Blocks BlockConnection `json:"blocks" kind:"OBJECT"`
 	// SCHEMA: chain ChainInfo!
-	Chain ChainInfo `json:"chain"`
+	Chain ChainInfo `json:"chain" kind:"OBJECT"`
 	// SCHEMA: transaction Transaction
-	Transaction *Transaction `json:"transaction"`
+	Transaction *Transaction `json:"transaction" kind:"OBJECT"`
 	// SCHEMA: transactions TransactionConnection!
-	Transactions TransactionConnection `json:"transactions"`
+	Transactions TransactionConnection `json:"transactions" kind:"OBJECT"`
 	// SCHEMA: transactionsByOwner TransactionConnection!
-	TransactionsByOwner TransactionConnection `json:"transactionsByOwner"`
+	TransactionsByOwner TransactionConnection `json:"transactionsByOwner" kind:"OBJECT"`
 	// Estimate the predicate gas for the provided transaction
 	// SCHEMA: estimatePredicates Transaction!
-	EstimatePredicates Transaction `json:"estimatePredicates"`
+	EstimatePredicates Transaction `json:"estimatePredicates" kind:"OBJECT"`
 	// Returns true when the GraphQL API is serving requests.
 	// SCHEMA: health Boolean!
-	Health Boolean `json:"health"`
+	Health Boolean `json:"health" kind:"SCALAR"`
 	// Gets the coin by `utxo_id`.
 	// SCHEMA: coin Coin
-	Coin *Coin `json:"coin"`
+	Coin *Coin `json:"coin" kind:"OBJECT"`
 	// Gets all unspent coins of some `owner` maybe filtered with by `asset_id` per page.
 	// SCHEMA: coins CoinConnection!
-	Coins CoinConnection `json:"coins"`
+	Coins CoinConnection `json:"coins" kind:"OBJECT"`
 	// For each `query_per_asset`, get some spendable coins(of asset specified by the query) owned by
 	// `owner` that add up at least the query amount. The returned coins can be spent.
 	// The number of coins is optimized to prevent dust accumulation.
@@ -1057,106 +1082,106 @@ type Query struct {
 	// the same as the length of `query_per_asset`. The ordering of assets and `query_per_asset`
 	// is the same.
 	// SCHEMA: coinsToSpend [[CoinType!]!]!
-	CoinsToSpend [][]CoinType `json:"coinsToSpend"`
+	CoinsToSpend [][]CoinType `json:"coinsToSpend" kind:"UNION"`
 	// SCHEMA: contract Contract
-	Contract *Contract `json:"contract"`
+	Contract *Contract `json:"contract" kind:"OBJECT"`
 	// SCHEMA: contractBalance ContractBalance!
-	ContractBalance ContractBalance `json:"contractBalance"`
+	ContractBalance ContractBalance `json:"contractBalance" kind:"OBJECT"`
 	// SCHEMA: contractBalances ContractBalanceConnection!
-	ContractBalances ContractBalanceConnection `json:"contractBalances"`
+	ContractBalances ContractBalanceConnection `json:"contractBalances" kind:"OBJECT"`
 	// SCHEMA: nodeInfo NodeInfo!
-	NodeInfo NodeInfo `json:"nodeInfo"`
+	NodeInfo NodeInfo `json:"nodeInfo" kind:"OBJECT"`
 	// SCHEMA: messages MessageConnection!
-	Messages MessageConnection `json:"messages"`
+	Messages MessageConnection `json:"messages" kind:"OBJECT"`
 	// SCHEMA: messageProof MessageProof
-	MessageProof *MessageProof `json:"messageProof"`
+	MessageProof *MessageProof `json:"messageProof" kind:"OBJECT"`
 	// SCHEMA: messageStatus MessageStatus!
-	MessageStatus MessageStatus `json:"messageStatus"`
+	MessageStatus MessageStatus `json:"messageStatus" kind:"OBJECT"`
 }
 
 type Receipt struct {
 	// SCHEMA: contract Contract
-	Contract *Contract `json:"contract"`
+	Contract *Contract `json:"contract" kind:"OBJECT"`
 	// SCHEMA: pc U64
-	Pc *U64 `json:"pc"`
+	Pc *U64 `json:"pc" kind:"SCALAR"`
 	// SCHEMA: is U64
-	Is *U64 `json:"is"`
+	Is *U64 `json:"is" kind:"SCALAR"`
 	// SCHEMA: to Contract
-	To *Contract `json:"to"`
+	To *Contract `json:"to" kind:"OBJECT"`
 	// SCHEMA: toAddress Address
-	ToAddress *Address `json:"toAddress"`
+	ToAddress *Address `json:"toAddress" kind:"SCALAR"`
 	// SCHEMA: amount U64
-	Amount *U64 `json:"amount"`
+	Amount *U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: assetId AssetId
-	AssetId *AssetId `json:"assetId"`
+	AssetId *AssetId `json:"assetId" kind:"SCALAR"`
 	// SCHEMA: gas U64
-	Gas *U64 `json:"gas"`
+	Gas *U64 `json:"gas" kind:"SCALAR"`
 	// SCHEMA: param1 U64
-	Param1 *U64 `json:"param1"`
+	Param1 *U64 `json:"param1" kind:"SCALAR"`
 	// SCHEMA: param2 U64
-	Param2 *U64 `json:"param2"`
+	Param2 *U64 `json:"param2" kind:"SCALAR"`
 	// SCHEMA: val U64
-	Val *U64 `json:"val"`
+	Val *U64 `json:"val" kind:"SCALAR"`
 	// SCHEMA: ptr U64
-	Ptr *U64 `json:"ptr"`
+	Ptr *U64 `json:"ptr" kind:"SCALAR"`
 	// SCHEMA: digest Bytes32
-	Digest *Bytes32 `json:"digest"`
+	Digest *Bytes32 `json:"digest" kind:"SCALAR"`
 	// SCHEMA: reason U64
-	Reason *U64 `json:"reason"`
+	Reason *U64 `json:"reason" kind:"SCALAR"`
 	// SCHEMA: ra U64
-	Ra *U64 `json:"ra"`
+	Ra *U64 `json:"ra" kind:"SCALAR"`
 	// SCHEMA: rb U64
-	Rb *U64 `json:"rb"`
+	Rb *U64 `json:"rb" kind:"SCALAR"`
 	// SCHEMA: rc U64
-	Rc *U64 `json:"rc"`
+	Rc *U64 `json:"rc" kind:"SCALAR"`
 	// SCHEMA: rd U64
-	Rd *U64 `json:"rd"`
+	Rd *U64 `json:"rd" kind:"SCALAR"`
 	// SCHEMA: len U64
-	Len *U64 `json:"len"`
+	Len *U64 `json:"len" kind:"SCALAR"`
 	// SCHEMA: receiptType ReceiptType!
-	ReceiptType ReceiptType `json:"receiptType"`
+	ReceiptType ReceiptType `json:"receiptType" kind:"ENUM"`
 	// SCHEMA: result U64
-	Result *U64 `json:"result"`
+	Result *U64 `json:"result" kind:"SCALAR"`
 	// SCHEMA: gasUsed U64
-	GasUsed *U64 `json:"gasUsed"`
+	GasUsed *U64 `json:"gasUsed" kind:"SCALAR"`
 	// SCHEMA: data HexString
-	Data *HexString `json:"data"`
+	Data *HexString `json:"data" kind:"SCALAR"`
 	// SCHEMA: sender Address
-	Sender *Address `json:"sender"`
+	Sender *Address `json:"sender" kind:"SCALAR"`
 	// SCHEMA: recipient Address
-	Recipient *Address `json:"recipient"`
+	Recipient *Address `json:"recipient" kind:"SCALAR"`
 	// SCHEMA: nonce Nonce
-	Nonce *Nonce `json:"nonce"`
+	Nonce *Nonce `json:"nonce" kind:"SCALAR"`
 	// SCHEMA: contractId ContractId
-	ContractId *ContractId `json:"contractId"`
+	ContractId *ContractId `json:"contractId" kind:"SCALAR"`
 	// SCHEMA: subId Bytes32
-	SubId *Bytes32 `json:"subId"`
+	SubId *Bytes32 `json:"subId" kind:"SCALAR"`
 }
 
 type RunResult struct {
 	// SCHEMA: state RunState!
-	State RunState `json:"state"`
+	State RunState `json:"state" kind:"ENUM"`
 	// SCHEMA: breakpoint OutputBreakpoint
-	Breakpoint *OutputBreakpoint `json:"breakpoint"`
+	Breakpoint *OutputBreakpoint `json:"breakpoint" kind:"OBJECT"`
 	// SCHEMA: jsonReceipts [String!]!
-	JsonReceipts []String `json:"jsonReceipts"`
+	JsonReceipts []String `json:"jsonReceipts" kind:"SCALAR"`
 }
 
 type ScriptParameters struct {
 	// SCHEMA: maxScriptLength U64!
-	MaxScriptLength U64 `json:"maxScriptLength"`
+	MaxScriptLength U64 `json:"maxScriptLength" kind:"SCALAR"`
 	// SCHEMA: maxScriptDataLength U64!
-	MaxScriptDataLength U64 `json:"maxScriptDataLength"`
+	MaxScriptDataLength U64 `json:"maxScriptDataLength" kind:"SCALAR"`
 }
 
 type SqueezedOutStatus struct {
 	// SCHEMA: reason String!
-	Reason String `json:"reason"`
+	Reason String `json:"reason" kind:"SCALAR"`
 }
 
 type SubmittedStatus struct {
 	// SCHEMA: time Tai64Timestamp!
-	Time Tai64Timestamp `json:"time"`
+	Time Tai64Timestamp `json:"time" kind:"SCALAR"`
 }
 
 type Subscription struct {
@@ -1173,135 +1198,137 @@ type Subscription struct {
 	// a status. If this occurs the stream can simply be restarted to return
 	// the latest status.
 	// SCHEMA: statusChange TransactionStatus!
-	StatusChange TransactionStatus `json:"statusChange"`
+	StatusChange TransactionStatus `json:"statusChange" kind:"UNION"`
 	// Submits transaction to the `TxPool` and await either confirmation or failure.
 	// SCHEMA: submitAndAwait TransactionStatus!
-	SubmitAndAwait TransactionStatus `json:"submitAndAwait"`
+	SubmitAndAwait TransactionStatus `json:"submitAndAwait" kind:"UNION"`
 }
 
 type SuccessStatus struct {
 	// SCHEMA: transactionId TransactionId!
-	TransactionId TransactionId `json:"transactionId"`
+	TransactionId TransactionId `json:"transactionId" kind:"SCALAR"`
 	// SCHEMA: block Block!
-	Block Block `json:"block"`
+	Block Block `json:"block" kind:"OBJECT"`
 	// SCHEMA: time Tai64Timestamp!
-	Time Tai64Timestamp `json:"time"`
+	Time Tai64Timestamp `json:"time" kind:"SCALAR"`
 	// SCHEMA: programState ProgramState
-	ProgramState *ProgramState `json:"programState"`
+	ProgramState *ProgramState `json:"programState" kind:"OBJECT"`
 	// SCHEMA: receipts [Receipt!]!
-	Receipts []Receipt `json:"receipts"`
+	Receipts []Receipt `json:"receipts" kind:"OBJECT"`
 }
 
 type Transaction struct {
 	// SCHEMA: id TransactionId!
-	Id TransactionId `json:"id"`
+	Id TransactionId `json:"id" kind:"SCALAR"`
 	// SCHEMA: inputAssetIds [AssetId!]
-	InputAssetIds []AssetId `json:"inputAssetIds"`
+	InputAssetIds []AssetId `json:"inputAssetIds" kind:"SCALAR"`
 	// SCHEMA: inputContracts [Contract!]
-	InputContracts []Contract `json:"inputContracts"`
+	InputContracts []Contract `json:"inputContracts" kind:"OBJECT"`
 	// SCHEMA: inputContract InputContract
-	InputContract *InputContract `json:"inputContract"`
+	InputContract *InputContract `json:"inputContract" kind:"OBJECT"`
 	// SCHEMA: policies Policies
-	Policies *Policies `json:"policies"`
+	Policies *Policies `json:"policies" kind:"OBJECT"`
 	// SCHEMA: gasPrice U64
-	GasPrice *U64 `json:"gasPrice"`
+	GasPrice *U64 `json:"gasPrice" kind:"SCALAR"`
 	// SCHEMA: scriptGasLimit U64
-	ScriptGasLimit *U64 `json:"scriptGasLimit"`
+	ScriptGasLimit *U64 `json:"scriptGasLimit" kind:"SCALAR"`
 	// SCHEMA: maturity U32
-	Maturity *U32 `json:"maturity"`
+	Maturity *U32 `json:"maturity" kind:"SCALAR"`
 	// SCHEMA: mintAmount U64
-	MintAmount *U64 `json:"mintAmount"`
+	MintAmount *U64 `json:"mintAmount" kind:"SCALAR"`
 	// SCHEMA: mintAssetId AssetId
-	MintAssetId *AssetId `json:"mintAssetId"`
+	MintAssetId *AssetId `json:"mintAssetId" kind:"SCALAR"`
 	// SCHEMA: txPointer TxPointer
-	TxPointer *TxPointer `json:"txPointer"`
+	TxPointer *TxPointer `json:"txPointer" kind:"SCALAR"`
 	// SCHEMA: isScript Boolean!
-	IsScript Boolean `json:"isScript"`
+	IsScript Boolean `json:"isScript" kind:"SCALAR"`
 	// SCHEMA: isCreate Boolean!
-	IsCreate Boolean `json:"isCreate"`
+	IsCreate Boolean `json:"isCreate" kind:"SCALAR"`
 	// SCHEMA: isMint Boolean!
-	IsMint Boolean `json:"isMint"`
+	IsMint Boolean `json:"isMint" kind:"SCALAR"`
 	// SCHEMA: inputs [Input!]
-	Inputs []Input `json:"inputs"`
+	Inputs []Input `json:"inputs" kind:"UNION"`
 	// SCHEMA: outputs [Output!]!
-	Outputs []Output `json:"outputs"`
+	Outputs []Output `json:"outputs" kind:"UNION"`
 	// SCHEMA: outputContract ContractOutput
-	OutputContract *ContractOutput `json:"outputContract"`
+	OutputContract *ContractOutput `json:"outputContract" kind:"OBJECT"`
 	// SCHEMA: witnesses [HexString!]
-	Witnesses []HexString `json:"witnesses"`
+	Witnesses []HexString `json:"witnesses" kind:"SCALAR"`
 	// SCHEMA: receiptsRoot Bytes32
-	ReceiptsRoot *Bytes32 `json:"receiptsRoot"`
+	ReceiptsRoot *Bytes32 `json:"receiptsRoot" kind:"SCALAR"`
 	// SCHEMA: status TransactionStatus
-	Status *TransactionStatus `json:"status"`
+	Status *TransactionStatus `json:"status" kind:"UNION"`
 	// SCHEMA: receipts [Receipt!]
-	Receipts []Receipt `json:"receipts"`
+	Receipts []Receipt `json:"receipts" kind:"OBJECT"`
 	// SCHEMA: script HexString
-	Script *HexString `json:"script"`
+	Script *HexString `json:"script" kind:"SCALAR"`
 	// SCHEMA: scriptData HexString
-	ScriptData *HexString `json:"scriptData"`
+	ScriptData *HexString `json:"scriptData" kind:"SCALAR"`
 	// SCHEMA: bytecodeWitnessIndex Int
-	BytecodeWitnessIndex *Int `json:"bytecodeWitnessIndex"`
+	BytecodeWitnessIndex *Int `json:"bytecodeWitnessIndex" kind:"SCALAR"`
 	// SCHEMA: bytecodeLength U64
-	BytecodeLength *U64 `json:"bytecodeLength"`
+	BytecodeLength *U64 `json:"bytecodeLength" kind:"SCALAR"`
 	// SCHEMA: salt Salt
-	Salt *Salt `json:"salt"`
+	Salt *Salt `json:"salt" kind:"SCALAR"`
 	// SCHEMA: storageSlots [HexString!]
-	StorageSlots []HexString `json:"storageSlots"`
+	StorageSlots []HexString `json:"storageSlots" kind:"SCALAR"`
 	// Return the transaction bytes using canonical encoding
 	// SCHEMA: rawPayload HexString!
-	RawPayload HexString `json:"rawPayload"`
+	RawPayload HexString `json:"rawPayload" kind:"SCALAR"`
 }
 
 type TransactionConnection struct {
 	// Information to aid in pagination.
 	// SCHEMA: pageInfo PageInfo!
-	PageInfo PageInfo `json:"pageInfo"`
+	PageInfo PageInfo `json:"pageInfo" kind:"OBJECT"`
 	// A list of edges.
 	// SCHEMA: edges [TransactionEdge!]!
-	Edges []TransactionEdge `json:"edges"`
+	Edges []TransactionEdge `json:"edges" kind:"OBJECT"`
 	// A list of nodes.
 	// SCHEMA: nodes [Transaction!]!
-	Nodes []Transaction `json:"nodes"`
+	Nodes []Transaction `json:"nodes" kind:"OBJECT"`
 }
 
 // An edge in a connection.
 type TransactionEdge struct {
 	// A cursor for use in pagination
 	// SCHEMA: cursor String!
-	Cursor String `json:"cursor"`
+	Cursor String `json:"cursor" kind:"SCALAR"`
 	// The item at the end of the edge
 	// SCHEMA: node Transaction!
-	Node Transaction `json:"node"`
+	Node Transaction `json:"node" kind:"OBJECT"`
 }
 
 type TxParameters struct {
 	// SCHEMA: maxInputs U8!
-	MaxInputs U8 `json:"maxInputs"`
+	MaxInputs U8 `json:"maxInputs" kind:"SCALAR"`
 	// SCHEMA: maxOutputs U8!
-	MaxOutputs U8 `json:"maxOutputs"`
+	MaxOutputs U8 `json:"maxOutputs" kind:"SCALAR"`
 	// SCHEMA: maxWitnesses U32!
-	MaxWitnesses U32 `json:"maxWitnesses"`
+	MaxWitnesses U32 `json:"maxWitnesses" kind:"SCALAR"`
 	// SCHEMA: maxGasPerTx U64!
-	MaxGasPerTx U64 `json:"maxGasPerTx"`
+	MaxGasPerTx U64 `json:"maxGasPerTx" kind:"SCALAR"`
 	// SCHEMA: maxSize U64!
-	MaxSize U64 `json:"maxSize"`
+	MaxSize U64 `json:"maxSize" kind:"SCALAR"`
 }
 
 type VariableOutput struct {
 	// SCHEMA: to Address!
-	To Address `json:"to"`
+	To Address `json:"to" kind:"SCALAR"`
 	// SCHEMA: amount U64!
-	Amount U64 `json:"amount"`
+	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: assetId AssetId!
-	AssetId AssetId `json:"assetId"`
+	AssetId AssetId `json:"assetId" kind:"SCALAR"`
 }
 
 // ====================
-// union types
+// Unions
 // --------------------
 
 // The schema analog of the [`coins::CoinType`].
 type CoinType struct {
+	TypeName_ string
+
 	*Coin
 	*MessageCoin
 }
@@ -1311,6 +1338,8 @@ func (u *CoinType) UnmarshalJSON(raw []byte) error {
 }
 
 type Consensus struct {
+	TypeName_ string
+
 	*Genesis
 	*PoAConsensus
 }
@@ -1320,6 +1349,8 @@ func (u *Consensus) UnmarshalJSON(raw []byte) error {
 }
 
 type DependentCost struct {
+	TypeName_ string
+
 	*LightOperation
 	*HeavyOperation
 }
@@ -1329,6 +1360,8 @@ func (u *DependentCost) UnmarshalJSON(raw []byte) error {
 }
 
 type Input struct {
+	TypeName_ string
+
 	*InputCoin
 	*InputContract
 	*InputMessage
@@ -1339,6 +1372,8 @@ func (u *Input) UnmarshalJSON(raw []byte) error {
 }
 
 type Output struct {
+	TypeName_ string
+
 	*CoinOutput
 	*ContractOutput
 	*ChangeOutput
@@ -1351,6 +1386,8 @@ func (u *Output) UnmarshalJSON(raw []byte) error {
 }
 
 type TransactionStatus struct {
+	TypeName_ string
+
 	*SubmittedStatus
 	*SuccessStatus
 	*SqueezedOutStatus
@@ -1374,6 +1411,10 @@ func UnmarshalJSONUnion(raw []byte, unionObj any) error {
 	}
 	rv := pv.Elem()
 	rt := rv.Type()
+	if _, has := rt.FieldByName("TypeName_"); !has {
+		return fmt.Errorf("%s is not an union type because miss field TypeName_", rt.Name())
+	}
+	rv.FieldByName("TypeName_").SetString(union.TypeName)
 	for i := 0; i < rt.NumField(); i++ {
 		if rt.Field(i).Name == union.TypeName {
 			if rt.Field(i).Type.Kind() != reflect.Pointer {
@@ -1388,4 +1429,250 @@ func UnmarshalJSONUnion(raw []byte, unionObj any) error {
 		}
 	}
 	return fmt.Errorf("union type %T do not have member %s", unionObj, union.TypeName)
+}
+
+// ====================
+// InputObjects
+// --------------------
+
+type BalanceFilterInput struct {
+	// Filter coins based on the `owner` field
+	// SCHEMA: owner Address!
+	Owner Address `name:"owner" kind:"SCALAR"`
+}
+
+type Breakpoint struct {
+	// SCHEMA: contract ContractId!
+	Contract ContractId `name:"contract" kind:"SCALAR"`
+	// SCHEMA: pc U64!
+	Pc U64 `name:"pc" kind:"SCALAR"`
+}
+
+type CoinFilterInput struct {
+	// Returns coins owned by the `owner`.
+	// SCHEMA: owner Address!
+	Owner Address `name:"owner" kind:"SCALAR"`
+	// Returns coins only with `asset_id`.
+	// SCHEMA: assetId AssetId
+	AssetId *AssetId `name:"assetId" kind:"SCALAR"`
+}
+
+type ContractBalanceFilterInput struct {
+	// Filter assets based on the `contractId` field
+	// SCHEMA: contract ContractId!
+	Contract ContractId `name:"contract" kind:"SCALAR"`
+}
+
+type ExcludeInput struct {
+	// Utxos to exclude from the selection.
+	// SCHEMA: utxos [UtxoId!]!
+	Utxos []UtxoId `name:"utxos" kind:"SCALAR"`
+	// Messages to exclude from the selection.
+	// SCHEMA: messages [Nonce!]!
+	Messages []Nonce `name:"messages" kind:"SCALAR"`
+}
+
+type SpendQueryElementInput struct {
+	// Identifier of the asset to spend.
+	// SCHEMA: assetId AssetId!
+	AssetId AssetId `name:"assetId" kind:"SCALAR"`
+	// Target amount for the query.
+	// SCHEMA: amount U64!
+	Amount U64 `name:"amount" kind:"SCALAR"`
+	// The maximum number of currencies for selection.
+	// SCHEMA: max U32
+	Max *U32 `name:"max" kind:"SCALAR"`
+}
+
+// ====================
+// QueryArgumentObjects
+// --------------------
+
+type QueryRegisterParams struct {
+	// SCHEMA: id ID!
+	Id ID `name:"id" kind:"SCALAR"`
+	// SCHEMA: register U32!
+	Register U32 `name:"register" kind:"SCALAR"`
+}
+
+type QueryMemoryParams struct {
+	// SCHEMA: id ID!
+	Id ID `name:"id" kind:"SCALAR"`
+	// SCHEMA: start U32!
+	Start U32 `name:"start" kind:"SCALAR"`
+	// SCHEMA: size U32!
+	Size U32 `name:"size" kind:"SCALAR"`
+}
+
+type QueryBalanceParams struct {
+	// address of the owner
+	// SCHEMA: owner Address!
+	Owner Address `name:"owner" kind:"SCALAR"`
+	// asset_id of the coin
+	// SCHEMA: assetId AssetId!
+	AssetId AssetId `name:"assetId" kind:"SCALAR"`
+}
+
+type QueryBalancesParams struct {
+	// SCHEMA: filter BalanceFilterInput!
+	Filter BalanceFilterInput `name:"filter" kind:"INPUT_OBJECT"`
+	// SCHEMA: first Int
+	First *Int `name:"first" kind:"SCALAR"`
+	// SCHEMA: after String
+	After *String `name:"after" kind:"SCALAR"`
+	// SCHEMA: last Int
+	Last *Int `name:"last" kind:"SCALAR"`
+	// SCHEMA: before String
+	Before *String `name:"before" kind:"SCALAR"`
+}
+
+type QueryBlockParams struct {
+	// ID of the block
+	// SCHEMA: id BlockId
+	Id *BlockId `name:"id" kind:"SCALAR"`
+	// Height of the block
+	// SCHEMA: height U32
+	Height *U32 `name:"height" kind:"SCALAR"`
+}
+
+type QueryBlocksParams struct {
+	// SCHEMA: first Int
+	First *Int `name:"first" kind:"SCALAR"`
+	// SCHEMA: after String
+	After *String `name:"after" kind:"SCALAR"`
+	// SCHEMA: last Int
+	Last *Int `name:"last" kind:"SCALAR"`
+	// SCHEMA: before String
+	Before *String `name:"before" kind:"SCALAR"`
+}
+
+type QueryChainParams struct {
+}
+
+type QueryTransactionParams struct {
+	// The ID of the transaction
+	// SCHEMA: id TransactionId!
+	Id TransactionId `name:"id" kind:"SCALAR"`
+}
+
+type QueryTransactionsParams struct {
+	// SCHEMA: first Int
+	First *Int `name:"first" kind:"SCALAR"`
+	// SCHEMA: after String
+	After *String `name:"after" kind:"SCALAR"`
+	// SCHEMA: last Int
+	Last *Int `name:"last" kind:"SCALAR"`
+	// SCHEMA: before String
+	Before *String `name:"before" kind:"SCALAR"`
+}
+
+type QueryTransactionsByOwnerParams struct {
+	// SCHEMA: owner Address!
+	Owner Address `name:"owner" kind:"SCALAR"`
+	// SCHEMA: first Int
+	First *Int `name:"first" kind:"SCALAR"`
+	// SCHEMA: after String
+	After *String `name:"after" kind:"SCALAR"`
+	// SCHEMA: last Int
+	Last *Int `name:"last" kind:"SCALAR"`
+	// SCHEMA: before String
+	Before *String `name:"before" kind:"SCALAR"`
+}
+
+type QueryEstimatePredicatesParams struct {
+	// SCHEMA: tx HexString!
+	Tx HexString `name:"tx" kind:"SCALAR"`
+}
+
+type QueryHealthParams struct {
+}
+
+type QueryCoinParams struct {
+	// The ID of the coin
+	// SCHEMA: utxoId UtxoId!
+	UtxoId UtxoId `name:"utxoId" kind:"SCALAR"`
+}
+
+type QueryCoinsParams struct {
+	// SCHEMA: filter CoinFilterInput!
+	Filter CoinFilterInput `name:"filter" kind:"INPUT_OBJECT"`
+	// SCHEMA: first Int
+	First *Int `name:"first" kind:"SCALAR"`
+	// SCHEMA: after String
+	After *String `name:"after" kind:"SCALAR"`
+	// SCHEMA: last Int
+	Last *Int `name:"last" kind:"SCALAR"`
+	// SCHEMA: before String
+	Before *String `name:"before" kind:"SCALAR"`
+}
+
+type QueryCoinsToSpendParams struct {
+	// The `Address` of the coins owner.
+	// SCHEMA: owner Address!
+	Owner Address `name:"owner" kind:"SCALAR"`
+	// The list of requested assets` coins with asset ids, `target` amount the user wants to reach, and the `max` number of coins in the selection. Several entries with the same asset id are not allowed.
+	// SCHEMA: queryPerAsset [SpendQueryElementInput!]!
+	QueryPerAsset []SpendQueryElementInput `name:"queryPerAsset" kind:"INPUT_OBJECT"`
+	// The excluded coins from the selection.
+	// SCHEMA: excludedIds ExcludeInput
+	ExcludedIds *ExcludeInput `name:"excludedIds" kind:"INPUT_OBJECT"`
+}
+
+type QueryContractParams struct {
+	// ID of the Contract
+	// SCHEMA: id ContractId!
+	Id ContractId `name:"id" kind:"SCALAR"`
+}
+
+type QueryContractBalanceParams struct {
+	// SCHEMA: contract ContractId!
+	Contract ContractId `name:"contract" kind:"SCALAR"`
+	// SCHEMA: asset AssetId!
+	Asset AssetId `name:"asset" kind:"SCALAR"`
+}
+
+type QueryContractBalancesParams struct {
+	// SCHEMA: filter ContractBalanceFilterInput!
+	Filter ContractBalanceFilterInput `name:"filter" kind:"INPUT_OBJECT"`
+	// SCHEMA: first Int
+	First *Int `name:"first" kind:"SCALAR"`
+	// SCHEMA: after String
+	After *String `name:"after" kind:"SCALAR"`
+	// SCHEMA: last Int
+	Last *Int `name:"last" kind:"SCALAR"`
+	// SCHEMA: before String
+	Before *String `name:"before" kind:"SCALAR"`
+}
+
+type QueryNodeInfoParams struct {
+}
+
+type QueryMessagesParams struct {
+	// address of the owner
+	// SCHEMA: owner Address
+	Owner *Address `name:"owner" kind:"SCALAR"`
+	// SCHEMA: first Int
+	First *Int `name:"first" kind:"SCALAR"`
+	// SCHEMA: after String
+	After *String `name:"after" kind:"SCALAR"`
+	// SCHEMA: last Int
+	Last *Int `name:"last" kind:"SCALAR"`
+	// SCHEMA: before String
+	Before *String `name:"before" kind:"SCALAR"`
+}
+
+type QueryMessageProofParams struct {
+	// SCHEMA: transactionId TransactionId!
+	TransactionId TransactionId `name:"transactionId" kind:"SCALAR"`
+	// SCHEMA: nonce Nonce!
+	Nonce Nonce `name:"nonce" kind:"SCALAR"`
+	// SCHEMA: commitBlockId BlockId
+	CommitBlockId *BlockId `name:"commitBlockId" kind:"SCALAR"`
+	// SCHEMA: commitBlockHeight U32
+	CommitBlockHeight *U32 `name:"commitBlockHeight" kind:"SCALAR"`
+}
+
+type QueryMessageStatusParams struct {
+	// SCHEMA: nonce Nonce!
+	Nonce Nonce `name:"nonce" kind:"SCALAR"`
 }

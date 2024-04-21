@@ -121,6 +121,7 @@ func Test_jsonUnmarshalUnionAndTAI64(t *testing.T) {
 	ti, _ := time.Parse(time.RFC3339, "2024-04-16T12:51:06Z")
 	assert.NoError(t, err)
 	assert.Equal(t, []TransactionStatus{{
+		TypeName_: "SuccessStatus",
 		SuccessStatus: &SuccessStatus{
 			Block: Block{
 				Id: BlockId{Hash: common.HexToHash("0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")},
@@ -130,12 +131,14 @@ func Test_jsonUnmarshalUnionAndTAI64(t *testing.T) {
 			},
 		},
 	}, {
+		TypeName_: "FailureStatus",
 		FailureStatus: &FailureStatus{
 			Block: Block{
 				Id: BlockId{Hash: common.HexToHash("0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")},
 			},
 		},
 	}, {
+		TypeName_: "SubmittedStatus",
 		SubmittedStatus: &SubmittedStatus{
 			Time: Tai64Timestamp{
 				Time: ti,

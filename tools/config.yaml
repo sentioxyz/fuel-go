@@ -28,4 +28,4 @@ scalarMapper:
   U8: uint8
   U32: uint32
   U64: uint64
-  UtxoId: common.Hash
+  UtxoId: hexutil.Bytes
