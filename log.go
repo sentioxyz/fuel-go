@@ -2,15 +2,22 @@ package fuel
 
 import (
 	"fmt"
-	"time"
+	"log"
+	"os"
 )
 
 type Logger interface {
 	Infof(template string, args ...any)
 }
 
-type SimpleStdoutLogger struct{}
+type simpleLogger log.Logger
 
-func (l SimpleStdoutLogger) Infof(template string, args ...any) {
-	fmt.Printf(time.Now().String()+" "+template+"\n", args...)
+func (l *simpleLogger) Infof(template string, args ...any) {
+	_ = (*log.Logger)(l).Output(2, fmt.Sprintf(template+"\n", args...))
+}
+
+var SimpleLogger *simpleLogger
+
+func init() {
+	SimpleLogger = (*simpleLogger)(log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile))
 }

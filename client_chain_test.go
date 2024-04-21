@@ -8,13 +8,13 @@ import (
 )
 
 func Test_GetChain(t *testing.T) {
-	cli := NewClientWithLogger(testnetEndpoint, SimpleStdoutLogger{})
+	cli := NewClientWithLogger(testnetEndpoint, SimpleLogger)
 	_, err := cli.GetChain(context.Background(), GetChainOption{Simple: true})
 	assert.NoError(t, err)
 }
 
 func Test_GetLatestBlockHeight(t *testing.T) {
-	cli := NewClientWithLogger(testnetEndpoint, SimpleStdoutLogger{})
+	cli := NewClientWithLogger(testnetEndpoint, SimpleLogger)
 	h, err := cli.GetLatestBlockHeight(context.Background())
 	assert.NoError(t, err)
 	fmt.Printf("%d\n", h)
