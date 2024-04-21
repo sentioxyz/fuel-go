@@ -7,15 +7,21 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
 
 type Client struct {
 	endpoint   string
 	httpClient http.Client
+	logger     Logger
 }
 
 func NewClient(endpoint string) *Client {
 	return &Client{endpoint: endpoint}
+}
+
+func NewClientWithLogger(endpoint string, logger Logger) *Client {
+	return &Client{endpoint: endpoint, logger: logger}
 }
 
 type QueryErrorLocation struct {
@@ -59,6 +65,10 @@ func (e QueryErrors) Error() string {
 }
 
 func ExecuteQuery[DATA any](ctx context.Context, cli *Client, query string) (data DATA, err error) {
+	if cli.logger != nil {
+		cli.logger.Infof("execute query: %s", query)
+	}
+	start := time.Now()
 	var reqBody bytes.Buffer
 	if err = json.NewEncoder(&reqBody).Encode(map[string]any{"query": query}); err != nil {
 		return data, fmt.Errorf("build request failed: %w", err)
@@ -83,7 +93,9 @@ func ExecuteQuery[DATA any](ctx context.Context, cli *Client, query string) (dat
 	if err != nil {
 		return data, fmt.Errorf("read response body failed: %w", err)
 	}
-	//fmt.Printf("!!! respBody(len:%d): %s\n", len(respBody), string(respBody))
+	if cli.logger != nil {
+		cli.logger.Infof("query result(len: %d, used: %s): %s", len(respBody), time.Since(start), string(respBody))
+	}
 
 	var result struct {
 		Data   DATA        `json:"data"`

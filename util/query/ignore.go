@@ -46,12 +46,19 @@ func IgnoreOtherField(obj any, fieldNames ...string) IgnoreChecker {
 }
 
 func MergeIgnores(checkers ...IgnoreChecker) IgnoreChecker {
-	return func(object reflect.Type, field reflect.StructField) bool {
-		for _, checker := range checkers {
-			if checker(object, field) {
-				return true
+	switch len(checkers) {
+	case 0:
+		return nil
+	case 1:
+		return checkers[0]
+	default:
+		return func(object reflect.Type, field reflect.StructField) bool {
+			for _, checker := range checkers {
+				if checker(object, field) {
+					return true
+				}
 			}
+			return false
 		}
-		return false
 	}
 }

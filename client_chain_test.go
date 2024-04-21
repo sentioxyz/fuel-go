@@ -7,14 +7,20 @@ import (
 	"testing"
 )
 
-func Test_getLastestBlockHeight(t *testing.T) {
-	cli := NewClient(testnetEndpoint)
+func Test_GetChain(t *testing.T) {
+	cli := NewClientWithLogger(testnetEndpoint, SimpleStdoutLogger{})
+	_, err := cli.GetChain(context.Background(), GetChainOption{Simple: true})
+	assert.NoError(t, err)
+}
+
+func Test_GetLatestBlockHeight(t *testing.T) {
+	cli := NewClientWithLogger(testnetEndpoint, SimpleStdoutLogger{})
 	h, err := cli.GetLatestBlockHeight(context.Background())
 	assert.NoError(t, err)
 	fmt.Printf("%d\n", h)
 }
 
-func Test_getLastestBlockHeader(t *testing.T) {
+func Test_GetLatestBlockHeader(t *testing.T) {
 	cli := NewClient(testnetEndpoint)
 	h, err := cli.GetLatestBlockHeader(context.Background())
 	assert.NoError(t, err)

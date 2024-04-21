@@ -356,7 +356,7 @@ func (g generator) Gen() {
 func main() {
 	schemaFile := flag.String("schema-file", "./schema.graphql", "path of the schema file")
 	configFile := flag.String("config-file", "./config.yaml", "path of the config yaml file")
-	outputFile := flag.String("output-file", "../types.go", "path of the output file")
+	outputFile := flag.String("output-file", "../types/types.go", "path of the output file")
 
 	flag.Parse()
 

@@ -1,4 +1,4 @@
-package fuel
+package types
 
 import (
 	"encoding/json"

@@ -1,56 +1,57 @@
 package fuel
 
-import "context"
+import (
+	"context"
+	"fmt"
+	"github.com/sentioxyz/fuel-go/types"
+	"github.com/sentioxyz/fuel-go/util/query"
+)
 
-func (c *Client) GetLatestBlockHeight(ctx context.Context) (U32, error) {
-	query := `
-{
-  chain {
-    latestBlock {
-      header {
-		height
-      }
-    }
-  }
-}
-`
-	type chainInfoResult struct {
-		Chain ChainInfo `json:"chain"`
-	}
-	chainInfo, err := ExecuteQuery[chainInfoResult](ctx, c, query)
-	if err != nil {
-		return 0, err
-	}
-	return chainInfo.Chain.LatestBlock.Header.Height, nil
+type GetChainOption struct {
+	Simple bool
+	GetBlockOption
 }
 
-func (c *Client) GetLatestBlockHeader(ctx context.Context) (Header, error) {
-	query := `
-{
-  chain {
-    latestBlock {
-      header {
-		id
-		daHeight
-		transactionsCount
-		messageReceiptCount
-		transactionsRoot
-		messageReceiptRoot
-		height
-		prevRoot
-		time
-		applicationHash
-      }
-    }
-  }
+func (o GetChainOption) BuildIgnoreChecker() query.IgnoreChecker {
+	if o.Simple {
+		return query.MergeIgnores(
+			query.IgnoreOtherField(types.ChainInfo{}, "Name", "LatestBlock"),
+			o.GetBlockOption.BuildIgnoreChecker(),
+		)
+	}
+	return o.GetBlockOption.BuildIgnoreChecker()
 }
-`
+
+func (c *Client) GetChain(ctx context.Context, opt GetChainOption) (types.ChainInfo, error) {
+	q := fmt.Sprintf("{ chain { %s } }",
+		query.Simple.GenObjectQuery(types.ChainInfo{}, opt.BuildIgnoreChecker()),
+	)
 	type resultType struct {
-		Chain ChainInfo `json:"chain"`
+		Chain types.ChainInfo `json:"chain"`
 	}
-	result, err := ExecuteQuery[resultType](ctx, c, query)
+	result, err := ExecuteQuery[resultType](ctx, c, q)
 	if err != nil {
-		return Header{}, err
+		return types.ChainInfo{}, err
 	}
-	return result.Chain.LatestBlock.Header, nil
+	return result.Chain, nil
+}
+
+func (c *Client) GetLatestBlockHeight(ctx context.Context) (types.U32, error) {
+	info, err := c.GetChain(ctx, GetChainOption{
+		Simple: true,
+		GetBlockOption: GetBlockOption{
+			OnlyIdAndHeight: true,
+		},
+	})
+	return info.LatestBlock.Header.Height, err
+}
+
+func (c *Client) GetLatestBlockHeader(ctx context.Context) (types.Header, error) {
+	info, err := c.GetChain(ctx, GetChainOption{
+		Simple: true,
+		GetBlockOption: GetBlockOption{
+			WithTransactions: false,
+		},
+	})
+	return info.LatestBlock.Header, err
 }
