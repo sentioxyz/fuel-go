@@ -3,8 +3,8 @@ package fuel
 import (
 	"context"
 	"fmt"
+	"github.com/sentioxyz/fuel-go/query"
 	"github.com/sentioxyz/fuel-go/types"
-	"github.com/sentioxyz/fuel-go/util/query"
 )
 
 type GetChainOption struct {
@@ -15,7 +15,7 @@ type GetChainOption struct {
 func (o GetChainOption) BuildIgnoreChecker() query.IgnoreChecker {
 	if o.Simple {
 		return query.MergeIgnores(
-			query.IgnoreOtherField(types.ChainInfo{}, "Name", "LatestBlock"),
+			query.IgnoreOtherFields(types.ChainInfo{}, "Name", "LatestBlock"),
 			o.GetBlockOption.BuildIgnoreChecker(),
 		)
 	}
@@ -23,7 +23,7 @@ func (o GetChainOption) BuildIgnoreChecker() query.IgnoreChecker {
 }
 
 func (c *Client) GetChain(ctx context.Context, opt GetChainOption) (types.ChainInfo, error) {
-	q := fmt.Sprintf("{ chain { %s } }",
+	q := fmt.Sprintf("{ chain { %s} }",
 		query.Simple.GenObjectQuery(types.ChainInfo{}, opt.BuildIgnoreChecker()),
 	)
 	type resultType struct {

@@ -3,9 +3,9 @@ package fuel
 import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/sentioxyz/fuel-go/query"
 	"github.com/sentioxyz/fuel-go/types"
 	"github.com/sentioxyz/fuel-go/util"
-	"github.com/sentioxyz/fuel-go/util/query"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"

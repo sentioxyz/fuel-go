@@ -31,7 +31,7 @@ func IgnoreField(obj any, fieldName string) IgnoreChecker {
 	}
 }
 
-func IgnoreOtherField(obj any, fieldNames ...string) IgnoreChecker {
+func IgnoreOtherFields(obj any, fieldNames ...string) IgnoreChecker {
 	return func(object reflect.Type, field reflect.StructField) bool {
 		if object != reflect.TypeOf(obj) {
 			return false

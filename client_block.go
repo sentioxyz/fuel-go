@@ -3,8 +3,8 @@ package fuel
 import (
 	"context"
 	"fmt"
+	"github.com/sentioxyz/fuel-go/query"
 	"github.com/sentioxyz/fuel-go/types"
-	"github.com/sentioxyz/fuel-go/util/query"
 )
 
 type GetBlockOption struct {
@@ -17,12 +17,12 @@ func (o GetBlockOption) BuildIgnoreChecker() query.IgnoreChecker {
 	var checkers []query.IgnoreChecker
 	if o.OnlyIdAndHeight {
 		checkers = []query.IgnoreChecker{
-			query.IgnoreOtherField(types.Block{}, "Id", "Header"),
-			query.IgnoreOtherField(types.Header{}, "Id", "Height"),
+			query.IgnoreOtherFields(types.Block{}, "Id", "Header"),
+			query.IgnoreOtherFields(types.Header{}, "Id", "Height"),
 		}
 	} else if o.WithTransactions {
 		if o.OnlyTransactionID {
-			checkers = []query.IgnoreChecker{query.IgnoreOtherField(types.Transaction{}, "Id")}
+			checkers = []query.IgnoreChecker{query.IgnoreOtherFields(types.Transaction{}, "Id")}
 		} else {
 			// Otherwise it will create circular dependencies
 			checkers = []query.IgnoreChecker{query.IgnoreObjects(types.SuccessStatus{}, types.FailureStatus{})}
@@ -30,13 +30,13 @@ func (o GetBlockOption) BuildIgnoreChecker() query.IgnoreChecker {
 	} else {
 		checkers = []query.IgnoreChecker{query.IgnoreObjects(types.Transaction{})}
 	}
-	// Contract.Bytecode is not needed
+	// Contract.Bytecode is big but not necessary
 	checkers = append(checkers, query.IgnoreField(types.Contract{}, "Bytecode"))
 	return query.MergeIgnores(checkers...)
 }
 
 func (c *Client) GetBlock(ctx context.Context, param types.QueryBlockParams, opt GetBlockOption) (*types.Block, error) {
-	q := fmt.Sprintf("{ block(%s) { %s } }",
+	q := fmt.Sprintf("{ block(%s) { %s} }",
 		query.Simple.GenParam(param),
 		query.Simple.GenObjectQuery(types.Block{}, opt.BuildIgnoreChecker()),
 	)

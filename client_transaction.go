@@ -3,8 +3,8 @@ package fuel
 import (
 	"context"
 	"fmt"
+	"github.com/sentioxyz/fuel-go/query"
 	"github.com/sentioxyz/fuel-go/types"
-	"github.com/sentioxyz/fuel-go/util/query"
 )
 
 type GetTransactionOption struct {
@@ -12,26 +12,30 @@ type GetTransactionOption struct {
 	WithStatus   bool
 }
 
-func (c *Client) GetTransaction(
-	ctx context.Context,
-	param types.QueryTransactionParams,
-	opt GetTransactionOption,
-) (*types.Transaction, error) {
+func (o GetTransactionOption) BuildIgnoreChecker() query.IgnoreChecker {
 	ignoreCheckers := []query.IgnoreChecker{
 		query.IgnoreField(types.Block{}, "Transactions"),
 		query.IgnoreField(types.Contract{}, "Bytecode"),
 		query.IgnoreField(types.SuccessStatus{}, "Receipts"),
 		query.IgnoreField(types.FailureStatus{}, "Receipts"),
 	}
-	if !opt.WithReceipts {
+	if !o.WithReceipts {
 		ignoreCheckers = append(ignoreCheckers, query.IgnoreField(types.Transaction{}, "Receipts"))
 	}
-	if !opt.WithStatus {
+	if !o.WithStatus {
 		ignoreCheckers = append(ignoreCheckers, query.IgnoreField(types.Transaction{}, "Status"))
 	}
-	q := fmt.Sprintf("{ transaction(%s) { %s } }",
+	return query.MergeIgnores(ignoreCheckers...)
+}
+
+func (c *Client) GetTransaction(
+	ctx context.Context,
+	param types.QueryTransactionParams,
+	opt GetTransactionOption,
+) (*types.Transaction, error) {
+	q := fmt.Sprintf("{ transaction(%s) { %s} }",
 		query.Simple.GenParam(param),
-		query.Simple.GenObjectQuery(types.Transaction{}, query.MergeIgnores(ignoreCheckers...)),
+		query.Simple.GenObjectQuery(types.Transaction{}, opt.BuildIgnoreChecker()),
 	)
 	type resultType struct {
 		Transaction *types.Transaction `json:"transaction"`
