@@ -8,9 +8,10 @@ import (
 )
 
 type GetBlockOption struct {
-	OnlyIdAndHeight   bool
-	WithTransactions  bool
-	OnlyTransactionID bool
+	OnlyIdAndHeight      bool
+	WithTransactions     bool
+	OnlyTransactionID    bool
+	WithContractBytecode bool
 }
 
 func (o GetBlockOption) BuildIgnoreChecker() query.IgnoreChecker {
@@ -30,8 +31,9 @@ func (o GetBlockOption) BuildIgnoreChecker() query.IgnoreChecker {
 	} else {
 		checkers = []query.IgnoreChecker{query.IgnoreObjects(types.Transaction{})}
 	}
-	// Contract.Bytecode is big but not necessary
-	checkers = append(checkers, query.IgnoreField(types.Contract{}, "Bytecode"))
+	if !o.WithContractBytecode {
+		checkers = append(checkers, query.IgnoreField(types.Contract{}, "Bytecode"))
+	}
 	return query.MergeIgnores(checkers...)
 }
 

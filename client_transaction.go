@@ -8,16 +8,19 @@ import (
 )
 
 type GetTransactionOption struct {
-	WithReceipts bool
-	WithStatus   bool
+	WithReceipts         bool
+	WithStatus           bool
+	WithContractBytecode bool
 }
 
 func (o GetTransactionOption) BuildIgnoreChecker() query.IgnoreChecker {
 	ignoreCheckers := []query.IgnoreChecker{
 		query.IgnoreField(types.Block{}, "Transactions"),
-		query.IgnoreField(types.Contract{}, "Bytecode"),
 		query.IgnoreField(types.SuccessStatus{}, "Receipts"),
 		query.IgnoreField(types.FailureStatus{}, "Receipts"),
+	}
+	if !o.WithContractBytecode {
+		ignoreCheckers = append(ignoreCheckers, query.IgnoreField(types.Contract{}, "Bytecode"))
 	}
 	if !o.WithReceipts {
 		ignoreCheckers = append(ignoreCheckers, query.IgnoreField(types.Transaction{}, "Receipts"))
