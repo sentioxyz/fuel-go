@@ -1,6 +1,6 @@
 module github.com/sentioxyz/fuel-go
 
-go 1.21.1
+go 1.21.0
 
 require (
 	github.com/cactus/tai64 v1.0.2
