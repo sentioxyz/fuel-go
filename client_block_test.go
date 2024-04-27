@@ -323,3 +323,26 @@ func Test_GetBlock3(t *testing.T) {
 		},
 	}, block)
 }
+
+func Test_GetBlocks(t *testing.T) {
+	cli := NewClientWithLogger(testnetEndpoint, SimpleLogger)
+	blocks, err := cli.GetBlocks(context.Background(), []types.QueryBlockParams{{
+		Id: &types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
+	}, {
+		Id: &types.BlockId{Hash: common.HexToHash("0xd00bd892604b2bacff3f0dc485586105caa3826b7818a729ff049eb40d3fb26d")},
+	}}, GetBlockOption{OnlyIdAndHeight: true})
+	assert.NoError(t, err)
+	assert.Equal(t, []*types.Block{{
+		Id: types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
+		Header: types.Header{
+			Id:     types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
+			Height: 9758550,
+		},
+	}, {
+		Id: types.BlockId{Hash: common.HexToHash("0xd00bd892604b2bacff3f0dc485586105caa3826b7818a729ff049eb40d3fb26d")},
+		Header: types.Header{
+			Id:     types.BlockId{Hash: common.HexToHash("0xd00bd892604b2bacff3f0dc485586105caa3826b7818a729ff049eb40d3fb26d")},
+			Height: 10803236,
+		},
+	}}, blocks)
+}

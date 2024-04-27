@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/sentioxyz/fuel-go/query"
 	"github.com/sentioxyz/fuel-go/types"
+	"strings"
 )
 
 type GetBlockOption struct {
@@ -50,6 +51,32 @@ func (c *Client) GetBlock(ctx context.Context, param types.QueryBlockParams, opt
 		return nil, err
 	}
 	return result.Block, nil
+}
+
+func (c *Client) GetBlocks(
+	ctx context.Context,
+	params []types.QueryBlockParams,
+	opt GetBlockOption,
+) ([]*types.Block, error) {
+	bqs := make([]string, len(params))
+	for i, param := range params {
+		bqs[i] = fmt.Sprintf("b%d:block(%s) { %s}",
+			i,
+			query.Simple.GenParam(param),
+			query.Simple.GenObjectQuery(types.Block{}, opt.BuildIgnoreChecker()),
+		)
+	}
+	q := "{" + strings.Join(bqs, " ") + " }"
+	type resultType map[string]*types.Block
+	result, err := ExecuteQuery[resultType](ctx, c, q)
+	if err != nil {
+		return nil, err
+	}
+	blocks := make([]*types.Block, len(params))
+	for i := range params {
+		blocks[i] = result[fmt.Sprintf("b%d", i)]
+	}
+	return blocks, nil
 }
 
 func (c *Client) GetBlockHeader(ctx context.Context, param types.QueryBlockParams) (*types.Header, error) {
