@@ -2,6 +2,7 @@ package fuel
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/sentioxyz/fuel-go/types"
 	"github.com/sentioxyz/fuel-go/util"
@@ -322,6 +323,49 @@ func Test_GetBlock3(t *testing.T) {
 			Height: 9758550,
 		},
 	}, block)
+}
+
+func Test_GetBlock_marshalJSON(t *testing.T) {
+	block := types.Block{
+		Id: types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
+		Header: types.Header{
+			Id:     types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
+			Height: 9758550,
+			Time:   types.Tai64Timestamp{Time: time.Date(2024, time.April, 5, 1, 2, 3, 0, time.UTC)},
+		},
+		Consensus: types.Consensus{
+			TypeName_: "PoAConsensus",
+			PoAConsensus: &types.PoAConsensus{
+				Signature: types.Signature{Bytes: common.FromHex("0x123456")},
+			},
+		},
+	}
+	text, err := json.MarshalIndent(block, "", "  ")
+	assert.NoError(t, err)
+	assert.Equal(t, `{
+  "id": "0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c",
+  "header": {
+    "id": "0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c",
+    "daHeight": "0",
+    "transactionsCount": "0",
+    "messageReceiptCount": "0",
+    "transactionsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "messageReceiptRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "height": "9758550",
+    "prevRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "time": "4611686020139666864",
+    "applicationHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "consensus": {
+    "__typename": "PoAConsensus",
+    "signature": "0x123456"
+  },
+  "transactions": null
+}`, string(text))
+
+	var block2 types.Block
+	assert.NoError(t, json.Unmarshal(text, &block2))
+	assert.Equal(t, block, block2)
 }
 
 func Test_GetBlocks(t *testing.T) {

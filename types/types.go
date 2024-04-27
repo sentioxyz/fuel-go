@@ -38,6 +38,10 @@ func (s *Float) UnmarshalJSON(raw []byte) error {
 	}
 }
 
+func (s Float) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
+}
+
 func (s *Float) String() string {
 	return strconv.FormatFloat(float64(*s), 'f', 20, 64)
 }
@@ -53,6 +57,10 @@ func (s *Int) UnmarshalJSON(raw []byte) error {
 		*s = Int(i)
 		return nil
 	}
+}
+
+func (s Int) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
 }
 
 func (s *Int) String() string {
@@ -77,6 +85,10 @@ func (s *U32) UnmarshalJSON(raw []byte) error {
 	}
 }
 
+func (s U32) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
+}
+
 func (s *U32) String() string {
 	return strconv.FormatUint(uint64(*s), 10)
 }
@@ -92,6 +104,10 @@ func (s *U64) UnmarshalJSON(raw []byte) error {
 	}
 }
 
+func (s U64) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
+}
+
 func (s *U64) String() string {
 	return strconv.FormatUint(uint64(*s), 10)
 }
@@ -105,6 +121,10 @@ func (s *U8) UnmarshalJSON(raw []byte) error {
 		*s = U8(i)
 		return nil
 	}
+}
+
+func (s U8) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
 }
 
 func (s *U8) String() string {
@@ -1327,7 +1347,7 @@ type VariableOutput struct {
 
 // The schema analog of the [`coins::CoinType`].
 type CoinType struct {
-	TypeName_ string
+	TypeName_ string `json:"__typename"`
 
 	*Coin
 	*MessageCoin
@@ -1338,7 +1358,7 @@ func (u *CoinType) UnmarshalJSON(raw []byte) error {
 }
 
 type Consensus struct {
-	TypeName_ string
+	TypeName_ string `json:"__typename"`
 
 	*Genesis
 	*PoAConsensus
@@ -1349,7 +1369,7 @@ func (u *Consensus) UnmarshalJSON(raw []byte) error {
 }
 
 type DependentCost struct {
-	TypeName_ string
+	TypeName_ string `json:"__typename"`
 
 	*LightOperation
 	*HeavyOperation
@@ -1360,7 +1380,7 @@ func (u *DependentCost) UnmarshalJSON(raw []byte) error {
 }
 
 type Input struct {
-	TypeName_ string
+	TypeName_ string `json:"__typename"`
 
 	*InputCoin
 	*InputContract
@@ -1372,7 +1392,7 @@ func (u *Input) UnmarshalJSON(raw []byte) error {
 }
 
 type Output struct {
-	TypeName_ string
+	TypeName_ string `json:"__typename"`
 
 	*CoinOutput
 	*ContractOutput
@@ -1386,7 +1406,7 @@ func (u *Output) UnmarshalJSON(raw []byte) error {
 }
 
 type TransactionStatus struct {
-	TypeName_ string
+	TypeName_ string `json:"__typename"`
 
 	*SubmittedStatus
 	*SuccessStatus

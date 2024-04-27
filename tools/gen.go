@@ -108,6 +108,10 @@ func (s *#{name}) UnmarshalJSON(raw []byte) error {
 	}
 }
 
+func (s #{name}) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
+}
+
 func (s *#{name}) String() string {
 	return strconv.FormatUint(uint64(*s), 10)
 }
@@ -125,6 +129,10 @@ func (s *#{name}) UnmarshalJSON(raw []byte) error {
 	}
 }
 
+func (s #{name}) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
+}
+
 func (s *#{name}) String() string {
 	return strconv.FormatInt(int64(*s), 10)
 }
@@ -140,6 +148,10 @@ func (s *#{name}) UnmarshalJSON(raw []byte) error {
 		*s = #{name}(f)
 		return nil
 	}
+}
+
+func (s #{name}) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
 }
 
 func (s *#{name}) String() string {
@@ -245,7 +257,7 @@ func (g generator) genUnions() {
 	for _, unionType := range g.schema.Unions {
 		g.w.OutLines(unionType.Desc, "// ")
 		g.w.Out("type %s struct {\n", unionType.TypeName())
-		g.w.Out("\t%s string\n\n", util.UnionTypeFieldName)
+		g.w.Out("\t%s string `json:\"__typename\"`\n\n", util.UnionTypeFieldName)
 		for _, mem := range unionType.UnionMemberTypes {
 			g.w.Out("\t*%s\n", mem.TypeName())
 		}

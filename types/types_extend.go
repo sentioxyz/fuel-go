@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/cactus/tai64"
 	"math/big"
+	"strings"
 )
 
 func (n *Tai64Timestamp) UnmarshalJSON(raw []byte) error {
@@ -25,4 +26,10 @@ func (n *Tai64Timestamp) UnmarshalJSON(raw []byte) error {
 		Time: t,
 	}
 	return nil
+}
+
+func (n Tai64Timestamp) MarshalJSON() ([]byte, error) {
+	var b big.Int
+	b.SetString(strings.TrimLeft(tai64.Format(n.Time), "@"), 16)
+	return json.Marshal(b.Text(10))
 }
