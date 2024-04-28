@@ -267,6 +267,10 @@ func (u *#{name}) UnmarshalJSON(raw []byte) error {
 	return UnmarshalJSONUnion(raw, u)
 }
 
+func (u #{name}) MarshalJSON() ([]byte, error) {
+	return MarshalJSONUnion(u)
+}
+
 `, "name", unionType.TypeName())
 	}
 	g.w.Outf(`
@@ -302,6 +306,35 @@ func UnmarshalJSONUnion(raw []byte, unionObj any) error {
 		}
 	}
 	return fmt.Errorf("union type %%T do not have member %%s", unionObj, union.TypeName)
+}
+
+func MarshalJSONUnion(unionObj any) ([]byte, error) {
+	val := reflect.ValueOf(unionObj)
+	vt := val.Type()
+	if _, has := vt.FieldByName("#{typeFieldName}"); !has {
+		return nil, fmt.Errorf("%%s is not an union type because miss field #{typeFieldName}", vt.Name())
+	}
+	typeName := val.FieldByName("#{typeFieldName}").Interface().(string)
+	if _, has := vt.FieldByName(typeName); !has {
+		return json.Marshal(map[string]string{"__typename": typeName})
+	}
+	subVal := val.FieldByName(typeName)
+	if subVal.IsNil() {
+		return nil, fmt.Errorf("%%s can not be nil", typeName)
+	}
+	subVal = subVal.Elem()
+	subTyp := subVal.Type()
+	fields := make([]reflect.StructField, subVal.NumField()+1)
+	fields[0], _ = vt.FieldByName("#{typeFieldName}")
+	for i := 0; i < subTyp.NumField(); i++ {
+		fields[i+1] = subTyp.Field(i)
+	}
+	merged := reflect.New(reflect.StructOf(fields)).Elem()
+	merged.Field(0).SetString(typeName)
+	for i := 0; i < subVal.NumField(); i++ {
+		merged.Field(i + 1).Set(subVal.Field(i))
+	}
+	return json.Marshal(merged.Interface())
 }
 
 `, "typeFieldName", util.UnionTypeFieldName)

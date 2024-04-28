@@ -1357,6 +1357,10 @@ func (u *CoinType) UnmarshalJSON(raw []byte) error {
 	return UnmarshalJSONUnion(raw, u)
 }
 
+func (u CoinType) MarshalJSON() ([]byte, error) {
+	return MarshalJSONUnion(u)
+}
+
 type Consensus struct {
 	TypeName_ string `json:"__typename"`
 
@@ -1366,6 +1370,10 @@ type Consensus struct {
 
 func (u *Consensus) UnmarshalJSON(raw []byte) error {
 	return UnmarshalJSONUnion(raw, u)
+}
+
+func (u Consensus) MarshalJSON() ([]byte, error) {
+	return MarshalJSONUnion(u)
 }
 
 type DependentCost struct {
@@ -1379,6 +1387,10 @@ func (u *DependentCost) UnmarshalJSON(raw []byte) error {
 	return UnmarshalJSONUnion(raw, u)
 }
 
+func (u DependentCost) MarshalJSON() ([]byte, error) {
+	return MarshalJSONUnion(u)
+}
+
 type Input struct {
 	TypeName_ string `json:"__typename"`
 
@@ -1389,6 +1401,10 @@ type Input struct {
 
 func (u *Input) UnmarshalJSON(raw []byte) error {
 	return UnmarshalJSONUnion(raw, u)
+}
+
+func (u Input) MarshalJSON() ([]byte, error) {
+	return MarshalJSONUnion(u)
 }
 
 type Output struct {
@@ -1405,6 +1421,10 @@ func (u *Output) UnmarshalJSON(raw []byte) error {
 	return UnmarshalJSONUnion(raw, u)
 }
 
+func (u Output) MarshalJSON() ([]byte, error) {
+	return MarshalJSONUnion(u)
+}
+
 type TransactionStatus struct {
 	TypeName_ string `json:"__typename"`
 
@@ -1416,6 +1436,10 @@ type TransactionStatus struct {
 
 func (u *TransactionStatus) UnmarshalJSON(raw []byte) error {
 	return UnmarshalJSONUnion(raw, u)
+}
+
+func (u TransactionStatus) MarshalJSON() ([]byte, error) {
+	return MarshalJSONUnion(u)
 }
 
 func UnmarshalJSONUnion(raw []byte, unionObj any) error {
@@ -1449,6 +1473,35 @@ func UnmarshalJSONUnion(raw []byte, unionObj any) error {
 		}
 	}
 	return fmt.Errorf("union type %T do not have member %s", unionObj, union.TypeName)
+}
+
+func MarshalJSONUnion(unionObj any) ([]byte, error) {
+	val := reflect.ValueOf(unionObj)
+	vt := val.Type()
+	if _, has := vt.FieldByName("TypeName_"); !has {
+		return nil, fmt.Errorf("%s is not an union type because miss field TypeName_", vt.Name())
+	}
+	typeName := val.FieldByName("TypeName_").Interface().(string)
+	if _, has := vt.FieldByName(typeName); !has {
+		return json.Marshal(map[string]string{"__typename": typeName})
+	}
+	subVal := val.FieldByName(typeName)
+	if subVal.IsNil() {
+		return nil, fmt.Errorf("%s can not be nil", typeName)
+	}
+	subVal = subVal.Elem()
+	subTyp := subVal.Type()
+	fields := make([]reflect.StructField, subVal.NumField()+1)
+	fields[0], _ = vt.FieldByName("TypeName_")
+	for i := 0; i < subTyp.NumField(); i++ {
+		fields[i+1] = subTyp.Field(i)
+	}
+	merged := reflect.New(reflect.StructOf(fields)).Elem()
+	merged.Field(0).SetString(typeName)
+	for i := 0; i < subVal.NumField(); i++ {
+		merged.Field(i + 1).Set(subVal.Field(i))
+	}
+	return json.Marshal(merged.Interface())
 }
 
 // ====================

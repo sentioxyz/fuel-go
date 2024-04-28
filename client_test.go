@@ -2,6 +2,7 @@ package fuel
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/sentioxyz/fuel-go/query"
 	"github.com/sentioxyz/fuel-go/types"
@@ -127,4 +128,67 @@ func Test_GenParam(t *testing.T) {
 			Id: &types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
 		}),
 	)
+}
+
+func Test_Union_marshalJSON(t *testing.T) {
+	status := types.TransactionStatus{
+		TypeName_: "SuccessStatus",
+		SuccessStatus: &types.SuccessStatus{
+			TransactionId: types.TransactionId{
+				Hash: common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000123"),
+			},
+			Block: types.Block{
+				Id: types.BlockId{Hash: common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000001")},
+				Header: types.Header{
+					Id:                  types.BlockId{Hash: common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000001")},
+					DaHeight:            2,
+					TransactionsCount:   3,
+					MessageReceiptCount: 4,
+					Height:              5,
+					Time:                types.Tai64Timestamp{Time: time.Date(2024, time.April, 15, 2, 44, 2, 0, time.UTC)},
+				},
+			},
+		},
+	}
+	text, err := json.MarshalIndent(status, "", "  ")
+	assert.NoError(t, err)
+	assert.Equal(t, `{
+  "__typename": "SuccessStatus",
+  "transactionId": "0x0000000000000000000000000000000000000000000000000000000000000123",
+  "block": {
+    "id": "0x0000000000000000000000000000000000000000000000000000000000000001",
+    "header": {
+      "id": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "daHeight": "2",
+      "transactionsCount": "3",
+      "messageReceiptCount": "4",
+      "transactionsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "messageReceiptRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "height": "5",
+      "prevRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "time": "4611686020140536983",
+      "applicationHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "consensus": {
+      "__typename": ""
+    },
+    "transactions": null
+  },
+  "time": "4611685956291791114",
+  "programState": null,
+  "receipts": null
+}`, string(text))
+
+	con := types.Consensus{
+		TypeName_: "PoAConsensus",
+		PoAConsensus: &types.PoAConsensus{
+			Signature: types.Signature{Bytes: common.FromHex("0x724028a0724428785d451000724828802d41148a24040000")},
+		},
+		Genesis: &types.Genesis{
+			ChainConfigHash: types.Bytes32{Hash: common.HexToHash("0x1100000000000000000000000000000000000000000000000000000000000011")},
+		},
+	}
+	text, err = json.Marshal(con)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"__typename":"PoAConsensus","signature":"0x724028a0724428785d451000724828802d41148a24040000"}`, string(text))
 }
