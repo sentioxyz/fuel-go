@@ -169,9 +169,7 @@ func Test_Union_marshalJSON(t *testing.T) {
       "time": "4611686020140536983",
       "applicationHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
     },
-    "consensus": {
-      "__typename": ""
-    },
+    "consensus": null,
     "transactions": null
   },
   "time": "4611685956291791114",
@@ -197,8 +195,11 @@ func Test_union_unmarshalJSON(t *testing.T) {
 	var con types.Consensus
 	text, err := json.Marshal(con)
 	assert.NoError(t, err)
-	assert.Equal(t, `{"__typename":""}`, string(text))
+	assert.Equal(t, `null`, string(text))
 
-	assert.NoError(t, json.Unmarshal(text, &con))
+	assert.NoError(t, json.Unmarshal([]byte("null"), &con))
+	assert.Equal(t, types.Consensus{}, con)
+
+	assert.NoError(t, json.Unmarshal([]byte(`{"__typename":""}`), &con))
 	assert.Equal(t, types.Consensus{}, con)
 }

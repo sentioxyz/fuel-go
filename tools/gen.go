@@ -318,6 +318,9 @@ func MarshalJSONUnion(unionObj any) ([]byte, error) {
 		return nil, fmt.Errorf("%%s is not an union type because miss field #{typeFieldName}", vt.Name())
 	}
 	typeName := val.FieldByName("#{typeFieldName}").Interface().(string)
+	if typeName == "" {
+		return json.Marshal(nil)
+	}
 	if _, has := vt.FieldByName(typeName); !has {
 		return json.Marshal(map[string]string{"__typename": typeName})
 	}
