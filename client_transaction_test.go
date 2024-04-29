@@ -35,8 +35,7 @@ func Test_GetTransaction1(t *testing.T) {
 		Id:            types.TransactionId{Hash: common.HexToHash("0x9b7a9353faacd4ce91c47707d66c81ec7e4d547905168a592312a94a5c67b69f")},
 		InputAssetIds: []types.AssetId{{Hash: common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")}},
 		InputContracts: []types.Contract{{
-			Id:   types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
-			Salt: "0x572e0502c9ca4347b88a0faf5b4a36bbbbf3c4c62d4f77ea893f4be7541b42e6",
+			Id: types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
 		}},
 		Policies: &types.Policies{
 			GasPrice: util.GetPointer[types.U64](1),
@@ -55,8 +54,7 @@ func Test_GetTransaction1(t *testing.T) {
 				StateRoot:   types.Bytes32{Hash: common.HexToHash("0x8f36f4ef87d3260fcbbb8b7d047bae772b12265d9c45bb11814855d57fdacee3")},
 				TxPointer:   "0094e7550005",
 				Contract: types.Contract{
-					Id:   types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
-					Salt: "0x572e0502c9ca4347b88a0faf5b4a36bbbbf3c4c62d4f77ea893f4be7541b42e6",
+					Id: types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
 				},
 			},
 		}, {
@@ -112,8 +110,7 @@ func Test_GetTransaction2(t *testing.T) {
 		Id:            types.TransactionId{Hash: common.HexToHash("0x9b7a9353faacd4ce91c47707d66c81ec7e4d547905168a592312a94a5c67b69f")},
 		InputAssetIds: []types.AssetId{{Hash: common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")}},
 		InputContracts: []types.Contract{{
-			Id:   types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
-			Salt: "0x572e0502c9ca4347b88a0faf5b4a36bbbbf3c4c62d4f77ea893f4be7541b42e6",
+			Id: types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
 		}},
 		Policies: &types.Policies{
 			GasPrice: util.GetPointer[types.U64](1),
@@ -132,8 +129,7 @@ func Test_GetTransaction2(t *testing.T) {
 				StateRoot:   types.Bytes32{Hash: common.HexToHash("0x8f36f4ef87d3260fcbbb8b7d047bae772b12265d9c45bb11814855d57fdacee3")},
 				TxPointer:   "0094e7550005",
 				Contract: types.Contract{
-					Id:   types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
-					Salt: "0x572e0502c9ca4347b88a0faf5b4a36bbbbf3c4c62d4f77ea893f4be7541b42e6",
+					Id: types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
 				},
 			},
 		}, {
@@ -223,8 +219,7 @@ func Test_GetTransaction3(t *testing.T) {
 		Id:            types.TransactionId{Hash: common.HexToHash("0x9b7a9353faacd4ce91c47707d66c81ec7e4d547905168a592312a94a5c67b69f")},
 		InputAssetIds: []types.AssetId{{Hash: common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")}},
 		InputContracts: []types.Contract{{
-			Id:   types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
-			Salt: "0x572e0502c9ca4347b88a0faf5b4a36bbbbf3c4c62d4f77ea893f4be7541b42e6",
+			Id: types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
 		}},
 		Policies: &types.Policies{
 			GasPrice: util.GetPointer[types.U64](1),
@@ -243,8 +238,7 @@ func Test_GetTransaction3(t *testing.T) {
 				StateRoot:   types.Bytes32{Hash: common.HexToHash("0x8f36f4ef87d3260fcbbb8b7d047bae772b12265d9c45bb11814855d57fdacee3")},
 				TxPointer:   "0094e7550005",
 				Contract: types.Contract{
-					Id:   types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
-					Salt: "0x572e0502c9ca4347b88a0faf5b4a36bbbbf3c4c62d4f77ea893f4be7541b42e6",
+					Id: types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
 				},
 			},
 		}, {
@@ -319,8 +313,7 @@ func Test_GetTransaction3(t *testing.T) {
 			Pc: util.GetPointer[types.U64](11640),
 			Is: util.GetPointer[types.U64](11640),
 			To: &types.Contract{
-				Id:   types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
-				Salt: "0x572e0502c9ca4347b88a0faf5b4a36bbbbf3c4c62d4f77ea893f4be7541b42e6",
+				Id: types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
 			},
 			Amount:      util.GetPointer[types.U64](0),
 			AssetId:     &types.AssetId{Hash: common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")},
@@ -330,8 +323,7 @@ func Test_GetTransaction3(t *testing.T) {
 			ReceiptType: "CALL",
 		}, {
 			Contract: &types.Contract{
-				Id:   types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
-				Salt: "0x572e0502c9ca4347b88a0faf5b4a36bbbbf3c4c62d4f77ea893f4be7541b42e6",
+				Id: types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
 			},
 			Pc:          util.GetPointer[types.U64](44000),
 			Is:          util.GetPointer[types.U64](11640),

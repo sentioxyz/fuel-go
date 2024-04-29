@@ -15,7 +15,7 @@ func Test_GetBlock0(t *testing.T) {
 	cli := NewClient(testnetEndpoint)
 	block, err := cli.GetBlock(context.Background(), types.QueryBlockParams{
 		Height: util.GetPointer(types.U32(9758550)),
-	}, GetBlockOption{WithTransactions: false, OnlyTransactionID: false})
+	}, GetBlockOption{WithTransactions: false, TransactionOnlyID: false, WithConsensus: true})
 	assert.NoError(t, err)
 	assert.Equal(t, &types.Block{
 		Id: types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
@@ -40,13 +40,33 @@ func Test_GetBlock0(t *testing.T) {
 			},
 		},
 	}, block)
+
+	block, err = cli.GetBlock(context.Background(), types.QueryBlockParams{
+		Height: util.GetPointer(types.U32(9758550)),
+	}, GetBlockOption{WithTransactions: false, TransactionOnlyID: false})
+	assert.NoError(t, err)
+	assert.Equal(t, &types.Block{
+		Id: types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
+		Header: types.Header{
+			Id:                  types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
+			DaHeight:            5700482,
+			TransactionsCount:   3,
+			MessageReceiptCount: 0,
+			TransactionsRoot:    types.Bytes32{Hash: common.HexToHash("0x6acba90c0da2a5946cde70bc5d211ca06f1903b0fe7318bf7653ad4de3caf004")},
+			MessageReceiptRoot:  types.Bytes32{Hash: common.HexToHash("0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")},
+			Height:              9758550,
+			PrevRoot:            types.Bytes32{Hash: common.HexToHash("0xe14198c9e1fbc499df5a9dacdb1219135a2d4915011962b5ac379c54b9499b83")},
+			Time:                types.Tai64Timestamp{Time: time.Date(2024, time.April, 15, 2, 44, 2, 0, time.UTC)},
+			ApplicationHash:     types.Bytes32{Hash: common.HexToHash("0xe0c1360865782cc46da4f65787896aa264e4e8812b6fdb7864cdf7ef6bf42437")},
+		},
+	}, block)
 }
 
 func Test_GetBlock1(t *testing.T) {
 	cli := NewClient(testnetEndpoint)
 	block, err := cli.GetBlock(context.Background(), types.QueryBlockParams{
 		Height: util.GetPointer(types.U32(9758550)),
-	}, GetBlockOption{WithTransactions: true, OnlyTransactionID: true})
+	}, GetBlockOption{WithTransactions: true, TransactionOnlyID: true, WithConsensus: true})
 	assert.NoError(t, err)
 	assert.Equal(t, &types.Block{
 		Id: types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
@@ -84,7 +104,7 @@ func Test_GetBlock2(t *testing.T) {
 	cli := NewClient(testnetEndpoint)
 	block, err := cli.GetBlock(context.Background(), types.QueryBlockParams{
 		Id: &types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
-	}, GetBlockOption{WithTransactions: true})
+	}, GetBlockOption{WithTransactions: true, WithConsensus: true})
 	assert.NoError(t, err)
 	assert.Equal(t, &types.Block{
 		Id: types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
@@ -112,8 +132,7 @@ func Test_GetBlock2(t *testing.T) {
 			Id:            types.TransactionId{Hash: common.HexToHash("0x9b7a9353faacd4ce91c47707d66c81ec7e4d547905168a592312a94a5c67b69f")},
 			InputAssetIds: []types.AssetId{{Hash: common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")}},
 			InputContracts: []types.Contract{{
-				Id:   types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
-				Salt: "0x572e0502c9ca4347b88a0faf5b4a36bbbbf3c4c62d4f77ea893f4be7541b42e6",
+				Id: types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
 			}},
 			Policies: &types.Policies{
 				GasPrice: util.GetPointer[types.U64](1),
@@ -132,8 +151,7 @@ func Test_GetBlock2(t *testing.T) {
 					StateRoot:   types.Bytes32{Hash: common.HexToHash("0x8f36f4ef87d3260fcbbb8b7d047bae772b12265d9c45bb11814855d57fdacee3")},
 					TxPointer:   "0094e7550005",
 					Contract: types.Contract{
-						Id:   types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
-						Salt: "0x572e0502c9ca4347b88a0faf5b4a36bbbbf3c4c62d4f77ea893f4be7541b42e6",
+						Id: types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
 					},
 				},
 			}, {
@@ -178,8 +196,7 @@ func Test_GetBlock2(t *testing.T) {
 				Pc: util.GetPointer[types.U64](11640),
 				Is: util.GetPointer[types.U64](11640),
 				To: &types.Contract{
-					Id:   types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
-					Salt: "0x572e0502c9ca4347b88a0faf5b4a36bbbbf3c4c62d4f77ea893f4be7541b42e6",
+					Id: types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
 				},
 				Amount:      util.GetPointer[types.U64](0),
 				AssetId:     &types.AssetId{Hash: common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")},
@@ -189,8 +206,7 @@ func Test_GetBlock2(t *testing.T) {
 				ReceiptType: "CALL",
 			}, {
 				Contract: &types.Contract{
-					Id:   types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
-					Salt: "0x572e0502c9ca4347b88a0faf5b4a36bbbbf3c4c62d4f77ea893f4be7541b42e6",
+					Id: types.ContractId{Hash: common.HexToHash("0xd2a93abef5c3f45f48bb9f0736ccfda4c3f32c9c57fc307ab9363ef7712f305f")},
 				},
 				Pc:          util.GetPointer[types.U64](44000),
 				Is:          util.GetPointer[types.U64](11640),
@@ -276,8 +292,7 @@ func Test_GetBlock2(t *testing.T) {
 		}, {
 			Id: types.TransactionId{Hash: common.HexToHash("0x1a978dcf45d87d2793d7da58d45244d68241aa6363d6a435a38c5fdfeafff178")},
 			InputContracts: []types.Contract{{
-				Id:   types.ContractId{Hash: common.HexToHash("0x7777777777777777777777777777777777777777777777777777777777777777")},
-				Salt: "0x1bfd51cb31b8d0bc7d93d38f97ab771267d8786ab87073e0c2b8f9ddc44b274e",
+				Id: types.ContractId{Hash: common.HexToHash("0x7777777777777777777777777777777777777777777777777777777777777777")},
 			}},
 			InputContract: &types.InputContract{
 				UtxoId:      types.UtxoId{Bytes: common.FromHex("0xae426ee0c79cac25ffe515ca4148e27086669bee7043b23cd380dce443213eff00")},
@@ -285,8 +300,7 @@ func Test_GetBlock2(t *testing.T) {
 				StateRoot:   types.Bytes32{Hash: common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")},
 				TxPointer:   "0094e7550006",
 				Contract: types.Contract{
-					Id:   types.ContractId{Hash: common.HexToHash("0x7777777777777777777777777777777777777777777777777777777777777777")},
-					Salt: "0x1bfd51cb31b8d0bc7d93d38f97ab771267d8786ab87073e0c2b8f9ddc44b274e",
+					Id: types.ContractId{Hash: common.HexToHash("0x7777777777777777777777777777777777777777777777777777777777777777")},
 				},
 			},
 			MintAmount:  util.GetPointer[types.U64](6379),
@@ -314,7 +328,7 @@ func Test_GetBlock3(t *testing.T) {
 	cli := NewClient(testnetEndpoint)
 	block, err := cli.GetBlock(context.Background(), types.QueryBlockParams{
 		Id: &types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
-	}, GetBlockOption{OnlyIdAndHeight: true})
+	}, GetBlockOption{HeaderOnlyIdHeight: true})
 	assert.NoError(t, err)
 	assert.Equal(t, &types.Block{
 		Id: types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
@@ -374,7 +388,7 @@ func Test_GetBlocks(t *testing.T) {
 		Id: &types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
 	}, {
 		Id: &types.BlockId{Hash: common.HexToHash("0xd00bd892604b2bacff3f0dc485586105caa3826b7818a729ff049eb40d3fb26d")},
-	}}, GetBlockOption{OnlyIdAndHeight: true})
+	}}, GetBlockOption{HeaderOnlyIdHeight: true})
 	assert.NoError(t, err)
 	assert.Equal(t, []*types.Block{{
 		Id: types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},

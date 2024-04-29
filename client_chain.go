@@ -40,7 +40,7 @@ func (c *Client) GetLatestBlockHeight(ctx context.Context) (types.U32, error) {
 	info, err := c.GetChain(ctx, GetChainOption{
 		Simple: true,
 		GetBlockOption: GetBlockOption{
-			OnlyIdAndHeight: true,
+			HeaderOnlyIdHeight: true,
 		},
 	})
 	return info.LatestBlock.Header.Height, err

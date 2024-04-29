@@ -9,31 +9,36 @@ import (
 )
 
 type GetBlockOption struct {
-	OnlyIdAndHeight      bool
+	HeaderOnlyIdHeight   bool
 	WithTransactions     bool
-	OnlyTransactionID    bool
+	WithConsensus        bool
+	TransactionOnlyID    bool
 	WithContractBytecode bool
+	WithContractSalt     bool
 }
 
 func (o GetBlockOption) BuildIgnoreChecker() query.IgnoreChecker {
 	var checkers []query.IgnoreChecker
-	if o.OnlyIdAndHeight {
-		checkers = []query.IgnoreChecker{
-			query.IgnoreOtherFields(types.Block{}, "Id", "Header"),
-			query.IgnoreOtherFields(types.Header{}, "Id", "Height"),
-		}
-	} else if o.WithTransactions {
-		if o.OnlyTransactionID {
-			checkers = []query.IgnoreChecker{query.IgnoreOtherFields(types.Transaction{}, "Id")}
-		} else {
-			// Otherwise it will create circular dependencies
-			checkers = []query.IgnoreChecker{query.IgnoreObjects(types.SuccessStatus{}, types.FailureStatus{})}
-		}
+	if !o.WithTransactions {
+		checkers = append(checkers, query.IgnoreObjects(types.Transaction{}))
+	}
+	if !o.WithConsensus {
+		checkers = append(checkers, query.IgnoreField(types.Block{}, "Consensus"))
+	}
+	if o.HeaderOnlyIdHeight {
+		checkers = append(checkers, query.IgnoreOtherFields(types.Header{}, "Id", "Height"))
+	}
+	if o.TransactionOnlyID {
+		checkers = append(checkers, query.IgnoreOtherFields(types.Transaction{}, "Id"))
 	} else {
-		checkers = []query.IgnoreChecker{query.IgnoreObjects(types.Transaction{})}
+		// Otherwise it will create circular dependencies
+		checkers = append(checkers, query.IgnoreObjects(types.SuccessStatus{}, types.FailureStatus{}))
 	}
 	if !o.WithContractBytecode {
 		checkers = append(checkers, query.IgnoreField(types.Contract{}, "Bytecode"))
+	}
+	if !o.WithContractSalt {
+		checkers = append(checkers, query.IgnoreField(types.Contract{}, "Salt"))
 	}
 	return query.MergeIgnores(checkers...)
 }
