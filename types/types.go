@@ -1449,6 +1449,9 @@ func UnmarshalJSONUnion(raw []byte, unionObj any) error {
 	if err := json.Unmarshal(raw, &union); err != nil {
 		return err
 	}
+	if union.TypeName == "" {
+		return nil
+	}
 	pv := reflect.ValueOf(unionObj)
 	if pv.Kind() != reflect.Pointer || pv.IsNil() {
 		return &json.InvalidUnmarshalError{Type: reflect.TypeOf(unionObj)}
@@ -1472,7 +1475,7 @@ func UnmarshalJSONUnion(raw []byte, unionObj any) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("union type %T do not have member %s", unionObj, union.TypeName)
+	return fmt.Errorf("union type %T do not have member %q", unionObj, union.TypeName)
 }
 
 func MarshalJSONUnion(unionObj any) ([]byte, error) {

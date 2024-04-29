@@ -192,3 +192,13 @@ func Test_Union_marshalJSON(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, `{"__typename":"PoAConsensus","signature":"0x724028a0724428785d451000724828802d41148a24040000"}`, string(text))
 }
+
+func Test_union_unmarshalJSON(t *testing.T) {
+	var con types.Consensus
+	text, err := json.Marshal(con)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"__typename":""}`, string(text))
+
+	assert.NoError(t, json.Unmarshal(text, &con))
+	assert.Equal(t, types.Consensus{}, con)
+}
