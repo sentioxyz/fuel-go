@@ -19,19 +19,19 @@ import (
 
 type Address struct{ common.Hash }
 
-func (s *Address) MarshalStructpb() *structpb.Value {
+func (s Address) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(s.String())
 }
 
 type AssetId struct{ common.Hash }
 
-func (s *AssetId) MarshalStructpb() *structpb.Value {
+func (s AssetId) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(s.String())
 }
 
 type BlockId struct{ common.Hash }
 
-func (s *BlockId) MarshalStructpb() *structpb.Value {
+func (s BlockId) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(s.String())
 }
 
@@ -43,13 +43,13 @@ func (s *Boolean) String() string {
 
 type Bytes32 struct{ common.Hash }
 
-func (s *Bytes32) MarshalStructpb() *structpb.Value {
+func (s Bytes32) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(s.String())
 }
 
 type ContractId struct{ common.Hash }
 
-func (s *ContractId) MarshalStructpb() *structpb.Value {
+func (s ContractId) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(s.String())
 }
 
@@ -74,7 +74,7 @@ func (s *Float) String() string {
 
 type HexString struct{ hexutil.Bytes }
 
-func (s *HexString) MarshalStructpb() *structpb.Value {
+func (s HexString) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(s.String())
 }
 
@@ -102,20 +102,20 @@ type Nonce string
 type Salt string
 type Signature struct{ hexutil.Bytes }
 
-func (s *Signature) MarshalStructpb() *structpb.Value {
+func (s Signature) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(s.String())
 }
 
 type String string
 type Tai64Timestamp struct{ time.Time }
 
-func (s *Tai64Timestamp) MarshalStructpb() *structpb.Value {
+func (s Tai64Timestamp) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(s.String())
 }
 
 type TransactionId struct{ common.Hash }
 
-func (s *TransactionId) MarshalStructpb() *structpb.Value {
+func (s TransactionId) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(s.String())
 }
 
@@ -179,7 +179,7 @@ func (s *U8) String() string {
 
 type UtxoId struct{ hexutil.Bytes }
 
-func (s *UtxoId) MarshalStructpb() *structpb.Value {
+func (s UtxoId) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(s.String())
 }
 

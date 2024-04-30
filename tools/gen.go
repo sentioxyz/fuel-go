@@ -172,7 +172,7 @@ func (s *#{name}) String() string {
 		default:
 			g.w.Out("type %s struct { %s }\n", scalarType.TypeName(), scalarGoType)
 			g.w.Outf(`
-func (s *#{name}) MarshalStructpb() *structpb.Value {
+func (s #{name}) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(s.String())
 }
 
