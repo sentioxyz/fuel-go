@@ -25,7 +25,7 @@ func (o *Output) Outf(format string, keyAndValues ...string) {
 		pattern := fmt.Sprintf("#{%s}", key)
 		result = strings.ReplaceAll(result, pattern, val)
 	}
-	_, err := fmt.Fprintf(o.Writer, result)
+	_, err := fmt.Fprint(o.Writer, result)
 	if err != nil {
 		log.Fatalf("write failed: %v", err)
 	}

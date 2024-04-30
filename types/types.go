@@ -37,8 +37,12 @@ func (s BlockId) MarshalStructpb() *structpb.Value {
 
 type Boolean bool
 
-func (s *Boolean) String() string {
-	return strconv.FormatBool(bool(*s))
+func (s Boolean) String() string {
+	return strconv.FormatBool(bool(s))
+}
+
+func (s Boolean) MarshalStructpb() *structpb.Value {
+	return structpb.NewBoolValue((bool)(s))
 }
 
 type Bytes32 struct{ common.Hash }
@@ -55,8 +59,12 @@ func (s ContractId) MarshalStructpb() *structpb.Value {
 
 type Float float64
 
+func (s Float) String() string {
+	return strconv.FormatFloat(float64(s), 'f', 20, 64)
+}
+
 func (s *Float) UnmarshalJSON(raw []byte) error {
-	if f, err := UnmarshalJSONFloat(raw); err != nil {
+	if f, err := unmarshalJSONFloat(raw); err != nil {
 		return err
 	} else {
 		*s = Float(f)
@@ -68,8 +76,8 @@ func (s Float) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.String())
 }
 
-func (s *Float) String() string {
-	return strconv.FormatFloat(float64(*s), 'f', 20, 64)
+func (s Float) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
 }
 
 type HexString struct{ hexutil.Bytes }
@@ -79,10 +87,19 @@ func (s HexString) MarshalStructpb() *structpb.Value {
 }
 
 type ID string
+
+func (s ID) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
+
 type Int int32
 
+func (s Int) String() string {
+	return strconv.FormatInt(int64(s), 10)
+}
+
 func (s *Int) UnmarshalJSON(raw []byte) error {
-	if i, err := UnmarshalJSONInt(raw); err != nil {
+	if i, err := unmarshalJSONInt(raw); err != nil {
 		return err
 	} else {
 		*s = Int(i)
@@ -94,12 +111,22 @@ func (s Int) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.String())
 }
 
-func (s *Int) String() string {
-	return strconv.FormatInt(int64(*s), 10)
+func (s Int) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
 }
 
 type Nonce string
+
+func (s Nonce) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
+
 type Salt string
+
+func (s Salt) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
+
 type Signature struct{ hexutil.Bytes }
 
 func (s Signature) MarshalStructpb() *structpb.Value {
@@ -107,6 +134,11 @@ func (s Signature) MarshalStructpb() *structpb.Value {
 }
 
 type String string
+
+func (s String) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
+
 type Tai64Timestamp struct{ time.Time }
 
 func (s Tai64Timestamp) MarshalStructpb() *structpb.Value {
@@ -120,10 +152,19 @@ func (s TransactionId) MarshalStructpb() *structpb.Value {
 }
 
 type TxPointer string
+
+func (s TxPointer) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
+
 type U32 uint32
 
+func (s U32) String() string {
+	return strconv.FormatUint(uint64(s), 10)
+}
+
 func (s *U32) UnmarshalJSON(raw []byte) error {
-	if i, err := UnmarshalJSONUInt(raw); err != nil {
+	if i, err := unmarshalJSONUInt(raw); err != nil {
 		return err
 	} else {
 		*s = U32(i)
@@ -135,14 +176,18 @@ func (s U32) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.String())
 }
 
-func (s *U32) String() string {
-	return strconv.FormatUint(uint64(*s), 10)
+func (s U32) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
 }
 
 type U64 uint64
 
+func (s U64) String() string {
+	return strconv.FormatUint(uint64(s), 10)
+}
+
 func (s *U64) UnmarshalJSON(raw []byte) error {
-	if i, err := UnmarshalJSONUInt(raw); err != nil {
+	if i, err := unmarshalJSONUInt(raw); err != nil {
 		return err
 	} else {
 		*s = U64(i)
@@ -154,14 +199,18 @@ func (s U64) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.String())
 }
 
-func (s *U64) String() string {
-	return strconv.FormatUint(uint64(*s), 10)
+func (s U64) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
 }
 
 type U8 uint8
 
+func (s U8) String() string {
+	return strconv.FormatUint(uint64(s), 10)
+}
+
 func (s *U8) UnmarshalJSON(raw []byte) error {
-	if i, err := UnmarshalJSONUInt(raw); err != nil {
+	if i, err := unmarshalJSONUInt(raw); err != nil {
 		return err
 	} else {
 		*s = U8(i)
@@ -173,35 +222,14 @@ func (s U8) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.String())
 }
 
-func (s *U8) String() string {
-	return strconv.FormatUint(uint64(*s), 10)
+func (s U8) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
 }
 
 type UtxoId struct{ hexutil.Bytes }
 
 func (s UtxoId) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(s.String())
-}
-
-func UnmarshalJSONUInt(raw []byte) (uint64, error) {
-	if len(raw) >= 2 && raw[0] == '"' && raw[len(raw)-1] == '"' {
-		raw = raw[1 : len(raw)-1]
-	}
-	return strconv.ParseUint(string(raw), 10, 64)
-}
-
-func UnmarshalJSONInt(raw []byte) (int64, error) {
-	if len(raw) >= 2 && raw[0] == '"' && raw[len(raw)-1] == '"' {
-		raw = raw[1 : len(raw)-1]
-	}
-	return strconv.ParseInt(string(raw), 10, 64)
-}
-
-func UnmarshalJSONFloat(raw []byte) (float64, error) {
-	if len(raw) >= 2 && raw[0] == '"' && raw[len(raw)-1] == '"' {
-		raw = raw[1 : len(raw)-1]
-	}
-	return strconv.ParseFloat(string(raw), 64)
 }
 
 // ====================
@@ -228,6 +256,10 @@ func (e *MessageState) UnmarshalJSON(raw []byte) error {
 		}
 	}
 	return fmt.Errorf("invalid value %q for enum type MessageState", val)
+}
+
+func (s MessageState) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
 }
 
 type ReceiptType string
@@ -262,6 +294,10 @@ func (e *ReceiptType) UnmarshalJSON(raw []byte) error {
 	return fmt.Errorf("invalid value %q for enum type ReceiptType", val)
 }
 
+func (s ReceiptType) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
+
 type ReturnType string
 
 var ReturnTypeValues = []string{
@@ -282,6 +318,10 @@ func (e *ReturnType) UnmarshalJSON(raw []byte) error {
 		}
 	}
 	return fmt.Errorf("invalid value %q for enum type ReturnType", val)
+}
+
+func (s ReturnType) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
 }
 
 type RunState string
@@ -305,6 +345,10 @@ func (e *RunState) UnmarshalJSON(raw []byte) error {
 	return fmt.Errorf("invalid value %q for enum type RunState", val)
 }
 
+func (s RunState) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
+
 // ====================
 // Objects
 // --------------------
@@ -316,6 +360,10 @@ type Balance struct {
 	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: assetId AssetId!
 	AssetId AssetId `json:"assetId" kind:"SCALAR"`
+}
+
+func (s Balance) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type BalanceConnection struct {
@@ -330,6 +378,10 @@ type BalanceConnection struct {
 	Nodes []Balance `json:"nodes" kind:"OBJECT"`
 }
 
+func (s BalanceConnection) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 // An edge in a connection.
 type BalanceEdge struct {
 	// A cursor for use in pagination
@@ -338,6 +390,10 @@ type BalanceEdge struct {
 	// The item at the end of the edge
 	// SCHEMA: node Balance!
 	Node Balance `json:"node" kind:"OBJECT"`
+}
+
+func (s BalanceEdge) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type Block struct {
@@ -349,6 +405,10 @@ type Block struct {
 	Consensus Consensus `json:"consensus" kind:"UNION"`
 	// SCHEMA: transactions [Transaction!]!
 	Transactions []Transaction `json:"transactions" kind:"OBJECT"`
+}
+
+func (s Block) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type BlockConnection struct {
@@ -363,6 +423,10 @@ type BlockConnection struct {
 	Nodes []Block `json:"nodes" kind:"OBJECT"`
 }
 
+func (s BlockConnection) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 // An edge in a connection.
 type BlockEdge struct {
 	// A cursor for use in pagination
@@ -371,6 +435,10 @@ type BlockEdge struct {
 	// The item at the end of the edge
 	// SCHEMA: node Block!
 	Node Block `json:"node" kind:"OBJECT"`
+}
+
+func (s BlockEdge) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type ChainInfo struct {
@@ -386,6 +454,10 @@ type ChainInfo struct {
 	GasCosts GasCosts `json:"gasCosts" kind:"OBJECT"`
 }
 
+func (s ChainInfo) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type ChangeOutput struct {
 	// SCHEMA: to Address!
 	To Address `json:"to" kind:"SCALAR"`
@@ -393,6 +465,10 @@ type ChangeOutput struct {
 	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: assetId AssetId!
 	AssetId AssetId `json:"assetId" kind:"SCALAR"`
+}
+
+func (s ChangeOutput) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type Coin struct {
@@ -414,6 +490,10 @@ type Coin struct {
 	TxCreatedIdx U64 `json:"txCreatedIdx" kind:"SCALAR"`
 }
 
+func (s Coin) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type CoinConnection struct {
 	// Information to aid in pagination.
 	// SCHEMA: pageInfo PageInfo!
@@ -426,6 +506,10 @@ type CoinConnection struct {
 	Nodes []Coin `json:"nodes" kind:"OBJECT"`
 }
 
+func (s CoinConnection) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 // An edge in a connection.
 type CoinEdge struct {
 	// A cursor for use in pagination
@@ -436,6 +520,10 @@ type CoinEdge struct {
 	Node Coin `json:"node" kind:"OBJECT"`
 }
 
+func (s CoinEdge) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type CoinOutput struct {
 	// SCHEMA: to Address!
 	To Address `json:"to" kind:"SCALAR"`
@@ -443,6 +531,10 @@ type CoinOutput struct {
 	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: assetId AssetId!
 	AssetId AssetId `json:"assetId" kind:"SCALAR"`
+}
+
+func (s CoinOutput) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type ConsensusParameters struct {
@@ -464,6 +556,10 @@ type ConsensusParameters struct {
 	GasCosts GasCosts `json:"gasCosts" kind:"OBJECT"`
 }
 
+func (s ConsensusParameters) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type Contract struct {
 	// SCHEMA: id ContractId!
 	Id ContractId `json:"id" kind:"SCALAR"`
@@ -473,6 +569,10 @@ type Contract struct {
 	Salt Salt `json:"salt" kind:"SCALAR"`
 }
 
+func (s Contract) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type ContractBalance struct {
 	// SCHEMA: contract ContractId!
 	Contract ContractId `json:"contract" kind:"SCALAR"`
@@ -480,6 +580,10 @@ type ContractBalance struct {
 	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: assetId AssetId!
 	AssetId AssetId `json:"assetId" kind:"SCALAR"`
+}
+
+func (s ContractBalance) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type ContractBalanceConnection struct {
@@ -494,6 +598,10 @@ type ContractBalanceConnection struct {
 	Nodes []ContractBalance `json:"nodes" kind:"OBJECT"`
 }
 
+func (s ContractBalanceConnection) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 // An edge in a connection.
 type ContractBalanceEdge struct {
 	// A cursor for use in pagination
@@ -504,11 +612,19 @@ type ContractBalanceEdge struct {
 	Node ContractBalance `json:"node" kind:"OBJECT"`
 }
 
+func (s ContractBalanceEdge) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type ContractCreated struct {
 	// SCHEMA: contract Contract!
 	Contract Contract `json:"contract" kind:"OBJECT"`
 	// SCHEMA: stateRoot Bytes32!
 	StateRoot Bytes32 `json:"stateRoot" kind:"SCALAR"`
+}
+
+func (s ContractCreated) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type ContractOutput struct {
@@ -520,11 +636,19 @@ type ContractOutput struct {
 	StateRoot Bytes32 `json:"stateRoot" kind:"SCALAR"`
 }
 
+func (s ContractOutput) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type ContractParameters struct {
 	// SCHEMA: contractMaxSize U64!
 	ContractMaxSize U64 `json:"contractMaxSize" kind:"SCALAR"`
 	// SCHEMA: maxStorageSlots U64!
 	MaxStorageSlots U64 `json:"maxStorageSlots" kind:"SCALAR"`
+}
+
+func (s ContractParameters) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type FailureStatus struct {
@@ -542,11 +666,19 @@ type FailureStatus struct {
 	Receipts []Receipt `json:"receipts" kind:"OBJECT"`
 }
 
+func (s FailureStatus) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type FeeParameters struct {
 	// SCHEMA: gasPriceFactor U64!
 	GasPriceFactor U64 `json:"gasPriceFactor" kind:"SCALAR"`
 	// SCHEMA: gasPerByte U64!
 	GasPerByte U64 `json:"gasPerByte" kind:"SCALAR"`
+}
+
+func (s FeeParameters) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type GasCosts struct {
@@ -772,6 +904,10 @@ type GasCosts struct {
 	NewStoragePerByte U64 `json:"newStoragePerByte" kind:"SCALAR"`
 }
 
+func (s GasCosts) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type Genesis struct {
 	// The chain configs define what consensus type to use, what settlement layer to use,
 	// rules of block validity, etc.
@@ -786,6 +922,10 @@ type Genesis struct {
 	// The Binary Merkle Tree root of all genesis messages.
 	// SCHEMA: messagesRoot Bytes32!
 	MessagesRoot Bytes32 `json:"messagesRoot" kind:"SCALAR"`
+}
+
+func (s Genesis) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type Header struct {
@@ -821,11 +961,19 @@ type Header struct {
 	ApplicationHash Bytes32 `json:"applicationHash" kind:"SCALAR"`
 }
 
+func (s Header) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type HeavyOperation struct {
 	// SCHEMA: base U64!
 	Base U64 `json:"base" kind:"SCALAR"`
 	// SCHEMA: gasPerUnit U64!
 	GasPerUnit U64 `json:"gasPerUnit" kind:"SCALAR"`
+}
+
+func (s HeavyOperation) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type InputCoin struct {
@@ -851,6 +999,10 @@ type InputCoin struct {
 	PredicateData HexString `json:"predicateData" kind:"SCALAR"`
 }
 
+func (s InputCoin) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type InputContract struct {
 	// SCHEMA: utxoId UtxoId!
 	UtxoId UtxoId `json:"utxoId" kind:"SCALAR"`
@@ -862,6 +1014,10 @@ type InputContract struct {
 	TxPointer TxPointer `json:"txPointer" kind:"SCALAR"`
 	// SCHEMA: contract Contract!
 	Contract Contract `json:"contract" kind:"OBJECT"`
+}
+
+func (s InputContract) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type InputMessage struct {
@@ -885,6 +1041,10 @@ type InputMessage struct {
 	PredicateData HexString `json:"predicateData" kind:"SCALAR"`
 }
 
+func (s InputMessage) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type LightOperation struct {
 	// SCHEMA: base U64!
 	Base U64 `json:"base" kind:"SCALAR"`
@@ -892,11 +1052,19 @@ type LightOperation struct {
 	UnitsPerGas U64 `json:"unitsPerGas" kind:"SCALAR"`
 }
 
+func (s LightOperation) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type MerkleProof struct {
 	// SCHEMA: proofSet [Bytes32!]!
 	ProofSet []Bytes32 `json:"proofSet" kind:"SCALAR"`
 	// SCHEMA: proofIndex U64!
 	ProofIndex U64 `json:"proofIndex" kind:"SCALAR"`
+}
+
+func (s MerkleProof) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type Message struct {
@@ -914,6 +1082,10 @@ type Message struct {
 	DaHeight U64 `json:"daHeight" kind:"SCALAR"`
 }
 
+func (s Message) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type MessageCoin struct {
 	// SCHEMA: sender Address!
 	Sender Address `json:"sender" kind:"SCALAR"`
@@ -929,6 +1101,10 @@ type MessageCoin struct {
 	DaHeight U64 `json:"daHeight" kind:"SCALAR"`
 }
 
+func (s MessageCoin) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type MessageConnection struct {
 	// Information to aid in pagination.
 	// SCHEMA: pageInfo PageInfo!
@@ -941,6 +1117,10 @@ type MessageConnection struct {
 	Nodes []Message `json:"nodes" kind:"OBJECT"`
 }
 
+func (s MessageConnection) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 // An edge in a connection.
 type MessageEdge struct {
 	// A cursor for use in pagination
@@ -949,6 +1129,10 @@ type MessageEdge struct {
 	// The item at the end of the edge
 	// SCHEMA: node Message!
 	Node Message `json:"node" kind:"OBJECT"`
+}
+
+func (s MessageEdge) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type MessageProof struct {
@@ -972,9 +1156,17 @@ type MessageProof struct {
 	Data HexString `json:"data" kind:"SCALAR"`
 }
 
+func (s MessageProof) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type MessageStatus struct {
 	// SCHEMA: state MessageState!
 	State MessageState `json:"state" kind:"ENUM"`
+}
+
+func (s MessageStatus) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type Mutation struct {
@@ -1010,6 +1202,10 @@ type Mutation struct {
 	ProduceBlocks U32 `json:"produceBlocks" kind:"SCALAR"`
 }
 
+func (s Mutation) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type NodeInfo struct {
 	// SCHEMA: utxoValidation Boolean!
 	UtxoValidation Boolean `json:"utxoValidation" kind:"SCALAR"`
@@ -1027,6 +1223,10 @@ type NodeInfo struct {
 	Peers []PeerInfo `json:"peers" kind:"OBJECT"`
 }
 
+func (s NodeInfo) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 // A separate `Breakpoint` type to be used as an output, as a single
 // type cannot act as both input and output type in async-graphql
 type OutputBreakpoint struct {
@@ -1034,6 +1234,10 @@ type OutputBreakpoint struct {
 	Contract ContractId `json:"contract" kind:"SCALAR"`
 	// SCHEMA: pc U64!
 	Pc U64 `json:"pc" kind:"SCALAR"`
+}
+
+func (s OutputBreakpoint) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 // Information about pagination in a connection
@@ -1050,6 +1254,10 @@ type PageInfo struct {
 	// When paginating forwards, the cursor to continue.
 	// SCHEMA: endCursor String
 	EndCursor *String `json:"endCursor" kind:"SCALAR"`
+}
+
+func (s PageInfo) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type PeerInfo struct {
@@ -1073,10 +1281,18 @@ type PeerInfo struct {
 	AppScore Float `json:"appScore" kind:"SCALAR"`
 }
 
+func (s PeerInfo) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type PoAConsensus struct {
 	// Gets the signature of the block produced by `PoA` consensus.
 	// SCHEMA: signature Signature!
 	Signature Signature `json:"signature" kind:"SCALAR"`
+}
+
+func (s PoAConsensus) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type Policies struct {
@@ -1090,6 +1306,10 @@ type Policies struct {
 	MaxFee *U64 `json:"maxFee" kind:"SCALAR"`
 }
 
+func (s Policies) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type PredicateParameters struct {
 	// SCHEMA: maxPredicateLength U64!
 	MaxPredicateLength U64 `json:"maxPredicateLength" kind:"SCALAR"`
@@ -1101,11 +1321,19 @@ type PredicateParameters struct {
 	MaxMessageDataLength U64 `json:"maxMessageDataLength" kind:"SCALAR"`
 }
 
+func (s PredicateParameters) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type ProgramState struct {
 	// SCHEMA: returnType ReturnType!
 	ReturnType ReturnType `json:"returnType" kind:"ENUM"`
 	// SCHEMA: data HexString!
 	Data HexString `json:"data" kind:"SCALAR"`
+}
+
+func (s ProgramState) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type Query struct {
@@ -1169,6 +1397,10 @@ type Query struct {
 	MessageStatus MessageStatus `json:"messageStatus" kind:"OBJECT"`
 }
 
+func (s Query) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type Receipt struct {
 	// SCHEMA: contract Contract
 	Contract *Contract `json:"contract" kind:"OBJECT"`
@@ -1228,6 +1460,10 @@ type Receipt struct {
 	SubId *Bytes32 `json:"subId" kind:"SCALAR"`
 }
 
+func (s Receipt) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type RunResult struct {
 	// SCHEMA: state RunState!
 	State RunState `json:"state" kind:"ENUM"`
@@ -1237,6 +1473,10 @@ type RunResult struct {
 	JsonReceipts []String `json:"jsonReceipts" kind:"SCALAR"`
 }
 
+func (s RunResult) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type ScriptParameters struct {
 	// SCHEMA: maxScriptLength U64!
 	MaxScriptLength U64 `json:"maxScriptLength" kind:"SCALAR"`
@@ -1244,14 +1484,26 @@ type ScriptParameters struct {
 	MaxScriptDataLength U64 `json:"maxScriptDataLength" kind:"SCALAR"`
 }
 
+func (s ScriptParameters) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type SqueezedOutStatus struct {
 	// SCHEMA: reason String!
 	Reason String `json:"reason" kind:"SCALAR"`
 }
 
+func (s SqueezedOutStatus) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type SubmittedStatus struct {
 	// SCHEMA: time Tai64Timestamp!
 	Time Tai64Timestamp `json:"time" kind:"SCALAR"`
+}
+
+func (s SubmittedStatus) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type Subscription struct {
@@ -1274,6 +1526,10 @@ type Subscription struct {
 	SubmitAndAwait TransactionStatus `json:"submitAndAwait" kind:"UNION"`
 }
 
+func (s Subscription) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type SuccessStatus struct {
 	// SCHEMA: transactionId TransactionId!
 	TransactionId TransactionId `json:"transactionId" kind:"SCALAR"`
@@ -1285,6 +1541,10 @@ type SuccessStatus struct {
 	ProgramState *ProgramState `json:"programState" kind:"OBJECT"`
 	// SCHEMA: receipts [Receipt!]!
 	Receipts []Receipt `json:"receipts" kind:"OBJECT"`
+}
+
+func (s SuccessStatus) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type Transaction struct {
@@ -1347,6 +1607,10 @@ type Transaction struct {
 	RawPayload HexString `json:"rawPayload" kind:"SCALAR"`
 }
 
+func (s Transaction) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type TransactionConnection struct {
 	// Information to aid in pagination.
 	// SCHEMA: pageInfo PageInfo!
@@ -1359,6 +1623,10 @@ type TransactionConnection struct {
 	Nodes []Transaction `json:"nodes" kind:"OBJECT"`
 }
 
+func (s TransactionConnection) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 // An edge in a connection.
 type TransactionEdge struct {
 	// A cursor for use in pagination
@@ -1367,6 +1635,10 @@ type TransactionEdge struct {
 	// The item at the end of the edge
 	// SCHEMA: node Transaction!
 	Node Transaction `json:"node" kind:"OBJECT"`
+}
+
+func (s TransactionEdge) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 type TxParameters struct {
@@ -1382,6 +1654,10 @@ type TxParameters struct {
 	MaxSize U64 `json:"maxSize" kind:"SCALAR"`
 }
 
+func (s TxParameters) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type VariableOutput struct {
 	// SCHEMA: to Address!
 	To Address `json:"to" kind:"SCALAR"`
@@ -1389,6 +1665,10 @@ type VariableOutput struct {
 	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: assetId AssetId!
 	AssetId AssetId `json:"assetId" kind:"SCALAR"`
+}
+
+func (s VariableOutput) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
 // ====================
@@ -1404,11 +1684,15 @@ type CoinType struct {
 }
 
 func (u *CoinType) UnmarshalJSON(raw []byte) error {
-	return UnmarshalJSONUnion(raw, u)
+	return unmarshalJSONUnion(raw, u)
 }
 
 func (u CoinType) MarshalJSON() ([]byte, error) {
-	return MarshalJSONUnion(u)
+	return marshalJSONUnion(u)
+}
+
+func (s CoinType) MarshalStructpb() *structpb.Value {
+	return marshalStructpbUnion(reflect.ValueOf(s))
 }
 
 type Consensus struct {
@@ -1419,11 +1703,15 @@ type Consensus struct {
 }
 
 func (u *Consensus) UnmarshalJSON(raw []byte) error {
-	return UnmarshalJSONUnion(raw, u)
+	return unmarshalJSONUnion(raw, u)
 }
 
 func (u Consensus) MarshalJSON() ([]byte, error) {
-	return MarshalJSONUnion(u)
+	return marshalJSONUnion(u)
+}
+
+func (s Consensus) MarshalStructpb() *structpb.Value {
+	return marshalStructpbUnion(reflect.ValueOf(s))
 }
 
 type DependentCost struct {
@@ -1434,11 +1722,15 @@ type DependentCost struct {
 }
 
 func (u *DependentCost) UnmarshalJSON(raw []byte) error {
-	return UnmarshalJSONUnion(raw, u)
+	return unmarshalJSONUnion(raw, u)
 }
 
 func (u DependentCost) MarshalJSON() ([]byte, error) {
-	return MarshalJSONUnion(u)
+	return marshalJSONUnion(u)
+}
+
+func (s DependentCost) MarshalStructpb() *structpb.Value {
+	return marshalStructpbUnion(reflect.ValueOf(s))
 }
 
 type Input struct {
@@ -1450,11 +1742,15 @@ type Input struct {
 }
 
 func (u *Input) UnmarshalJSON(raw []byte) error {
-	return UnmarshalJSONUnion(raw, u)
+	return unmarshalJSONUnion(raw, u)
 }
 
 func (u Input) MarshalJSON() ([]byte, error) {
-	return MarshalJSONUnion(u)
+	return marshalJSONUnion(u)
+}
+
+func (s Input) MarshalStructpb() *structpb.Value {
+	return marshalStructpbUnion(reflect.ValueOf(s))
 }
 
 type Output struct {
@@ -1468,11 +1764,15 @@ type Output struct {
 }
 
 func (u *Output) UnmarshalJSON(raw []byte) error {
-	return UnmarshalJSONUnion(raw, u)
+	return unmarshalJSONUnion(raw, u)
 }
 
 func (u Output) MarshalJSON() ([]byte, error) {
-	return MarshalJSONUnion(u)
+	return marshalJSONUnion(u)
+}
+
+func (s Output) MarshalStructpb() *structpb.Value {
+	return marshalStructpbUnion(reflect.ValueOf(s))
 }
 
 type TransactionStatus struct {
@@ -1485,79 +1785,15 @@ type TransactionStatus struct {
 }
 
 func (u *TransactionStatus) UnmarshalJSON(raw []byte) error {
-	return UnmarshalJSONUnion(raw, u)
+	return unmarshalJSONUnion(raw, u)
 }
 
 func (u TransactionStatus) MarshalJSON() ([]byte, error) {
-	return MarshalJSONUnion(u)
+	return marshalJSONUnion(u)
 }
 
-func UnmarshalJSONUnion(raw []byte, unionObj any) error {
-	var union struct {
-		TypeName string `json:"__typename"`
-	}
-	if err := json.Unmarshal(raw, &union); err != nil {
-		return err
-	}
-	if union.TypeName == "" {
-		return nil
-	}
-	pv := reflect.ValueOf(unionObj)
-	if pv.Kind() != reflect.Pointer || pv.IsNil() {
-		return &json.InvalidUnmarshalError{Type: reflect.TypeOf(unionObj)}
-	}
-	rv := pv.Elem()
-	rt := rv.Type()
-	if _, has := rt.FieldByName("TypeName_"); !has {
-		return fmt.Errorf("%s is not an union type because miss field TypeName_", rt.Name())
-	}
-	rv.FieldByName("TypeName_").SetString(union.TypeName)
-	for i := 0; i < rt.NumField(); i++ {
-		if rt.Field(i).Name == union.TypeName {
-			if rt.Field(i).Type.Kind() != reflect.Pointer {
-				return fmt.Errorf("member %s of union type %T should be an pointer", union.TypeName, unionObj)
-			}
-			fv := reflect.New(rt.Field(i).Type.Elem())
-			if err := json.Unmarshal(raw, fv.Interface()); err != nil {
-				return err
-			}
-			rv.Field(i).Set(fv)
-			return nil
-		}
-	}
-	return fmt.Errorf("union type %T do not have member %q", unionObj, union.TypeName)
-}
-
-func MarshalJSONUnion(unionObj any) ([]byte, error) {
-	val := reflect.ValueOf(unionObj)
-	vt := val.Type()
-	if _, has := vt.FieldByName("TypeName_"); !has {
-		return nil, fmt.Errorf("%s is not an union type because miss field TypeName_", vt.Name())
-	}
-	typeName := val.FieldByName("TypeName_").Interface().(string)
-	if typeName == "" {
-		return json.Marshal(nil)
-	}
-	if _, has := vt.FieldByName(typeName); !has {
-		return json.Marshal(map[string]string{"__typename": typeName})
-	}
-	subVal := val.FieldByName(typeName)
-	if subVal.IsNil() {
-		return nil, fmt.Errorf("%s can not be nil", typeName)
-	}
-	subVal = subVal.Elem()
-	subTyp := subVal.Type()
-	fields := make([]reflect.StructField, subVal.NumField()+1)
-	fields[0], _ = vt.FieldByName("TypeName_")
-	for i := 0; i < subTyp.NumField(); i++ {
-		fields[i+1] = subTyp.Field(i)
-	}
-	merged := reflect.New(reflect.StructOf(fields)).Elem()
-	merged.Field(0).SetString(typeName)
-	for i := 0; i < subVal.NumField(); i++ {
-		merged.Field(i + 1).Set(subVal.Field(i))
-	}
-	return json.Marshal(merged.Interface())
+func (s TransactionStatus) MarshalStructpb() *structpb.Value {
+	return marshalStructpbUnion(reflect.ValueOf(s))
 }
 
 // ====================

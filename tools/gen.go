@@ -17,7 +17,6 @@ import (
 type Config struct {
 	Package      string            `yaml:"package"`
 	Import       []string          `yaml:"import"`
-	JSONPackage  string            `yaml:"json-package"`
 	ScalarMapper map[string]string `yaml:"scalarMapper"`
 }
 
@@ -51,11 +50,12 @@ func unwrapType(typ types.Type) types.Type {
 type generator struct {
 	schema      *types.Schema
 	schemaTypes []types.NamedType
+	extends     []GeneratorExtend
 	config      Config
-	w           util.Output
+	w           *util.Output
 }
 
-func newGenerator(schema *types.Schema, config Config, out io.Writer) generator {
+func newGenerator(schema *types.Schema, config Config, out io.Writer, extends []GeneratorExtend) generator {
 	schemaTypes := make([]types.NamedType, 0, len(schema.Types))
 	for _, typ := range schema.Types {
 		schemaTypes = append(schemaTypes, typ)
@@ -67,9 +67,18 @@ func newGenerator(schema *types.Schema, config Config, out io.Writer) generator 
 	return generator{
 		schema:      schema,
 		schemaTypes: schemaTypes,
+		extends:     extends,
 		config:      config,
-		w:           util.Output{Writer: out},
+		w:           &util.Output{Writer: out},
 	}
+}
+
+type GeneratorExtend interface {
+	Imports() []string
+	GenScalar(out *util.Output, scalarType *types.ScalarTypeDefinition, scalarGoType string)
+	GenEnum(out *util.Output, enumType *types.EnumTypeDefinition)
+	GenObject(out *util.Output, objectType *types.ObjectTypeDefinition)
+	GenUnion(out *util.Output, unionType *types.Union)
 }
 
 func (g generator) genHeader() {
@@ -77,7 +86,19 @@ func (g generator) genHeader() {
 	g.w.Out("package %s\n\n", g.config.Package)
 	// import
 	g.w.Out("import (\n")
-	for _, imp := range append(g.config.Import, g.config.JSONPackage, "fmt", "reflect", "strconv") {
+	imports := map[string]bool{
+		"fmt":     true,
+		"strconv": true,
+	}
+	for _, ex := range g.extends {
+		for _, imp := range ex.Imports() {
+			imports[imp] = true
+		}
+	}
+	for _, imp := range g.config.Import {
+		imports[imp] = true
+	}
+	for imp := range imports {
 		g.w.Out("\t%q\n", imp)
 	}
 	g.w.Out(")\n\n")
@@ -94,115 +115,44 @@ func (g generator) genScalars() {
 		if !has {
 			log.Fatalf("miss mapping for scalar type %q", scalarType.TypeName())
 		}
-
 		switch scalarGoType {
 		case "uint8", "uint16", "uint32", "uint64":
 			g.w.Out("type %s %s\n", scalarType.TypeName(), scalarGoType)
 			g.w.Outf(`
-func (s *#{name}) UnmarshalJSON(raw []byte) error {
-	if i, err := UnmarshalJSONUInt(raw); err != nil {
-		return err
-	} else {
-		*s = #{name}(i)
-		return nil
-	}
+func (s #{name}) String() string {
+	return strconv.FormatUint(uint64(s), 10)
 }
-
-func (s #{name}) MarshalJSON() ([]byte, error) {
-	return json.Marshal(s.String())
-}
-
-func (s *#{name}) String() string {
-	return strconv.FormatUint(uint64(*s), 10)
-}
-
 `, "name", scalarType.TypeName())
 		case "int8", "int16", "int32", "int64":
 			g.w.Out("type %s %s\n", scalarType.TypeName(), scalarGoType)
 			g.w.Outf(`
-func (s *#{name}) UnmarshalJSON(raw []byte) error {
-	if i, err := UnmarshalJSONInt(raw); err != nil {
-		return err
-	} else {
-		*s = #{name}(i)
-		return nil
-	}
+func (s #{name}) String() string {
+	return strconv.FormatInt(int64(s), 10)
 }
-
-func (s #{name}) MarshalJSON() ([]byte, error) {
-	return json.Marshal(s.String())
-}
-
-func (s *#{name}) String() string {
-	return strconv.FormatInt(int64(*s), 10)
-}
-
 `, "name", scalarType.TypeName())
 		case "float32", "float64":
 			g.w.Out("type %s %s\n", scalarType.TypeName(), scalarGoType)
 			g.w.Outf(`
-func (s *#{name}) UnmarshalJSON(raw []byte) error {
-	if f, err := UnmarshalJSONFloat(raw); err != nil {
-		return err
-	} else {
-		*s = #{name}(f)
-		return nil
-	}
+func (s #{name}) String() string {
+	return strconv.FormatFloat(float64(s), 'f', 20, 64)
 }
-
-func (s #{name}) MarshalJSON() ([]byte, error) {
-	return json.Marshal(s.String())
-}
-
-func (s *#{name}) String() string {
-	return strconv.FormatFloat(float64(*s), 'f', 20, 64)
-}
-
 `, "name", scalarType.TypeName())
 		case "string":
 			g.w.Out("type %s %s\n", scalarType.TypeName(), scalarGoType)
 		case "bool":
 			g.w.Out("type %s %s\n", scalarType.TypeName(), scalarGoType)
 			g.w.Outf(`
-func (s *#{name}) String() string {
-	return strconv.FormatBool(bool(*s))
+func (s #{name}) String() string {
+	return strconv.FormatBool(bool(s))
 }
-
 `, "name", scalarType.TypeName())
 		default:
 			g.w.Out("type %s struct { %s }\n", scalarType.TypeName(), scalarGoType)
-			g.w.Outf(`
-func (s #{name}) MarshalStructpb() *structpb.Value {
-	return structpb.NewStringValue(s.String())
-}
-
-`, "name", scalarType.TypeName())
+		}
+		for _, ex := range g.extends {
+			ex.GenScalar(g.w, scalarType, scalarGoType)
 		}
 	}
-	g.w.Out(`
-
-func UnmarshalJSONUInt(raw []byte) (uint64, error) {
-	if len(raw) >= 2 && raw[0] == '"' && raw[len(raw)-1] == '"' {
-		raw = raw[1:len(raw)-1]
-	}
-	return strconv.ParseUint(string(raw), 10, 64)
-}
-
-func UnmarshalJSONInt(raw []byte) (int64, error) {
-	if len(raw) >= 2 && raw[0] == '"' && raw[len(raw)-1] == '"' {
-		raw = raw[1:len(raw)-1]
-	}
-	return strconv.ParseInt(string(raw), 10, 64)
-}
-
-func UnmarshalJSONFloat(raw []byte) (float64, error) {
-	if len(raw) >= 2 && raw[0] == '"' && raw[len(raw)-1] == '"' {
-		raw = raw[1:len(raw)-1]
-	}
-	return strconv.ParseFloat(string(raw), 64)
-}
-
-`)
 }
 
 func (g generator) genEnums() {
@@ -218,23 +168,10 @@ func (g generator) genEnums() {
 		for _, val := range enumType.EnumValuesDefinition {
 			g.w.Out("  %q,\n", val.EnumValue)
 		}
-		g.w.Outf(`}
-
-func (e *#{name}) UnmarshalJSON(raw []byte) error {
-	var val string
-	if err := json.Unmarshal(raw, &val); err != nil {
-		return err
-	}
-	for _, v := range #{name}Values {
-		if v == val {
-			*e = #{name}(val)
-			return nil
+		g.w.Out("}\n\n")
+		for _, ex := range g.extends {
+			ex.GenEnum(g.w, enumType)
 		}
-	}
-	return fmt.Errorf("invalid value %%q for enum type #{name}", val)
-}
-
-`, "name", enumType.TypeName())
 	}
 }
 
@@ -254,7 +191,10 @@ func (g generator) genObjects() {
 			g.w.Out("\t// SCHEMA: %s %s\n", field.Name, field.Type.String())
 			g.w.Out("\t%s %s `%s`\n", goFieldName, convertToGoType(field.Type, false), tags)
 		}
-		g.w.Out("}\n\n")
+		g.w.Out("}\n")
+		for _, ex := range g.extends {
+			ex.GenObject(g.w, objectType)
+		}
 	}
 }
 
@@ -268,88 +208,10 @@ func (g generator) genUnions() {
 			g.w.Out("\t*%s\n", mem.TypeName())
 		}
 		g.w.Out("}\n\n")
-		g.w.Outf(`
-func (u *#{name}) UnmarshalJSON(raw []byte) error {
-	return UnmarshalJSONUnion(raw, u)
-}
-
-func (u #{name}) MarshalJSON() ([]byte, error) {
-	return MarshalJSONUnion(u)
-}
-
-`, "name", unionType.TypeName())
-	}
-	g.w.Outf(`
-
-func UnmarshalJSONUnion(raw []byte, unionObj any) error {
-	var union struct {
-		TypeName string `+"`"+`json:"__typename"`+"`"+`
-	}
-	if err := json.Unmarshal(raw, &union); err != nil {
-		return err
-	}
-	if union.TypeName == "" {
-		return nil
-	}
-	pv := reflect.ValueOf(unionObj)
-	if pv.Kind() != reflect.Pointer || pv.IsNil() {
-		return &json.InvalidUnmarshalError{Type: reflect.TypeOf(unionObj)}
-	}
-	rv := pv.Elem()
-	rt := rv.Type()
-	if _, has := rt.FieldByName("#{typeFieldName}"); !has {
-		return fmt.Errorf("%%s is not an union type because miss field #{typeFieldName}", rt.Name())
-	}
-	rv.FieldByName("#{typeFieldName}").SetString(union.TypeName)
-	for i := 0; i < rt.NumField(); i++ {
-		if rt.Field(i).Name == union.TypeName {
-			if rt.Field(i).Type.Kind() != reflect.Pointer {
-				return fmt.Errorf("member %%s of union type %%T should be an pointer", union.TypeName, unionObj)
-			}
-			fv := reflect.New(rt.Field(i).Type.Elem())
-			if err := json.Unmarshal(raw, fv.Interface()); err != nil {
-				return err
-			}
-			rv.Field(i).Set(fv)
-			return nil
+		for _, ex := range g.extends {
+			ex.GenUnion(g.w, unionType)
 		}
 	}
-	return fmt.Errorf("union type %%T do not have member %%q", unionObj, union.TypeName)
-}
-
-func MarshalJSONUnion(unionObj any) ([]byte, error) {
-	val := reflect.ValueOf(unionObj)
-	vt := val.Type()
-	if _, has := vt.FieldByName("#{typeFieldName}"); !has {
-		return nil, fmt.Errorf("%%s is not an union type because miss field #{typeFieldName}", vt.Name())
-	}
-	typeName := val.FieldByName("#{typeFieldName}").Interface().(string)
-	if typeName == "" {
-		return json.Marshal(nil)
-	}
-	if _, has := vt.FieldByName(typeName); !has {
-		return json.Marshal(map[string]string{"__typename": typeName})
-	}
-	subVal := val.FieldByName(typeName)
-	if subVal.IsNil() {
-		return nil, fmt.Errorf("%%s can not be nil", typeName)
-	}
-	subVal = subVal.Elem()
-	subTyp := subVal.Type()
-	fields := make([]reflect.StructField, subVal.NumField()+1)
-	fields[0], _ = vt.FieldByName("#{typeFieldName}")
-	for i := 0; i < subTyp.NumField(); i++ {
-		fields[i+1] = subTyp.Field(i)
-	}
-	merged := reflect.New(reflect.StructOf(fields)).Elem()
-	merged.Field(0).SetString(typeName)
-	for i := 0; i < subVal.NumField(); i++ {
-		merged.Field(i + 1).Set(subVal.Field(i))
-	}
-	return json.Marshal(merged.Interface())
-}
-
-`, "typeFieldName", util.UnionTypeFieldName)
 }
 
 func (g generator) genInputObjects() {
@@ -445,5 +307,9 @@ func main() {
 	defer out.Close()
 
 	// gen
-	newGenerator(schema.ASTSchema(), conf, out).Gen()
+	extends := []GeneratorExtend{
+		generatorExtendJSON{},
+		generatorExtendStructpb{},
+	}
+	newGenerator(schema.ASTSchema(), conf, out, extends).Gen()
 }

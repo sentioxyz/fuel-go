@@ -29,7 +29,11 @@ func (n *Tai64Timestamp) UnmarshalJSON(raw []byte) error {
 }
 
 func (n Tai64Timestamp) MarshalJSON() ([]byte, error) {
+	return json.Marshal(n.String())
+}
+
+func (n Tai64Timestamp) String() string {
 	var b big.Int
 	b.SetString(strings.TrimLeft(tai64.Format(n.Time), "@"), 16)
-	return json.Marshal(b.Text(10))
+	return b.Text(10)
 }
