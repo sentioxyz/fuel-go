@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"google.golang.org/protobuf/types/known/structpb"
 	"reflect"
 	"strconv"
 	"time"
@@ -17,8 +18,23 @@ import (
 // --------------------
 
 type Address struct{ common.Hash }
+
+func (s *Address) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
+}
+
 type AssetId struct{ common.Hash }
+
+func (s *AssetId) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
+}
+
 type BlockId struct{ common.Hash }
+
+func (s *BlockId) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
+}
+
 type Boolean bool
 
 func (s *Boolean) String() string {
@@ -26,7 +42,17 @@ func (s *Boolean) String() string {
 }
 
 type Bytes32 struct{ common.Hash }
+
+func (s *Bytes32) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
+}
+
 type ContractId struct{ common.Hash }
+
+func (s *ContractId) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
+}
+
 type Float float64
 
 func (s *Float) UnmarshalJSON(raw []byte) error {
@@ -47,6 +73,11 @@ func (s *Float) String() string {
 }
 
 type HexString struct{ hexutil.Bytes }
+
+func (s *HexString) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
+}
+
 type ID string
 type Int int32
 
@@ -70,9 +101,24 @@ func (s *Int) String() string {
 type Nonce string
 type Salt string
 type Signature struct{ hexutil.Bytes }
+
+func (s *Signature) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
+}
+
 type String string
 type Tai64Timestamp struct{ time.Time }
+
+func (s *Tai64Timestamp) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
+}
+
 type TransactionId struct{ common.Hash }
+
+func (s *TransactionId) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
+}
+
 type TxPointer string
 type U32 uint32
 
@@ -132,6 +178,10 @@ func (s *U8) String() string {
 }
 
 type UtxoId struct{ hexutil.Bytes }
+
+func (s *UtxoId) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
+}
 
 func UnmarshalJSONUInt(raw []byte) (uint64, error) {
 	if len(raw) >= 2 && raw[0] == '"' && raw[len(raw)-1] == '"' {

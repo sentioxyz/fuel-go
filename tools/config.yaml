@@ -3,6 +3,7 @@ package: types
 import:
   - github.com/ethereum/go-ethereum/common
   - github.com/ethereum/go-ethereum/common/hexutil
+  - google.golang.org/protobuf/types/known/structpb
   - time
 
 json-package: encoding/json

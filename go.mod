@@ -7,6 +7,7 @@ require (
 	github.com/ethereum/go-ethereum v1.12.2
 	github.com/graph-gophers/graphql-go v1.5.0
 	github.com/stretchr/testify v1.9.0
+	google.golang.org/protobuf v1.33.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
