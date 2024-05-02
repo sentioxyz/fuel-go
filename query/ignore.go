@@ -7,13 +7,15 @@ import (
 type IgnoreChecker func(object reflect.Type, field reflect.StructField) bool
 
 func IgnoreObjects(objs ...any) IgnoreChecker {
+	objTypeSet := make(map[reflect.Type]bool)
+	for _, obj := range objs {
+		objTypeSet[reflect.TypeOf(obj)] = true
+	}
 	return func(_ reflect.Type, field reflect.StructField) bool {
 		fieldType := field.Type
 		for {
-			for _, obj := range objs {
-				if reflect.TypeOf(obj) == fieldType {
-					return true
-				}
+			if objTypeSet[fieldType] {
+				return true
 			}
 			switch fieldType.Kind() {
 			case reflect.Pointer, reflect.Slice, reflect.Array:
@@ -26,22 +28,20 @@ func IgnoreObjects(objs ...any) IgnoreChecker {
 }
 
 func IgnoreField(obj any, fieldName string) IgnoreChecker {
+	objType := reflect.TypeOf(obj)
 	return func(object reflect.Type, field reflect.StructField) bool {
-		return object == reflect.TypeOf(obj) && field.Name == fieldName
+		return object == objType && field.Name == fieldName
 	}
 }
 
 func IgnoreOtherFields(obj any, fieldNames ...string) IgnoreChecker {
+	objType := reflect.TypeOf(obj)
+	fieldNameSet := make(map[string]bool)
+	for _, fieldName := range fieldNames {
+		fieldNameSet[fieldName] = true
+	}
 	return func(object reflect.Type, field reflect.StructField) bool {
-		if object != reflect.TypeOf(obj) {
-			return false
-		}
-		for _, fieldName := range fieldNames {
-			if field.Name == fieldName {
-				return false
-			}
-		}
-		return true
+		return object == objType && !fieldNameSet[field.Name]
 	}
 }
 

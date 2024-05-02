@@ -32,7 +32,10 @@ func (o GetBlockOption) BuildIgnoreChecker() query.IgnoreChecker {
 		checkers = append(checkers, query.IgnoreOtherFields(types.Transaction{}, "Id"))
 	} else {
 		// Otherwise it will create circular dependencies
-		checkers = append(checkers, query.IgnoreObjects(types.SuccessStatus{}, types.FailureStatus{}))
+		checkers = append(checkers, query.IgnoreField(types.SuccessStatus{}, "Block"))
+		checkers = append(checkers, query.IgnoreField(types.SuccessStatus{}, "Receipts"))
+		checkers = append(checkers, query.IgnoreField(types.FailureStatus{}, "Block"))
+		checkers = append(checkers, query.IgnoreField(types.FailureStatus{}, "Receipts"))
 	}
 	if !o.WithContractBytecode {
 		checkers = append(checkers, query.IgnoreField(types.Contract{}, "Bytecode"))

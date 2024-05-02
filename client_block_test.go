@@ -189,8 +189,15 @@ func Test_GetBlock2(t *testing.T) {
 			}},
 			ReceiptsRoot: &types.Bytes32{Hash: common.HexToHash("0x387ae9a320be556f6b79aa5738f59f9381d1919d30b9daacb0da4d412bf7eba3")},
 			Status: &types.TransactionStatus{
-				TypeName_:     "SuccessStatus",
-				SuccessStatus: &types.SuccessStatus{},
+				TypeName_: "SuccessStatus",
+				SuccessStatus: &types.SuccessStatus{
+					TransactionId: types.TransactionId{Hash: common.HexToHash("0x9b7a9353faacd4ce91c47707d66c81ec7e4d547905168a592312a94a5c67b69f")},
+					Time:          types.Tai64Timestamp{Time: time.Date(2024, time.April, 15, 2, 44, 2, 0, time.UTC)},
+					ProgramState: &types.ProgramState{
+						ReturnType: "RETURN",
+						Data:       types.HexString{Bytes: common.FromHex("0x0000000000000001")},
+					},
+				},
 			},
 			Receipts: []types.Receipt{{
 				Pc: util.GetPointer[types.U64](11640),
@@ -273,8 +280,15 @@ func Test_GetBlock2(t *testing.T) {
 			}},
 			ReceiptsRoot: &types.Bytes32{Hash: common.HexToHash("0xe7f678a2e8df7da272cf303aff96023da2ab1968b74d86bb92f5b558d38ed6bd")},
 			Status: &types.TransactionStatus{
-				TypeName_:     "SuccessStatus",
-				SuccessStatus: &types.SuccessStatus{},
+				TypeName_: "SuccessStatus",
+				SuccessStatus: &types.SuccessStatus{
+					TransactionId: types.TransactionId{Hash: common.HexToHash("0x4928a04ef03e8146c530249c6a2e97e389a3dd3c00deb6efcb652de0ea62da47")},
+					Time:          types.Tai64Timestamp{Time: time.Date(2024, time.April, 15, 2, 44, 2, 0, time.UTC)},
+					ProgramState: &types.ProgramState{
+						ReturnType: "RETURN",
+						Data:       types.HexString{Bytes: common.FromHex("0x0000000000000000")},
+					},
+				},
 			},
 			Receipts: []types.Receipt{{
 				Pc:          util.GetPointer[types.U64](10336),
@@ -316,8 +330,11 @@ func Test_GetBlock2(t *testing.T) {
 				StateRoot:   types.Bytes32{Hash: common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")},
 			},
 			Status: &types.TransactionStatus{
-				TypeName_:     "SuccessStatus",
-				SuccessStatus: &types.SuccessStatus{},
+				TypeName_: "SuccessStatus",
+				SuccessStatus: &types.SuccessStatus{
+					TransactionId: types.TransactionId{Hash: common.HexToHash("0x1a978dcf45d87d2793d7da58d45244d68241aa6363d6a435a38c5fdfeafff178")},
+					Time:          types.Tai64Timestamp{Time: time.Date(2024, time.April, 15, 2, 44, 2, 0, time.UTC)},
+				},
 			},
 			RawPayload: types.HexString{Bytes: common.FromHex("0x0000000000000002000000000094e7560000000000000002ae426ee0c79cac25ffe515ca4148e27086669bee7043b23cd380dce443213eff00000000000000002d19f8c34395032b25ae83bf88cd618a8598c6f2459f137c931879b323a41e040000000000000000000000000000000000000000000000000000000000000000000000000094e755000000000000000677777777777777777777777777777777777777777777777777777777777777770000000000000000a24223e950599e9577bd2782388411d5f92c35793dc72fc25355041bb9e2f869000000000000000000000000000000000000000000000000000000000000000000000000000018eb0000000000000000000000000000000000000000000000000000000000000000")},
 		}},
