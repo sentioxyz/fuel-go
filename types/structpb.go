@@ -28,7 +28,7 @@ func marshalStructpbObject(v reflect.Value, isObject bool) *structpb.Value {
 			if adapter, is := v.Interface().(StructpbMarshaller); is {
 				return adapter.MarshalStructpb()
 			}
-			panic(fmt.Errorf("scalar %!s(MISSING) is not a StructpbMarshaller", v.Type()))
+			panic(fmt.Errorf("scalar %s is not a StructpbMarshaller", v.Type()))
 		}
 		structValue := structpb.Struct{Fields: make(map[string]*structpb.Value)}
 		for i, n, t := 0, v.NumField(), v.Type(); i < n; i++ {
@@ -49,9 +49,9 @@ func marshalStructpbObject(v reflect.Value, isObject bool) *structpb.Value {
 			if adapter, is := v.Interface().(StructpbMarshaller); is {
 				return adapter.MarshalStructpb()
 			}
-			panic(fmt.Errorf("scalar %!s(MISSING) is not a StructpbMarshaller", v.Type()))
+			panic(fmt.Errorf("scalar %s is not a StructpbMarshaller", v.Type()))
 		}
-		panic(fmt.Errorf("object %!s(MISSING) is not struct", v.Type()))
+		panic(fmt.Errorf("object %s is not struct", v.Type()))
 	}
 }
 
