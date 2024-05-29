@@ -22,8 +22,10 @@ scalarMapper:
   String: string
   Tai64Timestamp: time.Time
   TransactionId: common.Hash
+  RelayedTransactionId: common.Hash
   TxPointer: string
   U8: uint8
+  U16: uint16
   U32: uint32
   U64: uint64
   UtxoId: hexutil.Bytes

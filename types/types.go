@@ -121,6 +121,12 @@ func (s Nonce) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(string(s))
 }
 
+type RelayedTransactionId struct{ common.Hash }
+
+func (s RelayedTransactionId) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
+}
+
 type Salt string
 
 func (s Salt) MarshalStructpb() *structpb.Value {
@@ -155,6 +161,29 @@ type TxPointer string
 
 func (s TxPointer) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(string(s))
+}
+
+type U16 uint16
+
+func (s U16) String() string {
+	return strconv.FormatUint(uint64(s), 10)
+}
+
+func (s *U16) UnmarshalJSON(raw []byte) error {
+	if i, err := unmarshalJSONUInt(raw); err != nil {
+		return err
+	} else {
+		*s = U16(i)
+		return nil
+	}
+}
+
+func (s U16) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
+}
+
+func (s U16) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
 }
 
 type U32 uint32
@@ -203,29 +232,6 @@ func (s U64) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(s.String())
 }
 
-type U8 uint8
-
-func (s U8) String() string {
-	return strconv.FormatUint(uint64(s), 10)
-}
-
-func (s *U8) UnmarshalJSON(raw []byte) error {
-	if i, err := unmarshalJSONUInt(raw); err != nil {
-		return err
-	} else {
-		*s = U8(i)
-		return nil
-	}
-}
-
-func (s U8) MarshalJSON() ([]byte, error) {
-	return json.Marshal(s.String())
-}
-
-func (s U8) MarshalStructpb() *structpb.Value {
-	return structpb.NewStringValue(s.String())
-}
-
 type UtxoId struct{ hexutil.Bytes }
 
 func (s UtxoId) MarshalStructpb() *structpb.Value {
@@ -235,6 +241,102 @@ func (s UtxoId) MarshalStructpb() *structpb.Value {
 // ====================
 // Enums
 // --------------------
+
+type ConsensusParametersVersion string
+
+var ConsensusParametersVersionValues = []string{
+	"V1",
+}
+
+func (e *ConsensusParametersVersion) UnmarshalJSON(raw []byte) error {
+	var val string
+	if err := json.Unmarshal(raw, &val); err != nil {
+		return err
+	}
+	for _, v := range ConsensusParametersVersionValues {
+		if v == val {
+			*e = ConsensusParametersVersion(val)
+			return nil
+		}
+	}
+	return fmt.Errorf("invalid value %q for enum type ConsensusParametersVersion", val)
+}
+
+func (s ConsensusParametersVersion) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
+
+type ContractParametersVersion string
+
+var ContractParametersVersionValues = []string{
+	"V1",
+}
+
+func (e *ContractParametersVersion) UnmarshalJSON(raw []byte) error {
+	var val string
+	if err := json.Unmarshal(raw, &val); err != nil {
+		return err
+	}
+	for _, v := range ContractParametersVersionValues {
+		if v == val {
+			*e = ContractParametersVersion(val)
+			return nil
+		}
+	}
+	return fmt.Errorf("invalid value %q for enum type ContractParametersVersion", val)
+}
+
+func (s ContractParametersVersion) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
+
+type FeeParametersVersion string
+
+var FeeParametersVersionValues = []string{
+	"V1",
+}
+
+func (e *FeeParametersVersion) UnmarshalJSON(raw []byte) error {
+	var val string
+	if err := json.Unmarshal(raw, &val); err != nil {
+		return err
+	}
+	for _, v := range FeeParametersVersionValues {
+		if v == val {
+			*e = FeeParametersVersion(val)
+			return nil
+		}
+	}
+	return fmt.Errorf("invalid value %q for enum type FeeParametersVersion", val)
+}
+
+func (s FeeParametersVersion) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
+
+type GasCostsVersion string
+
+var GasCostsVersionValues = []string{
+	"V1",
+}
+
+func (e *GasCostsVersion) UnmarshalJSON(raw []byte) error {
+	var val string
+	if err := json.Unmarshal(raw, &val); err != nil {
+		return err
+	}
+	for _, v := range GasCostsVersionValues {
+		if v == val {
+			*e = GasCostsVersion(val)
+			return nil
+		}
+	}
+	return fmt.Errorf("invalid value %q for enum type GasCostsVersion", val)
+}
+
+func (s GasCostsVersion) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
 
 type MessageState string
 
@@ -259,6 +361,30 @@ func (e *MessageState) UnmarshalJSON(raw []byte) error {
 }
 
 func (s MessageState) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
+
+type PredicateParametersVersion string
+
+var PredicateParametersVersionValues = []string{
+	"V1",
+}
+
+func (e *PredicateParametersVersion) UnmarshalJSON(raw []byte) error {
+	var val string
+	if err := json.Unmarshal(raw, &val); err != nil {
+		return err
+	}
+	for _, v := range PredicateParametersVersionValues {
+		if v == val {
+			*e = PredicateParametersVersion(val)
+			return nil
+		}
+	}
+	return fmt.Errorf("invalid value %q for enum type PredicateParametersVersion", val)
+}
+
+func (s PredicateParametersVersion) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(string(s))
 }
 
@@ -349,6 +475,54 @@ func (s RunState) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(string(s))
 }
 
+type ScriptParametersVersion string
+
+var ScriptParametersVersionValues = []string{
+	"V1",
+}
+
+func (e *ScriptParametersVersion) UnmarshalJSON(raw []byte) error {
+	var val string
+	if err := json.Unmarshal(raw, &val); err != nil {
+		return err
+	}
+	for _, v := range ScriptParametersVersionValues {
+		if v == val {
+			*e = ScriptParametersVersion(val)
+			return nil
+		}
+	}
+	return fmt.Errorf("invalid value %q for enum type ScriptParametersVersion", val)
+}
+
+func (s ScriptParametersVersion) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
+
+type TxParametersVersion string
+
+var TxParametersVersionValues = []string{
+	"V1",
+}
+
+func (e *TxParametersVersion) UnmarshalJSON(raw []byte) error {
+	var val string
+	if err := json.Unmarshal(raw, &val); err != nil {
+		return err
+	}
+	for _, v := range TxParametersVersionValues {
+		if v == val {
+			*e = TxParametersVersion(val)
+			return nil
+		}
+	}
+	return fmt.Errorf("invalid value %q for enum type TxParametersVersion", val)
+}
+
+func (s TxParametersVersion) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
+
 // ====================
 // Objects
 // --------------------
@@ -399,6 +573,8 @@ func (s BalanceEdge) MarshalStructpb() *structpb.Value {
 type Block struct {
 	// SCHEMA: id BlockId!
 	Id BlockId `json:"id" kind:"SCALAR"`
+	// SCHEMA: height U32!
+	Height U32 `json:"height" kind:"SCALAR"`
 	// SCHEMA: header Header!
 	Header Header `json:"header" kind:"OBJECT"`
 	// SCHEMA: consensus Consensus!
@@ -480,14 +656,12 @@ type Coin struct {
 	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: assetId AssetId!
 	AssetId AssetId `json:"assetId" kind:"SCALAR"`
-	// SCHEMA: maturity U32!
-	Maturity U32 `json:"maturity" kind:"SCALAR"`
 	// TxPointer - the height of the block this coin was created in
 	// SCHEMA: blockCreated U32!
 	BlockCreated U32 `json:"blockCreated" kind:"SCALAR"`
 	// TxPointer - the index of the transaction that created this coin
-	// SCHEMA: txCreatedIdx U64!
-	TxCreatedIdx U64 `json:"txCreatedIdx" kind:"SCALAR"`
+	// SCHEMA: txCreatedIdx U16!
+	TxCreatedIdx U16 `json:"txCreatedIdx" kind:"SCALAR"`
 }
 
 func (s Coin) MarshalStructpb() *structpb.Value {
@@ -538,6 +712,8 @@ func (s CoinOutput) MarshalStructpb() *structpb.Value {
 }
 
 type ConsensusParameters struct {
+	// SCHEMA: version ConsensusParametersVersion!
+	Version ConsensusParametersVersion `json:"version" kind:"ENUM"`
 	// SCHEMA: txParams TxParameters!
 	TxParams TxParameters `json:"txParams" kind:"OBJECT"`
 	// SCHEMA: predicateParams PredicateParameters!
@@ -550,13 +726,28 @@ type ConsensusParameters struct {
 	FeeParams FeeParameters `json:"feeParams" kind:"OBJECT"`
 	// SCHEMA: baseAssetId AssetId!
 	BaseAssetId AssetId `json:"baseAssetId" kind:"SCALAR"`
+	// SCHEMA: blockGasLimit U64!
+	BlockGasLimit U64 `json:"blockGasLimit" kind:"SCALAR"`
 	// SCHEMA: chainId U64!
 	ChainId U64 `json:"chainId" kind:"SCALAR"`
 	// SCHEMA: gasCosts GasCosts!
 	GasCosts GasCosts `json:"gasCosts" kind:"OBJECT"`
+	// SCHEMA: privilegedAddress Address!
+	PrivilegedAddress Address `json:"privilegedAddress" kind:"SCALAR"`
 }
 
 func (s ConsensusParameters) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
+type ConsensusParametersPurpose struct {
+	// SCHEMA: witnessIndex U16!
+	WitnessIndex U16 `json:"witnessIndex" kind:"SCALAR"`
+	// SCHEMA: checksum Bytes32!
+	Checksum Bytes32 `json:"checksum" kind:"SCALAR"`
+}
+
+func (s ConsensusParametersPurpose) MarshalStructpb() *structpb.Value {
 	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
@@ -617,8 +808,8 @@ func (s ContractBalanceEdge) MarshalStructpb() *structpb.Value {
 }
 
 type ContractCreated struct {
-	// SCHEMA: contract Contract!
-	Contract Contract `json:"contract" kind:"OBJECT"`
+	// SCHEMA: contract ContractId!
+	Contract ContractId `json:"contract" kind:"SCALAR"`
 	// SCHEMA: stateRoot Bytes32!
 	StateRoot Bytes32 `json:"stateRoot" kind:"SCALAR"`
 }
@@ -628,8 +819,8 @@ func (s ContractCreated) MarshalStructpb() *structpb.Value {
 }
 
 type ContractOutput struct {
-	// SCHEMA: inputIndex Int!
-	InputIndex Int `json:"inputIndex" kind:"SCALAR"`
+	// SCHEMA: inputIndex U16!
+	InputIndex U16 `json:"inputIndex" kind:"SCALAR"`
 	// SCHEMA: balanceRoot Bytes32!
 	BalanceRoot Bytes32 `json:"balanceRoot" kind:"SCALAR"`
 	// SCHEMA: stateRoot Bytes32!
@@ -641,6 +832,8 @@ func (s ContractOutput) MarshalStructpb() *structpb.Value {
 }
 
 type ContractParameters struct {
+	// SCHEMA: version ContractParametersVersion!
+	Version ContractParametersVersion `json:"version" kind:"ENUM"`
 	// SCHEMA: contractMaxSize U64!
 	ContractMaxSize U64 `json:"contractMaxSize" kind:"SCALAR"`
 	// SCHEMA: maxStorageSlots U64!
@@ -648,6 +841,60 @@ type ContractParameters struct {
 }
 
 func (s ContractParameters) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
+type DryRunFailureStatus struct {
+	// SCHEMA: programState ProgramState
+	ProgramState *ProgramState `json:"programState" kind:"OBJECT"`
+	// SCHEMA: reason String!
+	Reason String `json:"reason" kind:"SCALAR"`
+	// SCHEMA: receipts [Receipt!]!
+	Receipts []Receipt `json:"receipts" kind:"OBJECT"`
+	// SCHEMA: totalGas U64!
+	TotalGas U64 `json:"totalGas" kind:"SCALAR"`
+	// SCHEMA: totalFee U64!
+	TotalFee U64 `json:"totalFee" kind:"SCALAR"`
+}
+
+func (s DryRunFailureStatus) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
+type DryRunSuccessStatus struct {
+	// SCHEMA: programState ProgramState
+	ProgramState *ProgramState `json:"programState" kind:"OBJECT"`
+	// SCHEMA: receipts [Receipt!]!
+	Receipts []Receipt `json:"receipts" kind:"OBJECT"`
+	// SCHEMA: totalGas U64!
+	TotalGas U64 `json:"totalGas" kind:"SCALAR"`
+	// SCHEMA: totalFee U64!
+	TotalFee U64 `json:"totalFee" kind:"SCALAR"`
+}
+
+func (s DryRunSuccessStatus) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
+type DryRunTransactionExecutionStatus struct {
+	// SCHEMA: id TransactionId!
+	Id TransactionId `json:"id" kind:"SCALAR"`
+	// SCHEMA: status DryRunTransactionStatus!
+	Status DryRunTransactionStatus `json:"status" kind:"UNION"`
+	// SCHEMA: receipts [Receipt!]!
+	Receipts []Receipt `json:"receipts" kind:"OBJECT"`
+}
+
+func (s DryRunTransactionExecutionStatus) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
+type EstimateGasPrice struct {
+	// SCHEMA: gasPrice U64!
+	GasPrice U64 `json:"gasPrice" kind:"SCALAR"`
+}
+
+func (s EstimateGasPrice) MarshalStructpb() *structpb.Value {
 	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
@@ -664,6 +911,10 @@ type FailureStatus struct {
 	ProgramState *ProgramState `json:"programState" kind:"OBJECT"`
 	// SCHEMA: receipts [Receipt!]!
 	Receipts []Receipt `json:"receipts" kind:"OBJECT"`
+	// SCHEMA: totalGas U64!
+	TotalGas U64 `json:"totalGas" kind:"SCALAR"`
+	// SCHEMA: totalFee U64!
+	TotalFee U64 `json:"totalFee" kind:"SCALAR"`
 }
 
 func (s FailureStatus) MarshalStructpb() *structpb.Value {
@@ -671,6 +922,8 @@ func (s FailureStatus) MarshalStructpb() *structpb.Value {
 }
 
 type FeeParameters struct {
+	// SCHEMA: version FeeParametersVersion!
+	Version FeeParametersVersion `json:"version" kind:"ENUM"`
 	// SCHEMA: gasPriceFactor U64!
 	GasPriceFactor U64 `json:"gasPriceFactor" kind:"SCALAR"`
 	// SCHEMA: gasPerByte U64!
@@ -682,6 +935,8 @@ func (s FeeParameters) MarshalStructpb() *structpb.Value {
 }
 
 type GasCosts struct {
+	// SCHEMA: version GasCostsVersion!
+	Version GasCostsVersion `json:"version" kind:"ENUM"`
 	// SCHEMA: add U64!
 	Add U64 `json:"add" kind:"SCALAR"`
 	// SCHEMA: addi U64!
@@ -706,8 +961,6 @@ type GasCosts struct {
 	Cfei U64 `json:"cfei" kind:"SCALAR"`
 	// SCHEMA: cfsi U64!
 	Cfsi U64 `json:"cfsi" kind:"SCALAR"`
-	// SCHEMA: croo U64!
-	Croo U64 `json:"croo" kind:"SCALAR"`
 	// SCHEMA: div U64!
 	Div U64 `json:"div" kind:"SCALAR"`
 	// SCHEMA: divi U64!
@@ -864,6 +1117,8 @@ type GasCosts struct {
 	Call DependentCost `json:"call" kind:"UNION"`
 	// SCHEMA: ccp DependentCost!
 	Ccp DependentCost `json:"ccp" kind:"UNION"`
+	// SCHEMA: croo DependentCost!
+	Croo DependentCost `json:"croo" kind:"UNION"`
 	// SCHEMA: csiz DependentCost!
 	Csiz DependentCost `json:"csiz" kind:"UNION"`
 	// SCHEMA: k256 DependentCost!
@@ -922,6 +1177,9 @@ type Genesis struct {
 	// The Binary Merkle Tree root of all genesis messages.
 	// SCHEMA: messagesRoot Bytes32!
 	MessagesRoot Bytes32 `json:"messagesRoot" kind:"SCALAR"`
+	// The Binary Merkle Tree root of all processed transaction ids.
+	// SCHEMA: transactionsRoot Bytes32!
+	TransactionsRoot Bytes32 `json:"transactionsRoot" kind:"SCALAR"`
 }
 
 func (s Genesis) MarshalStructpb() *structpb.Value {
@@ -935,18 +1193,27 @@ type Header struct {
 	// The layer 1 height of messages and events to include since the last layer 1 block number.
 	// SCHEMA: daHeight U64!
 	DaHeight U64 `json:"daHeight" kind:"SCALAR"`
+	// The version of the consensus parameters used to create this block.
+	// SCHEMA: consensusParametersVersion U32!
+	ConsensusParametersVersion U32 `json:"consensusParametersVersion" kind:"SCALAR"`
+	// The version of the state transition bytecode used to create this block.
+	// SCHEMA: stateTransitionBytecodeVersion U32!
+	StateTransitionBytecodeVersion U32 `json:"stateTransitionBytecodeVersion" kind:"SCALAR"`
 	// Number of transactions in this block.
-	// SCHEMA: transactionsCount U64!
-	TransactionsCount U64 `json:"transactionsCount" kind:"SCALAR"`
+	// SCHEMA: transactionsCount U16!
+	TransactionsCount U16 `json:"transactionsCount" kind:"SCALAR"`
 	// Number of message receipts in this block.
-	// SCHEMA: messageReceiptCount U64!
-	MessageReceiptCount U64 `json:"messageReceiptCount" kind:"SCALAR"`
+	// SCHEMA: messageReceiptCount U32!
+	MessageReceiptCount U32 `json:"messageReceiptCount" kind:"SCALAR"`
 	// Merkle root of transactions.
 	// SCHEMA: transactionsRoot Bytes32!
 	TransactionsRoot Bytes32 `json:"transactionsRoot" kind:"SCALAR"`
 	// Merkle root of message receipts in this block.
-	// SCHEMA: messageReceiptRoot Bytes32!
-	MessageReceiptRoot Bytes32 `json:"messageReceiptRoot" kind:"SCALAR"`
+	// SCHEMA: messageOutboxRoot Bytes32!
+	MessageOutboxRoot Bytes32 `json:"messageOutboxRoot" kind:"SCALAR"`
+	// Merkle root of inbox events in this block.
+	// SCHEMA: eventInboxRoot Bytes32!
+	EventInboxRoot Bytes32 `json:"eventInboxRoot" kind:"SCALAR"`
 	// Fuel block height.
 	// SCHEMA: height U32!
 	Height U32 `json:"height" kind:"SCALAR"`
@@ -989,8 +1256,6 @@ type InputCoin struct {
 	TxPointer TxPointer `json:"txPointer" kind:"SCALAR"`
 	// SCHEMA: witnessIndex Int!
 	WitnessIndex Int `json:"witnessIndex" kind:"SCALAR"`
-	// SCHEMA: maturity U32!
-	Maturity U32 `json:"maturity" kind:"SCALAR"`
 	// SCHEMA: predicateGasUsed U64!
 	PredicateGasUsed U64 `json:"predicateGasUsed" kind:"SCALAR"`
 	// SCHEMA: predicate HexString!
@@ -1012,8 +1277,8 @@ type InputContract struct {
 	StateRoot Bytes32 `json:"stateRoot" kind:"SCALAR"`
 	// SCHEMA: txPointer TxPointer!
 	TxPointer TxPointer `json:"txPointer" kind:"SCALAR"`
-	// SCHEMA: contract Contract!
-	Contract Contract `json:"contract" kind:"OBJECT"`
+	// SCHEMA: contractId ContractId!
+	ContractId ContractId `json:"contractId" kind:"SCALAR"`
 }
 
 func (s InputContract) MarshalStructpb() *structpb.Value {
@@ -1029,8 +1294,8 @@ type InputMessage struct {
 	Amount U64 `json:"amount" kind:"SCALAR"`
 	// SCHEMA: nonce Nonce!
 	Nonce Nonce `json:"nonce" kind:"SCALAR"`
-	// SCHEMA: witnessIndex Int!
-	WitnessIndex Int `json:"witnessIndex" kind:"SCALAR"`
+	// SCHEMA: witnessIndex U16!
+	WitnessIndex U16 `json:"witnessIndex" kind:"SCALAR"`
 	// SCHEMA: predicateGasUsed U64!
 	PredicateGasUsed U64 `json:"predicateGasUsed" kind:"SCALAR"`
 	// SCHEMA: data HexString!
@@ -1042,6 +1307,17 @@ type InputMessage struct {
 }
 
 func (s InputMessage) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
+type LatestGasPrice struct {
+	// SCHEMA: gasPrice U64!
+	GasPrice U64 `json:"gasPrice" kind:"SCALAR"`
+	// SCHEMA: blockHeight U32!
+	BlockHeight U32 `json:"blockHeight" kind:"SCALAR"`
+}
+
+func (s LatestGasPrice) MarshalStructpb() *structpb.Value {
 	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
@@ -1170,25 +1446,38 @@ func (s MessageStatus) MarshalStructpb() *structpb.Value {
 }
 
 type Mutation struct {
+	// Initialize a new debugger session, returning its ID.
+	// A new VM instance is spawned for each session.
+	// The session is run in a separate database transaction,
+	// on top of the most recent node state.
 	// SCHEMA: startSession ID!
 	StartSession ID `json:"startSession" kind:"SCALAR"`
+	// End debugger session.
 	// SCHEMA: endSession Boolean!
 	EndSession Boolean `json:"endSession" kind:"SCALAR"`
+	// Reset the VM instance to the initial state.
 	// SCHEMA: reset Boolean!
 	Reset Boolean `json:"reset" kind:"SCALAR"`
+	// Execute a single fuel-asm instruction.
 	// SCHEMA: execute Boolean!
 	Execute Boolean `json:"execute" kind:"SCALAR"`
+	// Set single-stepping mode for the VM instance.
 	// SCHEMA: setSingleStepping Boolean!
 	SetSingleStepping Boolean `json:"setSingleStepping" kind:"SCALAR"`
+	// Set a breakpoint for a VM instance.
 	// SCHEMA: setBreakpoint Boolean!
 	SetBreakpoint Boolean `json:"setBreakpoint" kind:"SCALAR"`
+	// Run a single transaction in given session until it
+	// hits a breakpoint or completes.
 	// SCHEMA: startTx RunResult!
 	StartTx RunResult `json:"startTx" kind:"OBJECT"`
+	// Resume execution of the VM instance after a breakpoint.
+	// Runs until the next breakpoint or until the transaction completes.
 	// SCHEMA: continueTx RunResult!
 	ContinueTx RunResult `json:"continueTx" kind:"OBJECT"`
-	// Execute a dry-run of the transaction using a fork of current state, no changes are committed.
-	// SCHEMA: dryRun [Receipt!]!
-	DryRun []Receipt `json:"dryRun" kind:"OBJECT"`
+	// Execute a dry-run of multiple transactions using a fork of current state, no changes are committed.
+	// SCHEMA: dryRun [DryRunTransactionExecutionStatus!]!
+	DryRun []DryRunTransactionExecutionStatus `json:"dryRun" kind:"OBJECT"`
 	// Submits transaction to the `TxPool`.
 	//
 	// Returns submitted transaction if the transaction is included in the `TxPool` without problems.
@@ -1211,8 +1500,6 @@ type NodeInfo struct {
 	UtxoValidation Boolean `json:"utxoValidation" kind:"SCALAR"`
 	// SCHEMA: vmBacktrace Boolean!
 	VmBacktrace Boolean `json:"vmBacktrace" kind:"SCALAR"`
-	// SCHEMA: minGasPrice U64!
-	MinGasPrice U64 `json:"minGasPrice" kind:"SCALAR"`
 	// SCHEMA: maxTx U64!
 	MaxTx U64 `json:"maxTx" kind:"SCALAR"`
 	// SCHEMA: maxDepth U64!
@@ -1296,8 +1583,8 @@ func (s PoAConsensus) MarshalStructpb() *structpb.Value {
 }
 
 type Policies struct {
-	// SCHEMA: gasPrice U64
-	GasPrice *U64 `json:"gasPrice" kind:"SCALAR"`
+	// SCHEMA: tip U64
+	Tip *U64 `json:"tip" kind:"SCALAR"`
 	// SCHEMA: witnessLimit U64
 	WitnessLimit *U64 `json:"witnessLimit" kind:"SCALAR"`
 	// SCHEMA: maturity U32
@@ -1311,6 +1598,8 @@ func (s Policies) MarshalStructpb() *structpb.Value {
 }
 
 type PredicateParameters struct {
+	// SCHEMA: version PredicateParametersVersion!
+	Version PredicateParametersVersion `json:"version" kind:"ENUM"`
 	// SCHEMA: maxPredicateLength U64!
 	MaxPredicateLength U64 `json:"maxPredicateLength" kind:"SCALAR"`
 	// SCHEMA: maxPredicateDataLength U64!
@@ -1337,8 +1626,10 @@ func (s ProgramState) MarshalStructpb() *structpb.Value {
 }
 
 type Query struct {
+	// Read register value by index.
 	// SCHEMA: register U64!
 	Register U64 `json:"register" kind:"SCALAR"`
+	// Read read a range of memory bytes.
 	// SCHEMA: memory String!
 	Memory String `json:"memory" kind:"SCALAR"`
 	// SCHEMA: balance Balance!
@@ -1389,12 +1680,20 @@ type Query struct {
 	ContractBalances ContractBalanceConnection `json:"contractBalances" kind:"OBJECT"`
 	// SCHEMA: nodeInfo NodeInfo!
 	NodeInfo NodeInfo `json:"nodeInfo" kind:"OBJECT"`
+	// SCHEMA: latestGasPrice LatestGasPrice!
+	LatestGasPrice LatestGasPrice `json:"latestGasPrice" kind:"OBJECT"`
+	// SCHEMA: estimateGasPrice EstimateGasPrice!
+	EstimateGasPrice EstimateGasPrice `json:"estimateGasPrice" kind:"OBJECT"`
+	// SCHEMA: message Message
+	Message *Message `json:"message" kind:"OBJECT"`
 	// SCHEMA: messages MessageConnection!
 	Messages MessageConnection `json:"messages" kind:"OBJECT"`
 	// SCHEMA: messageProof MessageProof
 	MessageProof *MessageProof `json:"messageProof" kind:"OBJECT"`
 	// SCHEMA: messageStatus MessageStatus!
 	MessageStatus MessageStatus `json:"messageStatus" kind:"OBJECT"`
+	// SCHEMA: relayedTransactionStatus RelayedTransactionStatus
+	RelayedTransactionStatus *RelayedTransactionStatus `json:"relayedTransactionStatus" kind:"UNION"`
 }
 
 func (s Query) MarshalStructpb() *structpb.Value {
@@ -1402,14 +1701,14 @@ func (s Query) MarshalStructpb() *structpb.Value {
 }
 
 type Receipt struct {
-	// SCHEMA: contract Contract
-	Contract *Contract `json:"contract" kind:"OBJECT"`
+	// SCHEMA: id ContractId
+	Id *ContractId `json:"id" kind:"SCALAR"`
 	// SCHEMA: pc U64
 	Pc *U64 `json:"pc" kind:"SCALAR"`
 	// SCHEMA: is U64
 	Is *U64 `json:"is" kind:"SCALAR"`
-	// SCHEMA: to Contract
-	To *Contract `json:"to" kind:"OBJECT"`
+	// SCHEMA: to ContractId
+	To *ContractId `json:"to" kind:"SCALAR"`
 	// SCHEMA: toAddress Address
 	ToAddress *Address `json:"toAddress" kind:"SCALAR"`
 	// SCHEMA: amount U64
@@ -1454,6 +1753,7 @@ type Receipt struct {
 	Recipient *Address `json:"recipient" kind:"SCALAR"`
 	// SCHEMA: nonce Nonce
 	Nonce *Nonce `json:"nonce" kind:"SCALAR"`
+	// Set in the case of a Panic receipt to indicate a missing contract input id
 	// SCHEMA: contractId ContractId
 	ContractId *ContractId `json:"contractId" kind:"SCALAR"`
 	// SCHEMA: subId Bytes32
@@ -1461,6 +1761,17 @@ type Receipt struct {
 }
 
 func (s Receipt) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
+type RelayedTransactionFailed struct {
+	// SCHEMA: blockHeight U32!
+	BlockHeight U32 `json:"blockHeight" kind:"SCALAR"`
+	// SCHEMA: failure String!
+	Failure String `json:"failure" kind:"SCALAR"`
+}
+
+func (s RelayedTransactionFailed) MarshalStructpb() *structpb.Value {
 	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
@@ -1478,6 +1789,8 @@ func (s RunResult) MarshalStructpb() *structpb.Value {
 }
 
 type ScriptParameters struct {
+	// SCHEMA: version ScriptParametersVersion!
+	Version ScriptParametersVersion `json:"version" kind:"ENUM"`
 	// SCHEMA: maxScriptLength U64!
 	MaxScriptLength U64 `json:"maxScriptLength" kind:"SCALAR"`
 	// SCHEMA: maxScriptDataLength U64!
@@ -1494,6 +1807,15 @@ type SqueezedOutStatus struct {
 }
 
 func (s SqueezedOutStatus) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
+type StateTransitionPurpose struct {
+	// SCHEMA: root Bytes32!
+	Root Bytes32 `json:"root" kind:"SCALAR"`
+}
+
+func (s StateTransitionPurpose) MarshalStructpb() *structpb.Value {
 	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
@@ -1541,6 +1863,10 @@ type SuccessStatus struct {
 	ProgramState *ProgramState `json:"programState" kind:"OBJECT"`
 	// SCHEMA: receipts [Receipt!]!
 	Receipts []Receipt `json:"receipts" kind:"OBJECT"`
+	// SCHEMA: totalGas U64!
+	TotalGas U64 `json:"totalGas" kind:"SCALAR"`
+	// SCHEMA: totalFee U64!
+	TotalFee U64 `json:"totalFee" kind:"SCALAR"`
 }
 
 func (s SuccessStatus) MarshalStructpb() *structpb.Value {
@@ -1552,14 +1878,12 @@ type Transaction struct {
 	Id TransactionId `json:"id" kind:"SCALAR"`
 	// SCHEMA: inputAssetIds [AssetId!]
 	InputAssetIds []AssetId `json:"inputAssetIds" kind:"SCALAR"`
-	// SCHEMA: inputContracts [Contract!]
-	InputContracts []Contract `json:"inputContracts" kind:"OBJECT"`
+	// SCHEMA: inputContracts [ContractId!]
+	InputContracts []ContractId `json:"inputContracts" kind:"SCALAR"`
 	// SCHEMA: inputContract InputContract
 	InputContract *InputContract `json:"inputContract" kind:"OBJECT"`
 	// SCHEMA: policies Policies
 	Policies *Policies `json:"policies" kind:"OBJECT"`
-	// SCHEMA: gasPrice U64
-	GasPrice *U64 `json:"gasPrice" kind:"SCALAR"`
 	// SCHEMA: scriptGasLimit U64
 	ScriptGasLimit *U64 `json:"scriptGasLimit" kind:"SCALAR"`
 	// SCHEMA: maturity U32
@@ -1568,6 +1892,8 @@ type Transaction struct {
 	MintAmount *U64 `json:"mintAmount" kind:"SCALAR"`
 	// SCHEMA: mintAssetId AssetId
 	MintAssetId *AssetId `json:"mintAssetId" kind:"SCALAR"`
+	// SCHEMA: mintGasPrice U64
+	MintGasPrice *U64 `json:"mintGasPrice" kind:"SCALAR"`
 	// SCHEMA: txPointer TxPointer
 	TxPointer *TxPointer `json:"txPointer" kind:"SCALAR"`
 	// SCHEMA: isScript Boolean!
@@ -1576,6 +1902,10 @@ type Transaction struct {
 	IsCreate Boolean `json:"isCreate" kind:"SCALAR"`
 	// SCHEMA: isMint Boolean!
 	IsMint Boolean `json:"isMint" kind:"SCALAR"`
+	// SCHEMA: isUpgrade Boolean!
+	IsUpgrade Boolean `json:"isUpgrade" kind:"SCALAR"`
+	// SCHEMA: isUpload Boolean!
+	IsUpload Boolean `json:"isUpload" kind:"SCALAR"`
 	// SCHEMA: inputs [Input!]
 	Inputs []Input `json:"inputs" kind:"UNION"`
 	// SCHEMA: outputs [Output!]!
@@ -1588,20 +1918,26 @@ type Transaction struct {
 	ReceiptsRoot *Bytes32 `json:"receiptsRoot" kind:"SCALAR"`
 	// SCHEMA: status TransactionStatus
 	Status *TransactionStatus `json:"status" kind:"UNION"`
-	// SCHEMA: receipts [Receipt!]
-	Receipts []Receipt `json:"receipts" kind:"OBJECT"`
 	// SCHEMA: script HexString
 	Script *HexString `json:"script" kind:"SCALAR"`
 	// SCHEMA: scriptData HexString
 	ScriptData *HexString `json:"scriptData" kind:"SCALAR"`
-	// SCHEMA: bytecodeWitnessIndex Int
-	BytecodeWitnessIndex *Int `json:"bytecodeWitnessIndex" kind:"SCALAR"`
-	// SCHEMA: bytecodeLength U64
-	BytecodeLength *U64 `json:"bytecodeLength" kind:"SCALAR"`
+	// SCHEMA: bytecodeWitnessIndex U16
+	BytecodeWitnessIndex *U16 `json:"bytecodeWitnessIndex" kind:"SCALAR"`
 	// SCHEMA: salt Salt
 	Salt *Salt `json:"salt" kind:"SCALAR"`
 	// SCHEMA: storageSlots [HexString!]
 	StorageSlots []HexString `json:"storageSlots" kind:"SCALAR"`
+	// SCHEMA: bytecodeRoot Bytes32
+	BytecodeRoot *Bytes32 `json:"bytecodeRoot" kind:"SCALAR"`
+	// SCHEMA: subsectionIndex U16
+	SubsectionIndex *U16 `json:"subsectionIndex" kind:"SCALAR"`
+	// SCHEMA: subsectionsNumber U16
+	SubsectionsNumber *U16 `json:"subsectionsNumber" kind:"SCALAR"`
+	// SCHEMA: proofSet [Bytes32!]
+	ProofSet []Bytes32 `json:"proofSet" kind:"SCALAR"`
+	// SCHEMA: upgradePurpose UpgradePurpose
+	UpgradePurpose *UpgradePurpose `json:"upgradePurpose" kind:"UNION"`
 	// Return the transaction bytes using canonical encoding
 	// SCHEMA: rawPayload HexString!
 	RawPayload HexString `json:"rawPayload" kind:"SCALAR"`
@@ -1642,16 +1978,20 @@ func (s TransactionEdge) MarshalStructpb() *structpb.Value {
 }
 
 type TxParameters struct {
-	// SCHEMA: maxInputs U8!
-	MaxInputs U8 `json:"maxInputs" kind:"SCALAR"`
-	// SCHEMA: maxOutputs U8!
-	MaxOutputs U8 `json:"maxOutputs" kind:"SCALAR"`
+	// SCHEMA: version TxParametersVersion!
+	Version TxParametersVersion `json:"version" kind:"ENUM"`
+	// SCHEMA: maxInputs U16!
+	MaxInputs U16 `json:"maxInputs" kind:"SCALAR"`
+	// SCHEMA: maxOutputs U16!
+	MaxOutputs U16 `json:"maxOutputs" kind:"SCALAR"`
 	// SCHEMA: maxWitnesses U32!
 	MaxWitnesses U32 `json:"maxWitnesses" kind:"SCALAR"`
 	// SCHEMA: maxGasPerTx U64!
 	MaxGasPerTx U64 `json:"maxGasPerTx" kind:"SCALAR"`
 	// SCHEMA: maxSize U64!
 	MaxSize U64 `json:"maxSize" kind:"SCALAR"`
+	// SCHEMA: maxBytecodeSubsections U16!
+	MaxBytecodeSubsections U16 `json:"maxBytecodeSubsections" kind:"SCALAR"`
 }
 
 func (s TxParameters) MarshalStructpb() *structpb.Value {
@@ -1733,6 +2073,25 @@ func (s DependentCost) MarshalStructpb() *structpb.Value {
 	return marshalStructpbUnion(reflect.ValueOf(s))
 }
 
+type DryRunTransactionStatus struct {
+	TypeName_ string `json:"__typename"`
+
+	*DryRunSuccessStatus
+	*DryRunFailureStatus
+}
+
+func (u *DryRunTransactionStatus) UnmarshalJSON(raw []byte) error {
+	return unmarshalJSONUnion(raw, u)
+}
+
+func (u DryRunTransactionStatus) MarshalJSON() ([]byte, error) {
+	return marshalJSONUnion(u)
+}
+
+func (s DryRunTransactionStatus) MarshalStructpb() *structpb.Value {
+	return marshalStructpbUnion(reflect.ValueOf(s))
+}
+
 type Input struct {
 	TypeName_ string `json:"__typename"`
 
@@ -1775,6 +2134,24 @@ func (s Output) MarshalStructpb() *structpb.Value {
 	return marshalStructpbUnion(reflect.ValueOf(s))
 }
 
+type RelayedTransactionStatus struct {
+	TypeName_ string `json:"__typename"`
+
+	*RelayedTransactionFailed
+}
+
+func (u *RelayedTransactionStatus) UnmarshalJSON(raw []byte) error {
+	return unmarshalJSONUnion(raw, u)
+}
+
+func (u RelayedTransactionStatus) MarshalJSON() ([]byte, error) {
+	return marshalJSONUnion(u)
+}
+
+func (s RelayedTransactionStatus) MarshalStructpb() *structpb.Value {
+	return marshalStructpbUnion(reflect.ValueOf(s))
+}
+
 type TransactionStatus struct {
 	TypeName_ string `json:"__typename"`
 
@@ -1796,6 +2173,25 @@ func (s TransactionStatus) MarshalStructpb() *structpb.Value {
 	return marshalStructpbUnion(reflect.ValueOf(s))
 }
 
+type UpgradePurpose struct {
+	TypeName_ string `json:"__typename"`
+
+	*ConsensusParametersPurpose
+	*StateTransitionPurpose
+}
+
+func (u *UpgradePurpose) UnmarshalJSON(raw []byte) error {
+	return unmarshalJSONUnion(raw, u)
+}
+
+func (u UpgradePurpose) MarshalJSON() ([]byte, error) {
+	return marshalJSONUnion(u)
+}
+
+func (s UpgradePurpose) MarshalStructpb() *structpb.Value {
+	return marshalStructpbUnion(reflect.ValueOf(s))
+}
+
 // ====================
 // InputObjects
 // --------------------
@@ -1806,6 +2202,7 @@ type BalanceFilterInput struct {
 	Owner Address `name:"owner" kind:"SCALAR"`
 }
 
+// Breakpoint, defined as a tuple of contract ID and relative PC offset inside it
 type Breakpoint struct {
 	// SCHEMA: contract ContractId!
 	Contract ContractId `name:"contract" kind:"SCALAR"`
@@ -2012,6 +2409,21 @@ type QueryContractBalancesParams struct {
 type QueryNodeInfoParams struct {
 }
 
+type QueryLatestGasPriceParams struct {
+}
+
+type QueryEstimateGasPriceParams struct {
+	// Number of blocks into the future to estimate the gas price for
+	// SCHEMA: blockHorizon U32
+	BlockHorizon *U32 `name:"blockHorizon" kind:"SCALAR"`
+}
+
+type QueryMessageParams struct {
+	// The Nonce of the message
+	// SCHEMA: nonce Nonce!
+	Nonce Nonce `name:"nonce" kind:"SCALAR"`
+}
+
 type QueryMessagesParams struct {
 	// address of the owner
 	// SCHEMA: owner Address
@@ -2040,4 +2452,10 @@ type QueryMessageProofParams struct {
 type QueryMessageStatusParams struct {
 	// SCHEMA: nonce Nonce!
 	Nonce Nonce `name:"nonce" kind:"SCALAR"`
+}
+
+type QueryRelayedTransactionStatusParams struct {
+	// The id of the relayed tx
+	// SCHEMA: id RelayedTransactionId!
+	Id RelayedTransactionId `name:"id" kind:"SCALAR"`
 }

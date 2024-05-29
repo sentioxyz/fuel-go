@@ -38,20 +38,16 @@ func (c *Client) GetChain(ctx context.Context, opt GetChainOption) (types.ChainI
 
 func (c *Client) GetLatestBlockHeight(ctx context.Context) (types.U32, error) {
 	info, err := c.GetChain(ctx, GetChainOption{
-		Simple: true,
-		GetBlockOption: GetBlockOption{
-			HeaderOnlyIdHeight: true,
-		},
+		Simple:         true,
+		GetBlockOption: GetBlockOption{},
 	})
-	return info.LatestBlock.Header.Height, err
+	return info.LatestBlock.Height, err
 }
 
 func (c *Client) GetLatestBlockHeader(ctx context.Context) (types.Header, error) {
 	info, err := c.GetChain(ctx, GetChainOption{
-		Simple: true,
-		GetBlockOption: GetBlockOption{
-			WithTransactions: false,
-		},
+		Simple:         true,
+		GetBlockOption: GetBlockOption{WithHeader: true},
 	})
 	return info.LatestBlock.Header, err
 }
