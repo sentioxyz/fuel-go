@@ -29,6 +29,12 @@ func (s AssetId) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(s.String())
 }
 
+type BlobId struct{ hexutil.Bytes }
+
+func (s BlobId) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(s.String())
+}
+
 type BlockId struct{ common.Hash }
 
 func (s BlockId) MarshalStructpb() *structpb.Value {
@@ -242,6 +248,30 @@ func (s UtxoId) MarshalStructpb() *structpb.Value {
 // Enums
 // --------------------
 
+type BlockVersion string
+
+var BlockVersionValues = []string{
+	"V1",
+}
+
+func (e *BlockVersion) UnmarshalJSON(raw []byte) error {
+	var val string
+	if err := json.Unmarshal(raw, &val); err != nil {
+		return err
+	}
+	for _, v := range BlockVersionValues {
+		if v == val {
+			*e = BlockVersion(val)
+			return nil
+		}
+	}
+	return fmt.Errorf("invalid value %q for enum type BlockVersion", val)
+}
+
+func (s BlockVersion) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
+
 type ConsensusParametersVersion string
 
 var ConsensusParametersVersionValues = []string{
@@ -335,6 +365,30 @@ func (e *GasCostsVersion) UnmarshalJSON(raw []byte) error {
 }
 
 func (s GasCostsVersion) MarshalStructpb() *structpb.Value {
+	return structpb.NewStringValue(string(s))
+}
+
+type HeaderVersion string
+
+var HeaderVersionValues = []string{
+	"V1",
+}
+
+func (e *HeaderVersion) UnmarshalJSON(raw []byte) error {
+	var val string
+	if err := json.Unmarshal(raw, &val); err != nil {
+		return err
+	}
+	for _, v := range HeaderVersionValues {
+		if v == val {
+			*e = HeaderVersion(val)
+			return nil
+		}
+	}
+	return fmt.Errorf("invalid value %q for enum type HeaderVersion", val)
+}
+
+func (s HeaderVersion) MarshalStructpb() *structpb.Value {
 	return structpb.NewStringValue(string(s))
 }
 
@@ -558,19 +612,32 @@ func (s BalanceConnection) MarshalStructpb() *structpb.Value {
 
 // An edge in a connection.
 type BalanceEdge struct {
-	// A cursor for use in pagination
-	// SCHEMA: cursor String!
-	Cursor String `json:"cursor" kind:"SCALAR"`
 	// The item at the end of the edge
 	// SCHEMA: node Balance!
 	Node Balance `json:"node" kind:"OBJECT"`
+	// A cursor for use in pagination
+	// SCHEMA: cursor String!
+	Cursor String `json:"cursor" kind:"SCALAR"`
 }
 
 func (s BalanceEdge) MarshalStructpb() *structpb.Value {
 	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
+type Blob struct {
+	// SCHEMA: id BlobId!
+	Id BlobId `json:"id" kind:"SCALAR"`
+	// SCHEMA: bytecode HexString!
+	Bytecode HexString `json:"bytecode" kind:"SCALAR"`
+}
+
+func (s Blob) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type Block struct {
+	// SCHEMA: version BlockVersion!
+	Version BlockVersion `json:"version" kind:"ENUM"`
 	// SCHEMA: id BlockId!
 	Id BlockId `json:"id" kind:"SCALAR"`
 	// SCHEMA: height U32!
@@ -579,6 +646,8 @@ type Block struct {
 	Header Header `json:"header" kind:"OBJECT"`
 	// SCHEMA: consensus Consensus!
 	Consensus Consensus `json:"consensus" kind:"UNION"`
+	// SCHEMA: transactionIds [TransactionId!]!
+	TransactionIds []TransactionId `json:"transactionIds" kind:"SCALAR"`
 	// SCHEMA: transactions [Transaction!]!
 	Transactions []Transaction `json:"transactions" kind:"OBJECT"`
 }
@@ -605,12 +674,12 @@ func (s BlockConnection) MarshalStructpb() *structpb.Value {
 
 // An edge in a connection.
 type BlockEdge struct {
-	// A cursor for use in pagination
-	// SCHEMA: cursor String!
-	Cursor String `json:"cursor" kind:"SCALAR"`
 	// The item at the end of the edge
 	// SCHEMA: node Block!
 	Node Block `json:"node" kind:"OBJECT"`
+	// A cursor for use in pagination
+	// SCHEMA: cursor String!
+	Cursor String `json:"cursor" kind:"SCALAR"`
 }
 
 func (s BlockEdge) MarshalStructpb() *structpb.Value {
@@ -686,12 +755,12 @@ func (s CoinConnection) MarshalStructpb() *structpb.Value {
 
 // An edge in a connection.
 type CoinEdge struct {
-	// A cursor for use in pagination
-	// SCHEMA: cursor String!
-	Cursor String `json:"cursor" kind:"SCALAR"`
 	// The item at the end of the edge
 	// SCHEMA: node Coin!
 	Node Coin `json:"node" kind:"OBJECT"`
+	// A cursor for use in pagination
+	// SCHEMA: cursor String!
+	Cursor String `json:"cursor" kind:"SCALAR"`
 }
 
 func (s CoinEdge) MarshalStructpb() *structpb.Value {
@@ -728,6 +797,8 @@ type ConsensusParameters struct {
 	BaseAssetId AssetId `json:"baseAssetId" kind:"SCALAR"`
 	// SCHEMA: blockGasLimit U64!
 	BlockGasLimit U64 `json:"blockGasLimit" kind:"SCALAR"`
+	// SCHEMA: blockTransactionSizeLimit U64!
+	BlockTransactionSizeLimit U64 `json:"blockTransactionSizeLimit" kind:"SCALAR"`
 	// SCHEMA: chainId U64!
 	ChainId U64 `json:"chainId" kind:"SCALAR"`
 	// SCHEMA: gasCosts GasCosts!
@@ -795,12 +866,12 @@ func (s ContractBalanceConnection) MarshalStructpb() *structpb.Value {
 
 // An edge in a connection.
 type ContractBalanceEdge struct {
-	// A cursor for use in pagination
-	// SCHEMA: cursor String!
-	Cursor String `json:"cursor" kind:"SCALAR"`
 	// The item at the end of the edge
 	// SCHEMA: node ContractBalance!
 	Node ContractBalance `json:"node" kind:"OBJECT"`
+	// A cursor for use in pagination
+	// SCHEMA: cursor String!
+	Cursor String `json:"cursor" kind:"SCALAR"`
 }
 
 func (s ContractBalanceEdge) MarshalStructpb() *structpb.Value {
@@ -841,6 +912,15 @@ type ContractParameters struct {
 }
 
 func (s ContractParameters) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
+type DaCompressedBlock struct {
+	// SCHEMA: bytes HexString!
+	Bytes HexString `json:"bytes" kind:"SCALAR"`
+}
+
+func (s DaCompressedBlock) MarshalStructpb() *structpb.Value {
 	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
@@ -901,8 +981,12 @@ func (s EstimateGasPrice) MarshalStructpb() *structpb.Value {
 type FailureStatus struct {
 	// SCHEMA: transactionId TransactionId!
 	TransactionId TransactionId `json:"transactionId" kind:"SCALAR"`
+	// SCHEMA: blockHeight U32!
+	BlockHeight U32 `json:"blockHeight" kind:"SCALAR"`
 	// SCHEMA: block Block!
 	Block Block `json:"block" kind:"OBJECT"`
+	// SCHEMA: transaction Transaction!
+	Transaction Transaction `json:"transaction" kind:"OBJECT"`
 	// SCHEMA: time Tai64Timestamp!
 	Time Tai64Timestamp `json:"time" kind:"SCALAR"`
 	// SCHEMA: reason String!
@@ -1113,6 +1197,16 @@ type GasCosts struct {
 	Xor U64 `json:"xor" kind:"SCALAR"`
 	// SCHEMA: xori U64!
 	Xori U64 `json:"xori" kind:"SCALAR"`
+	// SCHEMA: alocDependentCost DependentCost!
+	AlocDependentCost DependentCost `json:"alocDependentCost" kind:"UNION"`
+	// SCHEMA: bldd DependentCost
+	Bldd *DependentCost `json:"bldd" kind:"UNION"`
+	// SCHEMA: bsiz DependentCost
+	Bsiz *DependentCost `json:"bsiz" kind:"UNION"`
+	// SCHEMA: cfe DependentCost!
+	Cfe DependentCost `json:"cfe" kind:"UNION"`
+	// SCHEMA: cfeiDependentCost DependentCost!
+	CfeiDependentCost DependentCost `json:"cfeiDependentCost" kind:"UNION"`
 	// SCHEMA: call DependentCost!
 	Call DependentCost `json:"call" kind:"UNION"`
 	// SCHEMA: ccp DependentCost!
@@ -1121,6 +1215,8 @@ type GasCosts struct {
 	Croo DependentCost `json:"croo" kind:"UNION"`
 	// SCHEMA: csiz DependentCost!
 	Csiz DependentCost `json:"csiz" kind:"UNION"`
+	// SCHEMA: ed19DependentCost DependentCost!
+	Ed19DependentCost DependentCost `json:"ed19DependentCost" kind:"UNION"`
 	// SCHEMA: k256 DependentCost!
 	K256 DependentCost `json:"k256" kind:"UNION"`
 	// SCHEMA: ldc DependentCost!
@@ -1187,6 +1283,9 @@ func (s Genesis) MarshalStructpb() *structpb.Value {
 }
 
 type Header struct {
+	// Version of the header
+	// SCHEMA: version HeaderVersion!
+	Version HeaderVersion `json:"version" kind:"ENUM"`
 	// Hash of the header
 	// SCHEMA: id BlockId!
 	Id BlockId `json:"id" kind:"SCALAR"`
@@ -1399,12 +1498,12 @@ func (s MessageConnection) MarshalStructpb() *structpb.Value {
 
 // An edge in a connection.
 type MessageEdge struct {
-	// A cursor for use in pagination
-	// SCHEMA: cursor String!
-	Cursor String `json:"cursor" kind:"SCALAR"`
 	// The item at the end of the edge
 	// SCHEMA: node Message!
 	Node Message `json:"node" kind:"OBJECT"`
+	// A cursor for use in pagination
+	// SCHEMA: cursor String!
+	Cursor String `json:"cursor" kind:"SCALAR"`
 }
 
 func (s MessageEdge) MarshalStructpb() *structpb.Value {
@@ -1636,6 +1735,8 @@ type Query struct {
 	Balance Balance `json:"balance" kind:"OBJECT"`
 	// SCHEMA: balances BalanceConnection!
 	Balances BalanceConnection `json:"balances" kind:"OBJECT"`
+	// SCHEMA: blob Blob
+	Blob *Blob `json:"blob" kind:"OBJECT"`
 	// SCHEMA: block Block
 	Block *Block `json:"block" kind:"OBJECT"`
 	// SCHEMA: blocks BlockConnection!
@@ -1672,6 +1773,8 @@ type Query struct {
 	// is the same.
 	// SCHEMA: coinsToSpend [[CoinType!]!]!
 	CoinsToSpend [][]CoinType `json:"coinsToSpend" kind:"UNION"`
+	// SCHEMA: daCompressedBlock DaCompressedBlock
+	DaCompressedBlock *DaCompressedBlock `json:"daCompressedBlock" kind:"OBJECT"`
 	// SCHEMA: contract Contract
 	Contract *Contract `json:"contract" kind:"OBJECT"`
 	// SCHEMA: contractBalance ContractBalance!
@@ -1694,6 +1797,12 @@ type Query struct {
 	MessageStatus MessageStatus `json:"messageStatus" kind:"OBJECT"`
 	// SCHEMA: relayedTransactionStatus RelayedTransactionStatus
 	RelayedTransactionStatus *RelayedTransactionStatus `json:"relayedTransactionStatus" kind:"UNION"`
+	// SCHEMA: consensusParameters ConsensusParameters!
+	ConsensusParameters ConsensusParameters `json:"consensusParameters" kind:"OBJECT"`
+	// SCHEMA: stateTransitionBytecodeByVersion StateTransitionBytecode
+	StateTransitionBytecodeByVersion *StateTransitionBytecode `json:"stateTransitionBytecodeByVersion" kind:"OBJECT"`
+	// SCHEMA: stateTransitionBytecodeByRoot StateTransitionBytecode!
+	StateTransitionBytecodeByRoot StateTransitionBytecode `json:"stateTransitionBytecodeByRoot" kind:"OBJECT"`
 }
 
 func (s Query) MarshalStructpb() *structpb.Value {
@@ -1810,6 +1919,17 @@ func (s SqueezedOutStatus) MarshalStructpb() *structpb.Value {
 	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
+type StateTransitionBytecode struct {
+	// SCHEMA: root HexString!
+	Root HexString `json:"root" kind:"SCALAR"`
+	// SCHEMA: bytecode UploadedBytecode!
+	Bytecode UploadedBytecode `json:"bytecode" kind:"OBJECT"`
+}
+
+func (s StateTransitionBytecode) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
 type StateTransitionPurpose struct {
 	// SCHEMA: root Bytes32!
 	Root Bytes32 `json:"root" kind:"SCALAR"`
@@ -1846,6 +1966,11 @@ type Subscription struct {
 	// Submits transaction to the `TxPool` and await either confirmation or failure.
 	// SCHEMA: submitAndAwait TransactionStatus!
 	SubmitAndAwait TransactionStatus `json:"submitAndAwait" kind:"UNION"`
+	// Submits the transaction to the `TxPool` and returns a stream of events.
+	// Compared to the `submitAndAwait`, the stream also contains `
+	// SubmittedStatus` as an intermediate state.
+	// SCHEMA: submitAndAwaitStatus TransactionStatus!
+	SubmitAndAwaitStatus TransactionStatus `json:"submitAndAwaitStatus" kind:"UNION"`
 }
 
 func (s Subscription) MarshalStructpb() *structpb.Value {
@@ -1855,8 +1980,12 @@ func (s Subscription) MarshalStructpb() *structpb.Value {
 type SuccessStatus struct {
 	// SCHEMA: transactionId TransactionId!
 	TransactionId TransactionId `json:"transactionId" kind:"SCALAR"`
+	// SCHEMA: blockHeight U32!
+	BlockHeight U32 `json:"blockHeight" kind:"SCALAR"`
 	// SCHEMA: block Block!
 	Block Block `json:"block" kind:"OBJECT"`
+	// SCHEMA: transaction Transaction!
+	Transaction Transaction `json:"transaction" kind:"OBJECT"`
 	// SCHEMA: time Tai64Timestamp!
 	Time Tai64Timestamp `json:"time" kind:"SCALAR"`
 	// SCHEMA: programState ProgramState
@@ -1906,6 +2035,8 @@ type Transaction struct {
 	IsUpgrade Boolean `json:"isUpgrade" kind:"SCALAR"`
 	// SCHEMA: isUpload Boolean!
 	IsUpload Boolean `json:"isUpload" kind:"SCALAR"`
+	// SCHEMA: isBlob Boolean!
+	IsBlob Boolean `json:"isBlob" kind:"SCALAR"`
 	// SCHEMA: inputs [Input!]
 	Inputs []Input `json:"inputs" kind:"UNION"`
 	// SCHEMA: outputs [Output!]!
@@ -1924,6 +2055,8 @@ type Transaction struct {
 	ScriptData *HexString `json:"scriptData" kind:"SCALAR"`
 	// SCHEMA: bytecodeWitnessIndex U16
 	BytecodeWitnessIndex *U16 `json:"bytecodeWitnessIndex" kind:"SCALAR"`
+	// SCHEMA: blobId BlobId
+	BlobId *BlobId `json:"blobId" kind:"SCALAR"`
 	// SCHEMA: salt Salt
 	Salt *Salt `json:"salt" kind:"SCALAR"`
 	// SCHEMA: storageSlots [HexString!]
@@ -1965,12 +2098,12 @@ func (s TransactionConnection) MarshalStructpb() *structpb.Value {
 
 // An edge in a connection.
 type TransactionEdge struct {
-	// A cursor for use in pagination
-	// SCHEMA: cursor String!
-	Cursor String `json:"cursor" kind:"SCALAR"`
 	// The item at the end of the edge
 	// SCHEMA: node Transaction!
 	Node Transaction `json:"node" kind:"OBJECT"`
+	// A cursor for use in pagination
+	// SCHEMA: cursor String!
+	Cursor String `json:"cursor" kind:"SCALAR"`
 }
 
 func (s TransactionEdge) MarshalStructpb() *structpb.Value {
@@ -1995,6 +2128,22 @@ type TxParameters struct {
 }
 
 func (s TxParameters) MarshalStructpb() *structpb.Value {
+	return marshalStructpbObject(reflect.ValueOf(s), true)
+}
+
+type UploadedBytecode struct {
+	// Combined bytecode of all uploaded subsections.
+	// SCHEMA: bytecode HexString!
+	Bytecode HexString `json:"bytecode" kind:"SCALAR"`
+	// Number of uploaded subsections (if incomplete).
+	// SCHEMA: uploadedSubsectionsNumber Int
+	UploadedSubsectionsNumber *Int `json:"uploadedSubsectionsNumber" kind:"SCALAR"`
+	// Indicates if the bytecode upload is complete.
+	// SCHEMA: completed Boolean!
+	Completed Boolean `json:"completed" kind:"SCALAR"`
+}
+
+func (s UploadedBytecode) MarshalStructpb() *structpb.Value {
 	return marshalStructpbObject(reflect.ValueOf(s), true)
 }
 
@@ -2288,6 +2437,12 @@ type QueryBalancesParams struct {
 	Before *String `name:"before" kind:"SCALAR"`
 }
 
+type QueryBlobParams struct {
+	// ID of the Blob
+	// SCHEMA: id BlobId!
+	Id BlobId `name:"id" kind:"SCALAR"`
+}
+
 type QueryBlockParams struct {
 	// ID of the block
 	// SCHEMA: id BlockId
@@ -2372,12 +2527,18 @@ type QueryCoinsToSpendParams struct {
 	// The `Address` of the coins owner.
 	// SCHEMA: owner Address!
 	Owner Address `name:"owner" kind:"SCALAR"`
-	// The list of requested assets` coins with asset ids, `target` amount the user wants to reach, and the `max` number of coins in the selection. Several entries with the same asset id are not allowed.
+	// The list of requested assets` coins with asset ids, `target` amount the user wants to reach, and the `max` number of coins in the selection. Several entries with the same asset id are not allowed. The result can't contain more coins than `max_inputs`.
 	// SCHEMA: queryPerAsset [SpendQueryElementInput!]!
 	QueryPerAsset []SpendQueryElementInput `name:"queryPerAsset" kind:"INPUT_OBJECT"`
 	// The excluded coins from the selection.
 	// SCHEMA: excludedIds ExcludeInput
 	ExcludedIds *ExcludeInput `name:"excludedIds" kind:"INPUT_OBJECT"`
+}
+
+type QueryDaCompressedBlockParams struct {
+	// Height of the block
+	// SCHEMA: height U32!
+	Height U32 `name:"height" kind:"SCALAR"`
 }
 
 type QueryContractParams struct {
@@ -2458,4 +2619,19 @@ type QueryRelayedTransactionStatusParams struct {
 	// The id of the relayed tx
 	// SCHEMA: id RelayedTransactionId!
 	Id RelayedTransactionId `name:"id" kind:"SCALAR"`
+}
+
+type QueryConsensusParametersParams struct {
+	// SCHEMA: version Int!
+	Version Int `name:"version" kind:"SCALAR"`
+}
+
+type QueryStateTransitionBytecodeByVersionParams struct {
+	// SCHEMA: version Int!
+	Version Int `name:"version" kind:"SCALAR"`
+}
+
+type QueryStateTransitionBytecodeByRootParams struct {
+	// SCHEMA: root HexString!
+	Root HexString `name:"root" kind:"SCALAR"`
 }

@@ -1,3 +1,7 @@
+# Indicates that an Input Object is a OneOf Input Object (and thus requires
+#                         exactly one of its field be provided)
+directive @oneOf on INPUT_OBJECT
+
 scalar Address
 
 scalar AssetId
@@ -21,11 +25,11 @@ type BalanceConnection {
 
 # An edge in a connection.
 type BalanceEdge {
-  # A cursor for use in pagination
-  cursor: String!
-
   # The item at the end of the edge
   node: Balance!
+
+  # A cursor for use in pagination
+  cursor: String!
 }
 
 input BalanceFilterInput {
@@ -33,11 +37,20 @@ input BalanceFilterInput {
   owner: Address!
 }
 
+type Blob {
+  id: BlobId!
+  bytecode: HexString!
+}
+
+scalar BlobId
+
 type Block {
+  version: BlockVersion!
   id: BlockId!
   height: U32!
   header: Header!
   consensus: Consensus!
+  transactionIds: [TransactionId!]!
   transactions: [Transaction!]!
 }
 
@@ -54,14 +67,18 @@ type BlockConnection {
 
 # An edge in a connection.
 type BlockEdge {
-  # A cursor for use in pagination
-  cursor: String!
-
   # The item at the end of the edge
   node: Block!
+
+  # A cursor for use in pagination
+  cursor: String!
 }
 
 scalar BlockId
+
+enum BlockVersion {
+  V1
+}
 
 # Breakpoint, defined as a tuple of contract ID and relative PC offset inside it
 input Breakpoint {
@@ -111,11 +128,11 @@ type CoinConnection {
 
 # An edge in a connection.
 type CoinEdge {
-  # A cursor for use in pagination
-  cursor: String!
-
   # The item at the end of the edge
   node: Coin!
+
+  # A cursor for use in pagination
+  cursor: String!
 }
 
 input CoinFilterInput {
@@ -146,6 +163,7 @@ type ConsensusParameters {
   feeParams: FeeParameters!
   baseAssetId: AssetId!
   blockGasLimit: U64!
+  blockTransactionSizeLimit: U64!
   chainId: U64!
   gasCosts: GasCosts!
   privilegedAddress: Address!
@@ -185,11 +203,11 @@ type ContractBalanceConnection {
 
 # An edge in a connection.
 type ContractBalanceEdge {
-  # A cursor for use in pagination
-  cursor: String!
-
   # The item at the end of the edge
   node: ContractBalance!
+
+  # A cursor for use in pagination
+  cursor: String!
 }
 
 input ContractBalanceFilterInput {
@@ -218,6 +236,10 @@ type ContractParameters {
 
 enum ContractParametersVersion {
   V1
+}
+
+type DaCompressedBlock {
+  bytes: HexString!
 }
 
 union DependentCost = LightOperation | HeavyOperation
@@ -259,7 +281,9 @@ input ExcludeInput {
 
 type FailureStatus {
   transactionId: TransactionId!
+  blockHeight: U32!
   block: Block!
+  transaction: Transaction!
   time: Tai64Timestamp!
   reason: String!
   programState: ProgramState
@@ -368,10 +392,16 @@ type GasCosts {
   wqmm: U64!
   xor: U64!
   xori: U64!
+  alocDependentCost: DependentCost!
+  bldd: DependentCost
+  bsiz: DependentCost
+  cfe: DependentCost!
+  cfeiDependentCost: DependentCost!
   call: DependentCost!
   ccp: DependentCost!
   croo: DependentCost!
   csiz: DependentCost!
+  ed19DependentCost: DependentCost!
   k256: DependentCost!
   ldc: DependentCost!
   logd: DependentCost!
@@ -415,6 +445,9 @@ type Genesis {
 }
 
 type Header {
+  # Version of the header
+  version: HeaderVersion!
+
   # Hash of the header
   id: BlockId!
 
@@ -453,6 +486,10 @@ type Header {
 
   # Hash of the application header.
   applicationHash: Bytes32!
+}
+
+enum HeaderVersion {
+  V1
 }
 
 type HeavyOperation {
@@ -542,11 +579,11 @@ type MessageConnection {
 
 # An edge in a connection.
 type MessageEdge {
-  # A cursor for use in pagination
-  cursor: String!
-
   # The item at the end of the edge
   node: Message!
+
+  # A cursor for use in pagination
+  cursor: String!
 }
 
 type MessageProof {
@@ -605,6 +642,7 @@ type Mutation {
   dryRun(
     txs: [HexString!]!
     utxoValidation: Boolean
+    gasPrice: U64
   ): [DryRunTransactionExecutionStatus!]!
 
   # Submits transaction to the `TxPool`.
@@ -728,6 +766,10 @@ type Query {
     last: Int
     before: String
   ): BalanceConnection!
+  blob(
+    # ID of the Blob
+    id: BlobId!
+  ): Blob
   block(
     # ID of the block
     id: BlockId
@@ -790,12 +832,16 @@ type Query {
     # The `Address` of the coins owner.
     owner: Address!
 
-    # The list of requested assets` coins with asset ids, `target` amount the user wants to reach, and the `max` number of coins in the selection. Several entries with the same asset id are not allowed.
+    # The list of requested assets` coins with asset ids, `target` amount the user wants to reach, and the `max` number of coins in the selection. Several entries with the same asset id are not allowed. The result can't contain more coins than `max_inputs`.
     queryPerAsset: [SpendQueryElementInput!]!
 
     # The excluded coins from the selection.
     excludedIds: ExcludeInput
   ): [[CoinType!]!]!
+  daCompressedBlock(
+    # Height of the block
+    height: U32!
+  ): DaCompressedBlock
   contract(
     # ID of the Contract
     id: ContractId!
@@ -837,6 +883,9 @@ type Query {
     # The id of the relayed tx
     id: RelayedTransactionId!
   ): RelayedTransactionStatus
+  consensusParameters(version: Int!): ConsensusParameters!
+  stateTransitionBytecodeByVersion(version: Int!): StateTransitionBytecode
+  stateTransitionBytecodeByRoot(root: HexString!): StateTransitionBytecode!
 }
 
 type Receipt {
@@ -946,6 +995,11 @@ type SqueezedOutStatus {
   reason: String!
 }
 
+type StateTransitionBytecode {
+  root: HexString!
+  bytecode: UploadedBytecode!
+}
+
 type StateTransitionPurpose {
   root: Bytes32!
 }
@@ -974,11 +1028,18 @@ type Subscription {
 
   # Submits transaction to the `TxPool` and await either confirmation or failure.
   submitAndAwait(tx: HexString!): TransactionStatus!
+
+  # Submits the transaction to the `TxPool` and returns a stream of events.
+  # Compared to the `submitAndAwait`, the stream also contains `
+  # SubmittedStatus` as an intermediate state.
+  submitAndAwaitStatus(tx: HexString!): TransactionStatus!
 }
 
 type SuccessStatus {
   transactionId: TransactionId!
+  blockHeight: U32!
   block: Block!
+  transaction: Transaction!
   time: Tai64Timestamp!
   programState: ProgramState
   receipts: [Receipt!]!
@@ -1005,6 +1066,7 @@ type Transaction {
   isMint: Boolean!
   isUpgrade: Boolean!
   isUpload: Boolean!
+  isBlob: Boolean!
   inputs: [Input!]
   outputs: [Output!]!
   outputContract: ContractOutput
@@ -1014,6 +1076,7 @@ type Transaction {
   script: HexString
   scriptData: HexString
   bytecodeWitnessIndex: U16
+  blobId: BlobId
   salt: Salt
   storageSlots: [HexString!]
   bytecodeRoot: Bytes32
@@ -1039,11 +1102,11 @@ type TransactionConnection {
 
 # An edge in a connection.
 type TransactionEdge {
-  # A cursor for use in pagination
-  cursor: String!
-
   # The item at the end of the edge
   node: Transaction!
+
+  # A cursor for use in pagination
+  cursor: String!
 }
 
 scalar TransactionId
@@ -1077,6 +1140,17 @@ scalar U32
 scalar U64
 
 union UpgradePurpose = ConsensusParametersPurpose | StateTransitionPurpose
+
+type UploadedBytecode {
+  # Combined bytecode of all uploaded subsections.
+  bytecode: HexString!
+
+  # Number of uploaded subsections (if incomplete).
+  uploadedSubsectionsNumber: Int
+
+  # Indicates if the bytecode upload is complete.
+  completed: Boolean!
+}
 
 scalar UtxoId
 

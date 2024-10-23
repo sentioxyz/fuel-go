@@ -19,9 +19,9 @@ func Test_jsonMarshalScalar(t *testing.T) {
 		C1 Address
 		C2 *Address
 		C3 *Address
-		D1 U8
-		D2 *U8
-		D3 *U8
+		D1 U16
+		D2 *U16
+		D3 *U16
 		E1 String
 		E2 *String
 		E3 *String
@@ -29,7 +29,7 @@ func Test_jsonMarshalScalar(t *testing.T) {
 
 	{
 		var bv Boolean
-		var u8v U8 = 101
+		var u8v U16 = 101
 		var sv String = "def"
 		a := typ{
 			A1: HexString{Bytes: []byte{1, 2, 3, 4}},

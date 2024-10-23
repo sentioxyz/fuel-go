@@ -29,3 +29,4 @@ scalarMapper:
   U32: uint32
   U64: uint64
   UtxoId: hexutil.Bytes
+  BlobId: hexutil.Bytes

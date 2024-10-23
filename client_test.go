@@ -64,12 +64,14 @@ func Test_ExecuteQuery(t *testing.T) {
 
 func Test_GenObjectQuery(t *testing.T) {
 	assert.Equal(t,
-		"id height header { id daHeight consensusParametersVersion stateTransitionBytecodeVersion transactionsCount messageReceiptCount transactionsRoot messageOutboxRoot eventInboxRoot height prevRoot time applicationHash } consensus { __typename ... on Genesis { chainConfigHash coinsRoot contractsRoot messagesRoot transactionsRoot } ... on PoAConsensus { signature } } ",
+		"version id height header { version id daHeight consensusParametersVersion stateTransitionBytecodeVersion transactionsCount messageReceiptCount transactionsRoot messageOutboxRoot eventInboxRoot height prevRoot time applicationHash } consensus { __typename ... on Genesis { chainConfigHash coinsRoot contractsRoot messagesRoot transactionsRoot } ... on PoAConsensus { signature } } transactionIds ",
 		query.Simple.GenObjectQuery(types.Block{}, query.IgnoreObjects(types.Transaction{})),
 	)
-	assert.Equal(t, `id
+	assert.Equal(t, `version
+id
 height
 header {
+  version
   id
   daHeight
   consensusParametersVersion
@@ -97,12 +99,13 @@ consensus {
     signature
   }
 }
+transactionIds
 `,
 		query.Beauty.GenObjectQuery(types.Block{}, query.IgnoreObjects(types.Transaction{})),
 	)
 
 	assert.Equal(t,
-		"id height header { id daHeight consensusParametersVersion stateTransitionBytecodeVersion transactionsCount messageReceiptCount transactionsRoot messageOutboxRoot eventInboxRoot height prevRoot time applicationHash } consensus { __typename ... on Genesis { chainConfigHash coinsRoot contractsRoot messagesRoot transactionsRoot } ... on PoAConsensus { signature } } transactions { id inputAssetIds inputContracts inputContract { utxoId balanceRoot stateRoot txPointer contractId } policies { tip witnessLimit maturity maxFee } scriptGasLimit maturity mintAmount mintAssetId mintGasPrice txPointer isScript isCreate isMint isUpgrade isUpload inputs { __typename ... on InputCoin { utxoId owner amount assetId txPointer witnessIndex predicateGasUsed predicate predicateData } ... on InputContract { utxoId balanceRoot stateRoot txPointer contractId } ... on InputMessage { sender recipient amount nonce witnessIndex predicateGasUsed data predicate predicateData } } outputs { __typename ... on CoinOutput { to amount assetId } ... on ContractOutput { inputIndex balanceRoot stateRoot } ... on ChangeOutput { to amount assetId } ... on VariableOutput { to amount assetId } ... on ContractCreated { contract stateRoot } } outputContract { inputIndex balanceRoot stateRoot } witnesses receiptsRoot status { __typename ... on SubmittedStatus { time } ... on SqueezedOutStatus { reason } } script scriptData bytecodeWitnessIndex salt storageSlots bytecodeRoot subsectionIndex subsectionsNumber proofSet upgradePurpose { __typename ... on ConsensusParametersPurpose { witnessIndex checksum } ... on StateTransitionPurpose { root } } rawPayload } ",
+		"version id height header { version id daHeight consensusParametersVersion stateTransitionBytecodeVersion transactionsCount messageReceiptCount transactionsRoot messageOutboxRoot eventInboxRoot height prevRoot time applicationHash } consensus { __typename ... on Genesis { chainConfigHash coinsRoot contractsRoot messagesRoot transactionsRoot } ... on PoAConsensus { signature } } transactionIds transactions { id inputAssetIds inputContracts inputContract { utxoId balanceRoot stateRoot txPointer contractId } policies { tip witnessLimit maturity maxFee } scriptGasLimit maturity mintAmount mintAssetId mintGasPrice txPointer isScript isCreate isMint isUpgrade isUpload isBlob inputs { __typename ... on InputCoin { utxoId owner amount assetId txPointer witnessIndex predicateGasUsed predicate predicateData } ... on InputContract { utxoId balanceRoot stateRoot txPointer contractId } ... on InputMessage { sender recipient amount nonce witnessIndex predicateGasUsed data predicate predicateData } } outputs { __typename ... on CoinOutput { to amount assetId } ... on ContractOutput { inputIndex balanceRoot stateRoot } ... on ChangeOutput { to amount assetId } ... on VariableOutput { to amount assetId } ... on ContractCreated { contract stateRoot } } outputContract { inputIndex balanceRoot stateRoot } witnesses receiptsRoot status { __typename ... on SubmittedStatus { time } ... on SqueezedOutStatus { reason } } script scriptData bytecodeWitnessIndex blobId salt storageSlots bytecodeRoot subsectionIndex subsectionsNumber proofSet upgradePurpose { __typename ... on ConsensusParametersPurpose { witnessIndex checksum } ... on StateTransitionPurpose { root } } rawPayload } ",
 		query.Simple.GenObjectQuery(types.Block{}, query.IgnoreObjects(types.SuccessStatus{}, types.FailureStatus{})),
 	)
 }
@@ -143,10 +146,13 @@ func Test_Union_marshalJSON(t *testing.T) {
 			TransactionId: types.TransactionId{
 				Hash: common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000123"),
 			},
+			BlockHeight: 5,
 			Block: types.Block{
-				Id:     types.BlockId{Hash: common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000001")},
-				Height: 5,
+				Version: "V1",
+				Id:      types.BlockId{Hash: common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000001")},
+				Height:  5,
 				Header: types.Header{
+					Version:             "V1",
 					Id:                  types.BlockId{Hash: common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000001")},
 					DaHeight:            2,
 					TransactionsCount:   3,
@@ -155,6 +161,9 @@ func Test_Union_marshalJSON(t *testing.T) {
 					Time:                types.Tai64Timestamp{Time: time.Date(2024, time.April, 15, 2, 44, 2, 0, time.UTC)},
 				},
 			},
+			Transaction: types.Transaction{
+				Id: types.TransactionId{Hash: common.HexToHash("0x9999")},
+			},
 		},
 	}
 	text, err := json.MarshalIndent(status, "", "  ")
@@ -162,10 +171,13 @@ func Test_Union_marshalJSON(t *testing.T) {
 	assert.Equal(t, `{
   "__typename": "SuccessStatus",
   "transactionId": "0x0000000000000000000000000000000000000000000000000000000000000123",
+  "blockHeight": "5",
   "block": {
+    "version": "V1",
     "id": "0x0000000000000000000000000000000000000000000000000000000000000001",
     "height": "5",
     "header": {
+      "version": "V1",
       "id": "0x0000000000000000000000000000000000000000000000000000000000000001",
       "daHeight": "2",
       "consensusParametersVersion": "0",
@@ -181,7 +193,45 @@ func Test_Union_marshalJSON(t *testing.T) {
       "applicationHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
     },
     "consensus": null,
+    "transactionIds": null,
     "transactions": null
+  },
+  "transaction": {
+    "id": "0x0000000000000000000000000000000000000000000000000000000000009999",
+    "inputAssetIds": null,
+    "inputContracts": null,
+    "inputContract": null,
+    "policies": null,
+    "scriptGasLimit": null,
+    "maturity": null,
+    "mintAmount": null,
+    "mintAssetId": null,
+    "mintGasPrice": null,
+    "txPointer": null,
+    "isScript": false,
+    "isCreate": false,
+    "isMint": false,
+    "isUpgrade": false,
+    "isUpload": false,
+    "isBlob": false,
+    "inputs": null,
+    "outputs": null,
+    "outputContract": null,
+    "witnesses": null,
+    "receiptsRoot": null,
+    "status": null,
+    "script": null,
+    "scriptData": null,
+    "bytecodeWitnessIndex": null,
+    "blobId": null,
+    "salt": null,
+    "storageSlots": null,
+    "bytecodeRoot": null,
+    "subsectionIndex": null,
+    "subsectionsNumber": null,
+    "proofSet": null,
+    "upgradePurpose": null,
+    "rawPayload": "0x"
   },
   "time": "4611685956291791114",
   "programState": null,
@@ -237,6 +287,7 @@ func Test_marshalStructpb(t *testing.T) {
 		"isMint":         structpb.NewBoolValue(false),
 		"isUpgrade":      structpb.NewBoolValue(false),
 		"isUpload":       structpb.NewBoolValue(false),
+		"isBlob":         structpb.NewBoolValue(false),
 		"inputs": structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{
 			structpb.NewStructValue(&structpb.Struct{Fields: map[string]*structpb.Value{
 				"__typename":  structpb.NewStringValue("InputContract"),
@@ -279,11 +330,14 @@ func Test_marshalStructpb(t *testing.T) {
 		"receiptsRoot": structpb.NewStringValue("0x74ab41b67d3e1ccb4bda92dfac21bfb448f80d0500b3cd56480aaee2fa37cbf0"),
 		"status": structpb.NewStructValue(&structpb.Struct{Fields: map[string]*structpb.Value{
 			"__typename":    structpb.NewStringValue("SuccessStatus"),
+			"blockHeight":   structpb.NewStringValue("1067005"),
 			"transactionId": structpb.NewStringValue("0x0ec0390a47eb248d579c74861d747259c2a2a3f4c5c4cdccf049f0670b9a4485"),
 			"block": structpb.NewStructValue(&structpb.Struct{Fields: map[string]*structpb.Value{
-				"id":     structpb.NewStringValue("0x0000000000000000000000000000000000000000000000000000000000000000"),
-				"height": structpb.NewStringValue("0"),
+				"version": structpb.NewStringValue(""),
+				"id":      structpb.NewStringValue("0x0000000000000000000000000000000000000000000000000000000000000000"),
+				"height":  structpb.NewStringValue("0"),
 				"header": structpb.NewStructValue(&structpb.Struct{Fields: map[string]*structpb.Value{
+					"version":                        structpb.NewStringValue(""),
 					"id":                             structpb.NewStringValue("0x0000000000000000000000000000000000000000000000000000000000000000"),
 					"daHeight":                       structpb.NewStringValue("0"),
 					"consensusParametersVersion":     structpb.NewStringValue("0"),
@@ -298,7 +352,25 @@ func Test_marshalStructpb(t *testing.T) {
 					"time":                           structpb.NewStringValue("4611685956291791114"),
 					"applicationHash":                structpb.NewStringValue("0x0000000000000000000000000000000000000000000000000000000000000000"),
 				}}),
-				"transactions": structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{}}),
+				"transactionIds": structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{}}),
+				"transactions":   structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{}}),
+			}}),
+			"transaction": structpb.NewStructValue(&structpb.Struct{Fields: map[string]*structpb.Value{
+				"id":             structpb.NewStringValue("0x0000000000000000000000000000000000000000000000000000000000000000"),
+				"inputAssetIds":  structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{}}),
+				"inputContracts": structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{}}),
+				"inputs":         structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{}}),
+				"outputs":        structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{}}),
+				"proofSet":       structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{}}),
+				"storageSlots":   structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{}}),
+				"witnesses":      structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{}}),
+				"isScript":       structpb.NewBoolValue(false),
+				"isCreate":       structpb.NewBoolValue(false),
+				"isMint":         structpb.NewBoolValue(false),
+				"isUpgrade":      structpb.NewBoolValue(false),
+				"isUpload":       structpb.NewBoolValue(false),
+				"isBlob":         structpb.NewBoolValue(false),
+				"rawPayload":     structpb.NewStringValue("0x"),
 			}}),
 			"receipts": structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{
 				structpb.NewStructValue(&structpb.Struct{Fields: map[string]*structpb.Value{

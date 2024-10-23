@@ -19,13 +19,15 @@ func Test_GetBlock0(t *testing.T) {
 	}, GetBlockOption{})
 	assert.NoError(t, err)
 	assert.Equal(t, &types.Block{
-		Id:     types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
-		Height: 1067005,
+		Version: "V1",
+		Id:      types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
+		Height:  1067005,
 	}, block)
 }
 
 var (
 	header_1067005 = types.Header{
+		Version:                        "V1",
 		Id:                             types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
 		DaHeight:                       5997348,
 		ConsensusParametersVersion:     1,
@@ -48,6 +50,10 @@ var (
 			},
 		},
 	}
+	txnIdList_1067005 = []types.TransactionId{
+		{Hash: common.HexToHash("0x0ec0390a47eb248d579c74861d747259c2a2a3f4c5c4cdccf049f0670b9a4485")},
+		{Hash: common.HexToHash("0xb0b4aaafa1df52c844ea4b970d40397ef2880087f8bd8d45619e7cac95b1c0d8")},
+	}
 )
 
 func Test_GetBlock1(t *testing.T) {
@@ -57,6 +63,7 @@ func Test_GetBlock1(t *testing.T) {
 	}, GetBlockOption{WithHeader: true, WithConsensus: true})
 	assert.NoError(t, err)
 	assert.Equal(t, &types.Block{
+		Version:   "V1",
 		Id:        types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
 		Height:    1067005,
 		Header:    header_1067005,
@@ -71,8 +78,10 @@ func Test_GetBlock2(t *testing.T) {
 	}, GetBlockOption{WithTransactions: true})
 	assert.NoError(t, err)
 	assert.Equal(t, &types.Block{
-		Id:     types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
-		Height: 1067005,
+		Version:        "V1",
+		Id:             types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
+		Height:         1067005,
+		TransactionIds: txnIdList_1067005,
 		Transactions: []types.Transaction{{
 			Id: types.TransactionId{Hash: common.HexToHash("0x0ec0390a47eb248d579c74861d747259c2a2a3f4c5c4cdccf049f0670b9a4485")},
 		}, {
@@ -87,9 +96,11 @@ func Test_GetBlock3(t *testing.T) {
 		Id: &types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
 	}, GetBlockOption{WithTransactions: true, WithTransactionDetail: true, WithTransactionReceipts: true})
 	exp := &types.Block{
-		Id:           types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
-		Height:       1067005,
-		Transactions: []types.Transaction{txn_1067005_0, txn_1067005_1},
+		Version:        "V1",
+		Id:             types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
+		Height:         1067005,
+		TransactionIds: txnIdList_1067005,
+		Transactions:   []types.Transaction{txn_1067005_0, txn_1067005_1},
 	}
 	assert.NoError(t, err)
 	assert.Equal(t, exp, block)
@@ -102,19 +113,22 @@ func Test_GetBlock4(t *testing.T) {
 	}, GetBlockOption{})
 	assert.NoError(t, err)
 	assert.Equal(t, &types.Block{
-		Id:     types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
-		Height: 1067005,
+		Version: "V1",
+		Id:      types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
+		Height:  1067005,
 	}, block)
 }
 
 func Test_GetBlock_marshalJSON(t *testing.T) {
 	block := types.Block{
-		Id:     types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
-		Height: 9758550,
+		Version: "V1",
+		Id:      types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
+		Height:  9758550,
 		Header: types.Header{
-			Id:     types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
-			Height: 9758550,
-			Time:   types.Tai64Timestamp{Time: time.Date(2024, time.April, 5, 1, 2, 3, 0, time.UTC)},
+			Version: "V1",
+			Id:      types.BlockId{Hash: common.HexToHash("0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c")},
+			Height:  9758550,
+			Time:    types.Tai64Timestamp{Time: time.Date(2024, time.April, 5, 1, 2, 3, 0, time.UTC)},
 		},
 		Consensus: types.Consensus{
 			TypeName_: "PoAConsensus",
@@ -126,9 +140,11 @@ func Test_GetBlock_marshalJSON(t *testing.T) {
 	text, err := json.MarshalIndent(block, "", "  ")
 	assert.NoError(t, err)
 	assert.Equal(t, `{
+  "version": "V1",
   "id": "0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c",
   "height": "9758550",
   "header": {
+    "version": "V1",
     "id": "0x5d7f48fc777144b21ea760525936db069329dee2ccce509550c1478c1c0b5b2c",
     "daHeight": "0",
     "consensusParametersVersion": "0",
@@ -147,6 +163,7 @@ func Test_GetBlock_marshalJSON(t *testing.T) {
     "__typename": "PoAConsensus",
     "signature": "0x123456"
   },
+  "transactionIds": null,
   "transactions": null
 }`, string(text))
 
@@ -164,10 +181,12 @@ func Test_GetBlocks(t *testing.T) {
 	}}, GetBlockOption{})
 	assert.NoError(t, err)
 	assert.Equal(t, []*types.Block{{
-		Id:     types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
-		Height: 1067005,
+		Version: "V1",
+		Id:      types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
+		Height:  1067005,
 	}, {
-		Id:     types.BlockId{Hash: common.HexToHash("0xae197dbe746cc36784aaff0cf38e1678dbc6ee6b85b15d6bb2c3e932c2ad156d")},
-		Height: 1067006,
+		Version: "V1",
+		Id:      types.BlockId{Hash: common.HexToHash("0xae197dbe746cc36784aaff0cf38e1678dbc6ee6b85b15d6bb2c3e932c2ad156d")},
+		Height:  1067006,
 	}}, blocks)
 }

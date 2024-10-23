@@ -45,6 +45,7 @@ var (
 		IsMint:         false,
 		IsUpgrade:      false,
 		IsUpload:       false,
+		IsBlob:         false,
 		Inputs: []types.Input{{
 			TypeName_: "InputContract",
 			InputContract: &types.InputContract{
@@ -92,6 +93,7 @@ var (
 			TypeName_: "SuccessStatus",
 			SuccessStatus: &types.SuccessStatus{
 				TransactionId: types.TransactionId{Hash: common.HexToHash("0x0ec0390a47eb248d579c74861d747259c2a2a3f4c5c4cdccf049f0670b9a4485")},
+				BlockHeight:   1067005,
 				Time:          types.Tai64Timestamp{Time: time.Date(2024, time.May, 29, 1, 43, 37, 0, time.UTC)},
 				ProgramState: &types.ProgramState{
 					ReturnType: "RETURN",
@@ -177,6 +179,7 @@ var (
 		Script:               &types.HexString{Bytes: common.FromHex("0x724028c0724428985d451000724828a02d41148a24040000")},
 		ScriptData:           &types.HexString{Bytes: common.FromHex("0x00000000000000000000000000000000000000000000000000000000000000000000000000000000db0d550935d601c45791ba18664f0a821c11745b1f938e87f10a79e21988e85000000000000028f000000000000029010000000000000009696e6372656d656e740000000800000000000000011111111111111111111111111111111111111111111111111111111111111111")},
 		BytecodeWitnessIndex: nil,
+		BlobId:               nil,
 		Salt:                 nil,
 		StorageSlots:         nil,
 		BytecodeRoot:         nil,
@@ -212,6 +215,7 @@ var (
 		IsMint:         true,
 		IsUpgrade:      false,
 		IsUpload:       false,
+		IsBlob:         false,
 		Inputs:         nil,
 		Outputs:        []types.Output{},
 		OutputContract: &types.ContractOutput{
@@ -225,6 +229,7 @@ var (
 			TypeName_: "SuccessStatus",
 			SuccessStatus: &types.SuccessStatus{
 				TransactionId: types.TransactionId{Hash: common.HexToHash("0xb0b4aaafa1df52c844ea4b970d40397ef2880087f8bd8d45619e7cac95b1c0d8")},
+				BlockHeight:   1067005,
 				Time:          types.Tai64Timestamp{Time: time.Date(2024, time.May, 29, 1, 43, 37, 0, time.UTC)},
 				ProgramState:  nil,
 				Receipts:      []types.Receipt{},
@@ -235,6 +240,7 @@ var (
 		Script:               nil,
 		ScriptData:           nil,
 		BytecodeWitnessIndex: nil,
+		BlobId:               nil,
 		Salt:                 nil,
 		StorageSlots:         nil,
 		BytecodeRoot:         nil,
@@ -272,10 +278,12 @@ func Test_GetTransaction2(t *testing.T) {
 	succ := *(txn_1067005_0.Status.SuccessStatus)
 	succ.Receipts = nil
 	succ.Block = types.Block{
-		Id:        types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
-		Height:    1067005,
-		Header:    header_1067005,
-		Consensus: consensus_1067005,
+		Version:        "V1",
+		Id:             types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
+		Height:         1067005,
+		Header:         header_1067005,
+		Consensus:      consensus_1067005,
+		TransactionIds: txnIdList_1067005,
 	}
 	status := types.TransactionStatus{
 		TypeName_:     "SuccessStatus",
@@ -297,10 +305,12 @@ func Test_GetTransaction3(t *testing.T) {
 	assert.NoError(t, err)
 	succ := *(txn_1067005_0.Status.SuccessStatus)
 	succ.Block = types.Block{
-		Id:        types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
-		Height:    1067005,
-		Header:    header_1067005,
-		Consensus: consensus_1067005,
+		Version:        "V1",
+		Id:             types.BlockId{Hash: common.HexToHash("0x4e02668366cbdc2ea9197fa3a84e57e723028de5fe4f574ccaa7b6b744ced495")},
+		Height:         1067005,
+		Header:         header_1067005,
+		Consensus:      consensus_1067005,
+		TransactionIds: txnIdList_1067005,
 	}
 	status := types.TransactionStatus{
 		TypeName_:     "SuccessStatus",
