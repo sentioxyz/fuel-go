@@ -12,16 +12,37 @@ import (
 
 type Client struct {
 	endpoint   string
-	httpClient http.Client
+	httpClient *http.Client
 	logger     Logger
 }
 
-func NewClient(endpoint string) *Client {
-	return &Client{endpoint: endpoint}
+type Options func(*Client)
+
+func WithHTTPClient(cli *http.Client) Options {
+	return func(c *Client) {
+		c.httpClient = cli
+	}
+}
+
+func WithLogger(logger Logger) Options {
+	return func(c *Client) {
+		c.logger = logger
+	}
+}
+
+func NewClient(endpoint string, opts ...Options) *Client {
+	c := &Client{endpoint: endpoint}
+	for _, opt := range opts {
+		opt(c)
+	}
+	if c.httpClient == nil {
+		c.httpClient = &http.Client{}
+	}
+	return c
 }
 
 func NewClientWithLogger(endpoint string, logger Logger) *Client {
-	return &Client{endpoint: endpoint, logger: logger}
+	return NewClient(endpoint, WithLogger(logger))
 }
 
 type QueryErrorLocation struct {
